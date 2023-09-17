@@ -7,6 +7,8 @@ The first benchmark test for this project follows [Python Flask](https://flask.p
 - [Python Flask Quickstart](https://flask.palletsprojects.com/en/2.3.x/quickstart/#a-minimal-application)
 - [Pythonistaplanet.com](https://pythonistaplanet.com/flask/)
 - [Flask Calculator](https://medium.com/@alanbanks229/part-2-of-2-introduction-to-python-flask-29b58adbabaf)
+- [Flask-SQLAlchemy Quickstart](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/quickstart/)
+- [To-Do List](https://pythonistaplanet.com/flask-to-do-list/)
   
 ### Prerequisites
 #### Python
@@ -17,7 +19,7 @@ It is recommended that users create a [Python Virtual Environment](https://docs.
 
 #### Installing Dependencies
 - [Python Flask](https://flask.palletsprojects.com/en/2.3.x/installation/) will install Flask and the required dependencies. It is installed via the command: `pip install Flask`
-- [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/) will be required to use the SQLite database for this project. It is installed via the command: `pip install Flask-SQLAlchemy`
+- [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/) is required to use the SQLite database for this project. It is installed via the command: `pip install Flask-SQLAlchemy`
 
 ### Running the Project
 #### Activating the Project
@@ -38,8 +40,10 @@ There are a few routes currently available to users:
 - "/hello/<name>": This page displays 'Hello, "<name>"' on the page as <h1>.
 - "/calculator/": This page functions as a simple calculator. It operates as a FORM and will POST the solution (and any generated error messages) to the page "/calculator_result/"
 - "/calculator_result/": URL for the POST request of the given calculator operations.
+- "/tasks": Allows user to add/remove/modify simple items in the db.
 
 ### To Do
 - [ ] Index Page:   Add links to the various viable URL pages on webpage.
 - [ ] Index Page:   Add description for website.
-- [ ] db.py:        Test creating and using a SQLite database.
+- [x] app.py:       Test creating and using a SQLite database.
+- [ ] db.py:        Organize db related tasks into db.py.
