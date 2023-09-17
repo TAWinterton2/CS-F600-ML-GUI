@@ -1,6 +1,6 @@
 # https://flask.palletsprojects.com/en/2.3.x/quickstart/#a-minimal-application
 # https://pythonistaplanet.com/flask-to-do-list/
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from markupsafe import escape
 
 # Name of the module initializing / running the program
