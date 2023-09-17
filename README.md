@@ -38,9 +38,9 @@ If app.py is renamed to something else, the command to run the project will chan
 There are a few routes currently available to users:
 - "/": The default index page, this simply displays text to the webpage that says "Index Page"
 - "/hello": This page displays 'Hello, World' to the screen.
-- "/<name>": This pages displays 'Hello, <name>' to the screen. Its main purpose is to practice HTML escaping.
-- "/hello/": This page displays 'Hello, World' as following the "<h1>" format instead of simple html text.
-- "/hello/'<name>'": This page displays "Hello, '<name>'" on the page as following the "<h1>" format instead of simple html text.
+- "/name": This pages displays 'Hello, "name"' to the screen. Its main purpose is to practice HTML escaping.
+- "/hello/": This page displays 'Hello, World' as following the "h1" format instead of simple html text.
+- "/hello/'name'": This page displays 'Hello, "name"' on the page as following the "h1" format instead of simple html text.
 - "/calculator/": This page functions as a simple calculator. It operates as a FORM and will POST the solution (and any generated error messages) to the page "/calculator_result/"
 - "/calculator_result/": URL for the POST request of the given calculator operations.
 
