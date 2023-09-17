@@ -1,4 +1,5 @@
 # https://flask.palletsprojects.com/en/2.3.x/quickstart/#a-minimal-application
+# https://pythonistaplanet.com/flask-to-do-list/
 from flask import Flask, render_template
 from markupsafe import escape
 
@@ -17,7 +18,8 @@ def hello():
 
 # If the user is providing text input, it needs to be escaped to prevent injection attacks.
 # "render_template" allows Jinja2 to load html for webpages.
-@app.route("/<name>")
+@app.route("/hello/")
+@app.route("/hello/<name>")
 def hello_name(name=None):
     return render_template('name.html', name=name)
 
