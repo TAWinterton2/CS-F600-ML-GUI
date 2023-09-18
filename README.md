@@ -26,7 +26,7 @@ It is recommended that users create a [Python Virtual Environment](https://docs.
 
 ### Running the Project
 #### Activating the Project
-The following command will start the project: 
+On command line, navigate to the directory that contains `app.py`. The following command will start the project: 
 `flask run`
 
 This will open up the app on `http://127.0.0.1:5000` (unless changed by the user).
