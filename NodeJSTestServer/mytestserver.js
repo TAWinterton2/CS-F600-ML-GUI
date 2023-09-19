@@ -1,37 +1,18 @@
 var http = require('http');
 var fs = require('fs');
 var querystring = require('querystring');
-
+//var formidable = require('formidable'); // allows for file uploads 
 
 
 
 
 let handleRequest = (req, res) => {
 
-	if(req.method === 'POST' && req.url === '/submit') 
+	if(req.method === 'POST') 
 	{ // check for form submission 
-		let requestBody = '';
+		res.write('<p> file uploaded!');
+		res.end();
 		
-		req.on('data', (data) => {
-			requestBody += data.toString();
-		});
-		
-		req.on('end', () => {
-			// Parse the form
-			
-			const formData = querystring.parse(requestBody);
-			const feedback = formData.feedback;
-			
-			res.writeHead(200, {'Content-type': 'text/html' });
-			res.write('<h1> Feedback Received!<h1>');
-			res.write('<p> Thank you for the feedback!' + feedback + "</p>");
-			
-			
-			res.end();
-			
-		
-		
-		}); 
 		
 	}
 	else // Display htlmpage 
