@@ -5,11 +5,10 @@
 </head>
 <body>
 <h1> Test Feedback Form </h1>
-<form action="/submit" method="post">
-        <label for="feedback">Feedback:</label><br>
-        <input type="text" id="feedback" name="feedback" required>
-        <button type="submit">Submit</button>
+<form action="upload" method="POST" enctype="multipart/form-data">
+	<label for="file">Select a CSV file to upload:</label> <br>
+	<input type="file" name="file" id="file"> <br>
+	<input type="submit" value="Upload File">
 </form>
-	<div id="feedbackMessage"></div>
 </body>
 </html>
