@@ -3,6 +3,9 @@ const fs = require('fs');
 const multer = require('multer');
 const csv = require('csv-parser');
 const express = require('express');
+const bodyParser = require('body-parser');
+
+
 
 
 const app = express(); //create an express application 
@@ -19,12 +22,33 @@ const upload = multer({
 
 // Serve statc files from 'public' directory
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.post("/upload", upload.single('csvFile'), (req, res) => {
 	if (!req.file) {
 	  return res.status(400).send('No file uploaded');
 	}
-	console.log("BING!");
+
+	if (!req.file.buffer) {
+        return res.status(400).send('File buffer is empty');
+    }
+
+	//check to see if csv file was uploaded 
+	if(req.file.mimetype !== 'text/csv') {
+		return res.status(400).send('Invalid File format');
+	}
+
+	//parse csv file
+	const csvData = [];
+    const csvStream = csv()
+        .on('data', (row) => {
+            csvData.push(row);
+        })
+        .on('end', () => {
+            res.end("File Uploaded");
+        });
+
+	req.file.stream.pipe(csvStream);
 
   });
   
@@ -50,6 +74,28 @@ app.get('/', (req, res) => {
 		res.end();
 	});
 });
+
+//rout to display graph
+app.get('/displaygraph.html', (req, res) =>
+{
+	fs.readFile('./displaygraph.html', null, function(error, data)
+	{
+		if(error)
+		{
+			res.writeHead(4040);
+			res.write('File not Found');
+
+		}
+		else
+		{
+			res.writeHead(200, {'Content-type': 'text/html'});
+			res.write(data);
+		}
+		res.end()
+	});
+});
+
+
 
 
 //start server
