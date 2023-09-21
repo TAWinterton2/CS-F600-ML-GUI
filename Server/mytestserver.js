@@ -25,30 +25,15 @@ const upload = multer({
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.post("/upload", upload.single('csvFile'), (req, res) => {
-	if (!req.file) {
-	  return res.status(400).send('No file uploaded');
-	}
+////////////////////////////////////////////////////////////
 
-	if (!req.file.buffer) {
-        return res.status(400).send('File buffer is empty');
-    }
 
-	//check to see if csv file was uploaded 
-	if(req.file.mimetype !== 'text/csv') {
-		return res.status(400).send('Invalid File format');
-	}
-	
-	console.log("here!");
-	console.log(__dirname);
-	
-	var fileName = req.body.csvFile
-	res.sendFile(__dirname + "/displaygraph.html");
-	
-	
+//start server
+app.listen(port, () => {
+	console.log("Server Started!");
 
-  });
-  
+});
+
 //Rout for Home page 
 
 app.get('/', (req, res) => {
@@ -69,13 +54,31 @@ app.get('/', (req, res) => {
 	});
 });
 
+app.post("/upload", upload.single('csvFile'), (req, res) => {
+	if (!req.file) {
+	  return res.status(400).send('No file uploaded');
+	}
 
+	if (!req.file.buffer) {
+        return res.status(400).send('File buffer is empty');
+    }
 
-//start server
-app.listen(port, () => {
-	console.log("Server Started!");
+	//check to see if csv file was uploaded 
+	if(req.file.mimetype !== 'text/csv') {
+		return res.status(400).send('Invalid File format');
+	}
+	
+	console.log("here!");
+	console.log(__dirname);
+	
+	var stuff = req.file["buffer"];
+	console.log(stuff.toString());
+	res.send(stuff.toString());
+	
+	
 
-});
+  });
+
 
 
 
