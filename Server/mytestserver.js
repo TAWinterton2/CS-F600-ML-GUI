@@ -3,6 +3,7 @@ const fs = require('fs');
 const multer = require('multer');
 const csv = require('csv-parser');
 const express = require('express');
+const Papa = require('papaparse');
 const bodyParser = require('body-parser');
 
 
@@ -37,28 +38,21 @@ app.post("/upload", upload.single('csvFile'), (req, res) => {
 	if(req.file.mimetype !== 'text/csv') {
 		return res.status(400).send('Invalid File format');
 	}
-
-	//parse csv file
-	const csvData = [];
-    const csvStream = csv()
-        .on('data', (row) => {
-            csvData.push(row);
-        })
-        .on('end', () => {
-            res.end("File Uploaded");
-        });
-
-	req.file.stream.pipe(csvStream);
+	
+	console.log("here!");
+	console.log(__dirname);
+	
+	var fileName = req.body.csvFile
+	res.sendFile(__dirname + "/displaygraph.html");
+	
+	
 
   });
   
-
-
-
 //Rout for Home page 
 
 app.get('/', (req, res) => {
-	fs.readFile('./testpage.html', null, function(error, data) {
+	fs.readFile('./index.html', null, function(error, data) {
 		if(error)
 		{
 			res.writeHead(404);
@@ -74,27 +68,6 @@ app.get('/', (req, res) => {
 		res.end();
 	});
 });
-
-//rout to display graph
-app.get('/displaygraph.html', (req, res) =>
-{
-	fs.readFile('./displaygraph.html', null, function(error, data)
-	{
-		if(error)
-		{
-			res.writeHead(4040);
-			res.write('File not Found');
-
-		}
-		else
-		{
-			res.writeHead(200, {'Content-type': 'text/html'});
-			res.write(data);
-		}
-		res.end()
-	});
-});
-
 
 
 
