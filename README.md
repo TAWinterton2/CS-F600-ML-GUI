@@ -63,7 +63,8 @@ Note: Ensure you are in the working directory (the directory that contains the f
 - [request-promise](https://www.npmjs.com/package/request-promise): `npm install request-promise` DO NOTE: This library is deprecated, and the script using it will be changed to remove it!
 
 
-## Activating the Project
+## Running the Project
+### Activating the Project
 Open 2 separate terminals. In both terminals, navigate to the working directory where `flask_server.py` and `app.js` are located. This should be `/benchmarks/node_flask`.
 
 Once there, install the NodeJS dependencies. These should store in the `node_modules` directory in the project. Ensure that the version of your packages that you have installed match the version found within `package.json`.
