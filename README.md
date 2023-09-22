@@ -21,7 +21,4 @@ The first benchmark test for this project follows [Python Flask](https://flask.p
 
 
 ### To Do
-- [ ] Index Page:   Add links to the various viable URL pages on webpage.
-- [ ] Index Page:   Add description for website.
-- [x] app.py:       Test creating and using a SQLite database.
-- [ ] db.py:        Organize db related tasks into db.py.
+
