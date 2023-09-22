@@ -1,18 +1,16 @@
 from flask import Flask, render_template, request, url_for, redirect, flash
-from markupsafe import escape
-from werkzeug.utils import secure_filename
 import pandas as pd
 from matplotlib.figure import Figure
 import base64
 from io import BytesIO
-from flask_cors import CORS
+
 
 # Limits allowed file extensions to csv
 ALLOWED_EXTENSIONS = {'csv'}
 
 # Name of the module initializing / running the program
 app = Flask(__name__)
-CORS(app)
+
 
 def allowed_file(filename):
     """Method to ensure that the user supplied a file with the correct extension."""
@@ -40,7 +38,7 @@ def index():
         # If the POST request does not return the file, redirect. 
         if 'file' not in request.files:
             return render_template(
-                    'index2.html',
+                    'index.html',
                     file_upload=False,
                     error="No file submitted. Please submit a file with the proper extension (csv).",
             )
@@ -51,7 +49,7 @@ def index():
         # If there is no submitted file, it will return an empty string.
         if file.filename == '':
             return render_template(
-                    'index2.html',
+                    'index.html',
                     file_upload=False,
                     error="No file submitted. Please submit a file with the proper extension (csv).",
             )
@@ -62,7 +60,7 @@ def index():
                 #df.plot()
                 line_graph = display_graph(df)
                 return render_template(
-                        'index2.html',
+                        'index.html',
                         file_upload=True,
                         file_name=file.filename,
                         tables = [df.to_html()],
@@ -72,18 +70,18 @@ def index():
             
             else:
                 return render_template(
-                        'index2.html',
+                        'index.html',
                         file_upload=False,
                         error="File extension is not correct. Please submit a file with the proper extension (csv).",
                 )
         else:
             return render_template(
-                    'index2.html',
+                    'index.html',
                     file_upload=False,
                     error= "File object is null."
             )
 
-    return render_template('index2.html')
+    return render_template('index.html')
 
 
 if __name__ == "__main__":
