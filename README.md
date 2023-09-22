@@ -41,7 +41,7 @@ If app.py is renamed to something else, the command to run the project will chan
 When running a file with this benchmark, please use `test.csv`. The code used to create the graph image does not support `dummy.csv`, as it is strictly an x-y line graph.
 
 
-# NodeJS
+# 2. NodeJS
 The first benchmark test for this project follows [NodeJS](https://nodejs.org/en). The primary resources used by the team for learning are listed below.
 - https://nodejs.org/en
 - https://www.w3schools.com/nodejs/nodejs_intro.asp
