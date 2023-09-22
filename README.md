@@ -9,26 +9,26 @@ The requirements for this benchmark testing are as follows:
 3. This csv file's contents should be displayed as a simple graph to the front end.
 4. This csv file should not be stored on the server.
    
-## Python Flask
+# 1. Python Flask
 The first benchmark test for this project utilizes [Python Flask](https://flask.palletsprojects.com/en/2.3.x/). 
   
-### Prerequisites
-#### Python
+## Prerequisites
+### Python
 [Python](https://www.python.org/downloads/) is required to run this project. This project was built utilizing Python 3.11.
 
 
-#### Creating a Virtual Environment
+### Creating a Virtual Environment
 It is recommended that users create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html) to run this project. The link for installing Python Flask also contains instructions for setting up a virtual environment.
 
 
-#### Installing Dependencies
+### Installing Dependencies
 - [Python Flask](https://flask.palletsprojects.com/en/2.3.x/installation/) will install Flask and the required dependencies. It is installed via the command: `pip install Flask`
 - [Pandas](https://pandas.pydata.org/): `pip install pandas`
 - [Matplotlib](https://matplotlib.org/): `python -m pip install -U matplotlib`
 
 
-### Running the Project
-#### Activating the Project
+## Running the Project
+### Activating the Project
 On command line, navigate to the directory that contains `app.py`. The following command will start the project: 
 `flask run`
 
@@ -40,11 +40,11 @@ If app.py is renamed to something else, the command to run the project will chan
 When running a file with this benchmark, please use `test.csv`. The code used to create the graph image does not support `dummy.csv`, as it is strictly an x-y line graph.
 
 
-## NodeJS / Python
+# 3. NodeJS / Python
 The final benchmark test attempts to implement a NodeJS map that can communicate with a Python Flask server on the side.
 
-### Prerequisites
-#### Python Dependencies
+## Prerequisites
+### Python Dependencies
 This implementation does not contain any new Python dependencies compared to the above implementation of Python Flask.
 - [Python](https://www.python.org/downloads/) 
 - [Python Flask](https://flask.palletsprojects.com/en/2.3.x/)
@@ -52,7 +52,7 @@ This implementation does not contain any new Python dependencies compared to the
 - [Matplotlib](https://matplotlib.org/): `python -m pip install -U matplotlib`
 
 
-#### NodeJS Dependencies
+### NodeJS Dependencies
 Note: Ensure you are in the working directory (the directory that contains the files `flask_server.py` and `app.js`) before installing the NodeJS dependencies.
 - [NodeJS and npm](https://nodejs.org/en/download)
 - [Express](https://expressjs.com/en/starter/installing.html): `npm install express`
@@ -63,7 +63,7 @@ Note: Ensure you are in the working directory (the directory that contains the f
 - [request-promise](https://www.npmjs.com/package/request-promise): `npm install request-promise` DO NOTE: This library is deprecated, and the script using it will be changed to remove it!
 
 
-#### Activating the Project
+## Activating the Project
 Open 2 separate terminals. In both terminals, navigate to the working directory where `flask_server.py` and `app.js` are located. This should be `/benchmarks/node_flask`.
 
 Once there, install the NodeJS dependencies. These should store in the `node_modules` directory in the project. Ensure that the version of your packages that you have installed match the version found within `package.json`.
