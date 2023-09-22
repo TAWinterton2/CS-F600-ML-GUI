@@ -15,6 +15,7 @@ The first benchmark test for this project follows [NodeJS](https://nodejs.org/en
 
 
 #### Packages
+####
 - file system (fs) (npm install fs)
 - multer (npm install multer)
 - express js (npm install expressjs)
@@ -25,12 +26,12 @@ The first benchmark test for this project follows [NodeJS](https://nodejs.org/en
 
 
 ### Running the Project
-  -download index.html and mytestserver.js
-  -install all packages above
-  -store both html and js file in same directory
-  -open terminal into directory storing files
-  -activate server using 'node mytestserver.js'
-  -open webroswer and access website by entering "localhost:8080/"
+  - download index.html and mytestserver.js
+  - install all packages above
+  - store both html and js file in same directory
+  - open terminal into directory storing files
+  - activate server using 'node mytestserver.js'
+  - open webroswer and access website by entering "localhost:8080/"
 
   ### NodejS Stress Testing
   Stress testing was done using the artillery package [https://www.artillery.io/] using the quick testing function
@@ -38,7 +39,7 @@ The first benchmark test for this project follows [NodeJS](https://nodejs.org/en
   - Make sure to have artillery installed on machince
   - start nodejs server with node mytestserver.js
   - initialize artillery test using the following line in the terminal:
-          artillery quick --count [insert virtual user count here] --num [insert http call count per user here]  http://localhost:8080
+          artillery quick --count [insert virtual user count here] --num [insert http call count per user here]  http://localhost:8080/
   
 
 
