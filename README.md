@@ -7,7 +7,6 @@ The first benchmark test for this project follows [NodeJS](https://nodejs.org/en
 - https://nodejs.org/en
 - https://www.w3schools.com/nodejs/nodejs_intro.asp
 - https://www.tutorialspoint.com/nodejs/index.htm
-- 
   
 ### Prerequisites
 #### NodeJS
