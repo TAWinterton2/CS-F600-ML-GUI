@@ -1,0 +1,22 @@
+{
+  "name": "node_flask",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "Rachel Lewis",
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "papaparse": "^5.4.1",
+    "request-promise": "^4.2.6"
+  },
+  "keywords": [],
+  "devDependencies": {},
+  "description": ""
+}

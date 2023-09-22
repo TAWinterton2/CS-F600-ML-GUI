@@ -2,13 +2,15 @@
 Repository for CSf600 Project 
 
 # Benchmark Testing
+## Benchmark Requirements
+The requirements for this benchmark testing are as follows:
+1. The website must be able to display an HTML front page.
+2. The user must be able to upload a .csv file to the website.
+3. This csv file's contents should be displayed as a simple graph to the front end.
+4. This csv file should not be stored on the server.
+   
 ## Python Flask
-The first benchmark test for this project follows [Python Flask](https://flask.palletsprojects.com/en/2.3.x/). The primary resources used by the team for learning are listed below.
-- [Python Flask Quickstart](https://flask.palletsprojects.com/en/2.3.x/quickstart/#a-minimal-application)
-- [Pythonistaplanet.com](https://pythonistaplanet.com/flask/)
-- [Flask Calculator](https://medium.com/@alanbanks229/part-2-of-2-introduction-to-python-flask-29b58adbabaf)
-- [Flask-SQLAlchemy Quickstart](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/quickstart/)
-- [To-Do List](https://pythonistaplanet.com/flask-to-do-list/)
+The first benchmark test for this project utilizes [Python Flask](https://flask.palletsprojects.com/en/2.3.x/). 
   
 ### Prerequisites
 #### Python
@@ -16,12 +18,13 @@ The first benchmark test for this project follows [Python Flask](https://flask.p
 
 
 #### Creating a Virtual Environment
-It is recommended that users create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html) to run this project. The link for installing Python Flask also contains instructions for setting up a virtual environment in Python.
+It is recommended that users create a [Python Virtual Environment](https://docs.python.org/3/library/venv.html) to run this project. The link for installing Python Flask also contains instructions for setting up a virtual environment.
 
 
 #### Installing Dependencies
 - [Python Flask](https://flask.palletsprojects.com/en/2.3.x/installation/) will install Flask and the required dependencies. It is installed via the command: `pip install Flask`
-- [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/) is required to use the SQLite database for this project. It is installed via the command: `pip install Flask-SQLAlchemy`
+- [Pandas](https://pandas.pydata.org/): `pip install pandas`
+- [Matplotlib](https://matplotlib.org/): `python -m pip install -U matplotlib`
 
 
 ### Running the Project
@@ -34,21 +37,37 @@ This will open up the app on `http://127.0.0.1:5000` (unless changed by the user
 If app.py is renamed to something else, the command to run the project will change to:
 `flask --app name_of_python_file run`
 
-
-#### Navigation
-There are a few routes currently available to users:
-- "/": The default index page, this simply displays text to the webpage that says "Index Page"
-- "/hello": This page displays 'Hello, World' to the screen.
-- "/name": This pages displays 'Hello, "name"' to the screen. Its main purpose is to practice HTML escaping.
-- "/hello/": This page displays 'Hello, World' as following the "h1" format instead of simple html text.
-- "/hello/'name'": This page displays 'Hello, "name"' on the page as following the "h1" format instead of simple html text.
-- "/calculator/": This page functions as a simple calculator. It operates as a FORM and will POST the solution (and any generated error messages) to the page "/calculator_result/"
-- "/calculator_result/": URL for the POST request of the given calculator operations.
-- "/tasks": Allows user to add/remove/modify simple items in the db.
+When running a file with this benchmark, please use `test.csv`. The code used to create the graph image does not support `dummy.csv`, as it is strictly an x-y line graph.
 
 
-### To Do
-- [ ] Index Page:   Add links to the various viable URL pages on webpage.
-- [ ] Index Page:   Add description for website.
-- [x] app.py:       Test creating and using a SQLite database.
-- [ ] db.py:        Organize db related tasks into db.py.
+## NodeJS / Python
+The final benchmark test attempts to implement a NodeJS map that can communicate with a Python Flask server on the side.
+
+### Prerequisites
+#### Python Dependencies
+This implementation does not contain any new Python dependencies compared to the above implementation of Python Flask.
+- [Python](https://www.python.org/downloads/) 
+- [Python Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [Pandas](https://pandas.pydata.org/)
+- [Matplotlib](https://matplotlib.org/): `python -m pip install -U matplotlib`
+
+
+#### NodeJS Dependencies
+Note: Ensure you are in the working directory (the directory that contains the files `flask_server.py` and `app.js`) before installing the NodeJS dependencies.
+- [NodeJS and npm](https://nodejs.org/en/download)
+- [Express](https://expressjs.com/en/starter/installing.html): `npm install express`
+- [cors](https://expressjs.com/en/resources/middleware/cors.html): `npm install cors`
+- [multer](https://expressjs.com/en/resources/middleware/multer.html): `npm install multer`
+- [papaparser](https://www.papaparse.com/): `npm install papaparser`
+- [chart.js](https://www.chartjs.org/): `npm install chart.js`
+- [request-promise](https://www.npmjs.com/package/request-promise): `npm install request-promise` DO NOTE: This library is deprecated, and the script using it will be changed to remove it!
+
+
+#### Activating the Project
+Open 2 separate terminals. In both terminals, navigate to the working directory where `flask_server.py` and `app.js` are located. This should be `/benchmarks/node_flask`.
+
+Once there, install the NodeJS dependencies. These should store in the `node_modules` directory in the project. Ensure that the version of your packages that you have installed match the version found within `package.json`.
+
+Once the additional dependencies have been installed, it is time to activate the servers. In one terminal, you will activate the flask server by calling: `flask run -p 8001` to have the server listen on port 8001. To activate the NodeJS server, call `node app` in the other terminal. This will allow you to see the webpage at `127.0.0.1:5000`. 
+
+Do note that this implementation uses NodeJS to host the web server. When a file is uploaded, the buffered contents are sent to Python Flask at `127.0.0.1:8001/transfer` to simulate what might occur in the full program. The information is changed into a useable format and stored into a pandas data frame. This data frame is resolved in JSON format back to the NodeJS and is displayed in the console once the request is finished. NodeJS also parses the csv file to display the graph contents on the screen.
