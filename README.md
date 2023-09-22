@@ -39,7 +39,6 @@ The first benchmark test for this project follows [NodeJS](https://nodejs.org/en
   - start nodejs server with node mytestserver.js
   - initialize artillery test using the following line in the terminal:
           artillery quick --count [insert virtual user count here] --num [insert http call count per user here]  http://localhost:8080
-  - 
   
 
 
