@@ -25,6 +25,7 @@ It is recommended that users create a [Python Virtual Environment](https://docs.
 - [Python Flask](https://flask.palletsprojects.com/en/2.3.x/installation/) will install Flask and the required dependencies. It is installed via the command: `pip install Flask`
 - [Pandas](https://pandas.pydata.org/): `pip install pandas`
 - [Matplotlib](https://matplotlib.org/): `python -m pip install -U matplotlib`
+- [locust](https://docs.locust.io/en/stable/what-is-locust.html): This is the library used for stress testing the server.
 
 
 ### Running the Project
@@ -38,6 +39,12 @@ If app.py is renamed to something else, the command to run the project will chan
 `flask --app name_of_python_file run`
 
 When running a file with this benchmark, please use `test.csv`. The code used to create the graph image does not support `dummy.csv`, as it is strictly an x-y line graph.
+
+For running the `locust.py` simple stress test, open a terminal and navigate to the same directory as `locust.py`. While the server is running, type the following command: `locust -f locust.py --headless -u # -r # -t #m --html locust_report.html`
+- -u: is the number of concurrent users
+- -r: is the spawn rate of users per second
+- -t: the duration of the test
+- `--html locust_report`: specifies the stress test output file.
 
 
 ## NodeJS / Python
