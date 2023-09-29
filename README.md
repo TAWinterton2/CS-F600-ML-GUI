@@ -1,7 +1,8 @@
 # CS-F600-ML-GUI
 Repository for CSf600 Project 
 
-<details><summary><h1>Benchmark Testing</h1><summary>
+<details>
+<summary><h1>Benchmark Testing</h1></summary>
 
 ## Benchmark Requirements
 The requirements for this benchmark testing are as follows:
