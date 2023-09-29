@@ -1,7 +1,9 @@
 # CS-F600-ML-GUI
 Repository for CSf600 Project 
 
-# Benchmark Testing
+<details>
+<summary><h1>Benchmark Testing</h1></summary>
+
 ## Benchmark Requirements
 The requirements for this benchmark testing are as follows:
 1. The website must be able to display an HTML front page.
@@ -127,3 +129,4 @@ Once there, install the NodeJS dependencies. These should store in the `node_mod
 Once the additional dependencies have been installed, it is time to activate the servers. In one terminal, you will activate the flask server by calling: `flask run -p 8001` to have the server listen on port 8001. To activate the NodeJS server, call `node app` in the other terminal. This will allow you to see the webpage at `127.0.0.1:5000`. 
 
 Do note that this implementation uses NodeJS to host the web server. When a file is uploaded, the buffered contents are sent to Python Flask at `127.0.0.1:8001/transfer` to simulate what might occur in the full program. The information is changed into a useable format and stored into a pandas data frame. This data frame is resolved in JSON format back to the NodeJS and is displayed in the console once the request is finished. NodeJS also parses the csv file to display the graph contents on the screen.
+</details>
