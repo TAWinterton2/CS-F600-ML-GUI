@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block head %}
 
 
@@ -10,7 +10,14 @@
     
 </head>
 <body>
-    
+    <div class="navbar">
+        <a href="#home">Home</a>
+        <a href="#linear">Linear Regression</a>
+        <a href="#poly">Polynomial Regression</a>
+        <a href="#logistic">Logistic Regression</a>
+        <a href="#about">About</a>
+      </div>
+      
     {% block body %}
 
 
