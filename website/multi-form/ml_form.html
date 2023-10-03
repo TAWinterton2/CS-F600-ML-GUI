@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="multi_form_style.css">
+
+
+<head>
+    <h1> Multi-Form Test</h1>
+</head>
+
+<body>
+<form id="regForm" action="">
+<h1> Machine Learning Model Steps</h1>
+<div class="tab">Step 1: Uploading Dataset
+    <p>We would put instructions here...</p>
+    <p><input placeholder="PutsomthingHere" oninput="this.className = ''"></p>
+</div>
+
+<div class="tab">Step 2
+    <p>We would put instructions here...</p>
+    <p><input placeholder="somthing..." oninput="this.className = ''"></p>
+</div>
+
+<div class="tab">Step 3
+    <p>We would put instructions here...</p>
+    <p><input placeholder="somthing..." oninput="this.className = ''"></p>
+</div>
+
+<div class="tab">Step 4
+    <p>We would put instructions here...</p>
+    <p><input placeholder="somthing..." oninput="this.className = ''"></p>
+</div>
+
+<div class="tab">Step 5
+    <p>Run the model!!!</p>
+</div>
+
+<div style="overflow:auto;">
+    <div style="float:right;">
+      <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
+      <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
+    </div>
+</div>
+
+<div style="text-align:left;
+            margin-top:20px;">
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+    <span class="step"></span>
+</div>
+
+</form>
+<script type="text/javascript" src="ml_form_script.js"></script>
+</body>
+
+</html>
