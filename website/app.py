@@ -12,7 +12,7 @@ def index():
 @app.route("/linear")
 def ml_form():
     """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
-    return render_template('linear.html')
+    return render_template('ml_form.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
