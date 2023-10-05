@@ -17,16 +17,21 @@
                     <span class="step"></span>
                     <span class="step"></span>
                 </div>
+
                 <h1 class="ML">Linear Regression</h1>
+                
+                <!-- Div for Uploading Dataset-->
                 <div class="tab"><h2>Step 1: Uploading Dataset</h2>
                     <p>We would put instructions here to describe what type of dataset to use and what file type is accepted.</p>
-                    <p><a href="">Here is a fake link to a dataset incase the user does not have one prepared.</a></p>
+                    <p>Below is a link that downloads a dummy CSV file that the user can use for testing</p>
+                    <p><a href="">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
                     <p>Otherwise, the user can upload a .csv/.zip file.</p>
                     <input type="file" name="file" accept=".csv"> <!--<input type="submit" value="Submit File">-->
                     <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
                     <!--<p><input placeholder="PutsomthingHere" oninput="this.className = ''" class="t"></p>-->
                 </div>
 
+                <!-- Div for Scaling the Data Set-->
                 <div class="tab"><h2>Step 2: Scaling the Dataset</h2>
                     <p>This section would explain what we mean by scaling the dataset, as well as what each option (if applicable)
                         means. The user will select an option (with standardize being the default) and then continue to the next step.
@@ -37,6 +42,7 @@
                     </select>
                 </div>
 
+                <!-- Div for Setting Testing and Traning Sets-->
                 <div class="tab"><h2>Step 3: Training and Testing</h2>
                     <p>We would explain what the testing + training datasets mean, the ideal split for this.</p>
                     <p><label for="training">Training:</label>
@@ -47,6 +53,8 @@
                     an error will output here explaining what went wrong.</p>
                 </div>
 
+
+                <!-- Div for Changing all Hyperparameters-->
                 <!-- Sorry if this div becomes super long :( 
                                             -Travis         -->
                 <div class="tab"><h2>Step 4: Initialize the Model</h2>
@@ -71,6 +79,17 @@
                     </p>
 
                     <p>
+                        <!-- 
+                            Parameter: Loss Strength:
+
+                            The loss function to be used. 
+                            The possible values are ‘squared_error’, ‘huber’, ‘epsilon_insensitive’, or ‘squared_epsilon_insensitive’
+
+                            The ‘squared_error’ refers to the ordinary least squares fit. 
+                            ‘huber’ modifies ‘squared_error’ to focus less on getting outliers correct by switching from squared to linear loss past a distance of epsilon. 
+                            ‘epsilon_insensitive’ ignores errors less than epsilon and is linear past that; this is the loss function used in SVR. 
+                            ‘squared_epsilon_insensitive’ is the same but becomes squared loss past a tolerance of epsilon.
+                        -->
                         Loss Strength:
                         <select name = "loss Strength" id="Hyperparameters">
                             <option value="square_error">Squared Error</option>
@@ -79,6 +98,7 @@
                         </select>
 
                         &ensp;
+                        
 
                         Penalty:
                         <select name="penalty" id="Hyperparameters">
@@ -121,6 +141,8 @@
                         <input type="radio" id="Hyperparameters" name="false" value="false">
                         <lable for="false">False</lable>
                     </p>
+
+
 
                     <p>
                         <label for="verbose">Verbose:</label>
@@ -192,7 +214,8 @@
 
 
                 </div>
-
+                
+                <!-- Div for Running the Model-->
                 <div class="tab"><h2>Step 5: Run</h2>
                     <p>If possible, we would review all the settings the user has inputted so the user 
                         can view everything before running. When the user presses the run button, the model
@@ -201,6 +224,7 @@
 
                 </div>
 
+                <!-- Next and Previous Buttons for Multi-page form-->
                 <div style="overflow:auto;">
                     <div style="float:right;">
                     <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
@@ -211,6 +235,9 @@
             </form>
             <script type="text/javascript" src="{{url_for('static', filename='ml_form_script.js')}}"></script>
         </div>
+
+
+        <!-- Div for Output Display on Right Hand Side of Webpage-->
         <div class="display">
             <div class="output">
                 <h1>Output</h1>
