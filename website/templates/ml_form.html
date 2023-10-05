@@ -82,6 +82,8 @@
                         <!-- 
                             Parameter: Loss Strength:
 
+                            Dependent: No
+
                             The loss function to be used. 
                             The possible values are ‘squared_error’, ‘huber’, ‘epsilon_insensitive’, or ‘squared_epsilon_insensitive’
 
@@ -99,7 +101,16 @@
 
                         &ensp;
                         
+                        <!--
+                            Parameter Penalty:
 
+                            Dependent: No
+
+                            The penalty (aka regularization term) to be used. Defaults to ‘l2’ which is the standard regularizer for linear SVM models. 
+                            ‘l1’ and ‘elasticnet’ might bring sparsity to the model (feature selection) not achievable with ‘l2’. 
+
+                            No penalty is added when set to None.
+                        -->
                         Penalty:
                         <select name="penalty" id="Hyperparameters">
                             <option value="l2">l2</option>
@@ -111,17 +122,41 @@
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Alpha
 
+                            Dependent: No
+
+                            Constant that multiplies the regularization term. 
+                            The higher the value, the stronger the regularization. 
+                            Also used to compute the learning rate when set to learning_rate is set to ‘optimal’.
+
+                        -->
                         <label for="alpha">Alpha:</label>
                         <input type="text" id="Hyperparameters" name="alpha" placeholder="0.0001" oninput="this.className = ' '">
                        
+                        <!--
+                            Parameter l1_ratio:
 
+                            Dependent: "Penalty"
+
+                            The Elastic Net mixing parameter, with 0 <= l1_ratio <= 1. 
+                            l1_ratio=0 corresponds to L2 penalty, l1_ratio=1 to L1. 
+                            Only used if penalty is ‘elasticnet’.
+                        -->
                         <label for="l1_ratio">l1 Ratio:</label>
                         <input type="text" id="Hyperparameters" name="l1_ratio" placeholder="0.15" oninput="this.className =''">
     
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Fit Intercept:
+
+                            Dependent: No
+
+                            Whether the intercept should be estimated or not. If False, the data is assumed to be already centered.
+                        -->
                         Fit Intercept:
                         <input type="radio" id="Hyperparameters" name="fit_int_true" value="fit_int_true" checked>
                         <label for="true">True</label>
@@ -130,11 +165,26 @@
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Max Iteration:
+                            
+                            Dependent: No
+
+                            The maximum number of passes over the training data (aka epochs). 
+                            It only impacts the behavior in the fit method, and not the partial_fit method.
+                        -->
                         <label for="max_iter">Max Iteration:</label>   
                         <input type="text" id="Hyperparameters" name="max_iter" placeholder="1000" oninput="this.className = ''">   
                     </p>
 
                     <p>
+                        <!-- 
+                            Parameter: Shuffle
+
+                            Dependent: No
+
+                            Whether or not the training data should be shuffled after each epoch.
+                        -->
                         Shuffle:
                         <input type="radio" id="Hyperparameters" name="shuffle_true" value="true" checked>
                         <label for="true">True</label>
@@ -145,16 +195,63 @@
 
 
                     <p>
+                        <!--
+                            Parameter: Verbose
+
+                            Dependent: No
+
+                            The verbosity level.
+                        -->
                         <label for="verbose">Verbose:</label>
                         <input type="text" id="Hyperparameters" name="verbose" placeholder="0" oninput="this.className=''">
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Epsilon
+
+                            Dependent: "Loss"
+
+                            Epsilon in the epsilon-insensitive loss functions; only if loss is ‘huber’, ‘epsilon_insensitive’, or ‘squared_epsilon_insensitive’. 
+                            For ‘huber’, determines the threshold at which it becomes less important to get the prediction exactly right. 
+                            For epsilon-insensitive, any differences between the current prediction and the correct label are ignored if they are less than this threshold.
+                        -->
                         <label for="epsilon">Epsilon</label>
                         <input type="text" id="Hyperparameters" name="epsilon" placeholder="0.1" oninput="this.className=''">
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Randome State
+
+                            Dependent: "Shuffle == True"
+
+                            Used for shuffling the data, when shuffle is set to True. 
+                            Pass an int for reproducible output across multiple function calls.
+                        -->
+                        <label for="rand_state">Random State</label>
+                        <input type="text" id="Hyperparameters" name="rand_state" placeholder="0" oninput="this.className=''" disabled>
+
+                    </p>
+
+                    <p>
+                        <!--
+                            Parameter: Learning Rate:
+
+                            Dependent: None
+
+                            The learning rate schedule:
+
+                                ‘constant’: eta = eta0
+
+                                ‘optimal’: eta = 1.0 / (alpha * (t + t0)) where t0 is chosen by a heuristic proposed by Leon Bottou.
+
+                                ‘invscaling’: eta = eta0 / pow(t, power_t)
+
+                                ‘adaptive’: eta = eta0, as long as the training keeps decreasing. 
+                                Each time n_iter_no_change consecutive epochs fail to decrease the training loss by 
+                                tol or fail to increase validation score by tol if early_stopping is True, the current learning rate is divided by 5.
+                        -->
                         Learning Rate:
                         <select name="learning_rate" id="Hyperparameters">
                             <option value="invscaling">Invscaling</option>
@@ -165,18 +262,41 @@
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: eta0
+
+                            Dependent: None
+
+                            The initial learning rate for the ‘constant’, ‘invscaling’ or ‘adaptive’ schedules. The default value is 0.01.
+                        -->
                         <label for="eta0">eta0</label>
                         <input type="text" id="Hyperparameters" name="epsilon" placeholder="0.01" oninput="this.className=''">
 
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: power_t
+
+                            Dependent: None
+
+                            The exponent for inverse scaling learning rate.
+                        -->
                         <label for="power_t">Power_T</label>
                         <input type="text" id="Hyperparameters" name="power_t" placeholder="0.25" oninput="this.className=''">
 
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Early Stopping
+
+                            Depedent: None
+
+                            Whether to use early stopping to terminate training when validation score is not improving. 
+                            If set to True, it will automatically set aside a fraction of training data as validation and 
+                            terminate training when validation score returned by the score method is not improving by at least tol for n_iter_no_change consecutive epochs.
+                        -->
                         Early Stopping:
                         <input type="radio" id="Hyperparameters" name="Erl_stop_true" value="true">
                         <label for="true">True</label>
@@ -185,17 +305,65 @@
                     </p>
                     
                     <p>
+                        <!--
+                            Parameter: Validation_fraction
+
+                            Dependent: "Early Stopping == True"
+
+                            The proportion of training data to set aside as validation set for early stopping. 
+                            Must be between 0 and 1. Only used if early_stopping is True.
+
+                        -->
                         <label for="validation_fraction">Validation Fraction</label>
                         <input type="text" id="Hyperparameters" name="validation_fraction" placeholder="0.1" oninput="this.className=''">
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: tol
+
+                            Dependent: Minor "Early Stopping" || "n_iter_no_change"
+
+                            The stopping criterion. If it is not None, training will stop when (loss > best_loss - tol) for n_iter_no_change consecutive epochs. 
+                            Convergence is checked against the training loss or the validation loss depending on the early_stopping parameter.
+
+
+                        -->
+
+                        <label for ="tol">Tol</label>
+                        <input type="text" id="Hyperparameters" name="tol" placeholder="0.001" oninput="this.className=''">
+                    </p>
+
+                    <p>
+                        <!--
+                            Parameter: n_iter_no_change
+
+                            Dependent: Minor "Early Stopping"
+
+                            Number of iterations with no improvement to wait before stopping fitting. 
+                            Convergence is checked against the training loss or the validation loss depending on the early_stopping parameter.
+
+
+                        -->
                         <label for="n_iter_no_change"> # of Iterations (no change) </label>
                         <input type="text" id="Hyperparameters" name="n_iter_no_change" placeholder="5" oninput="this.className=''">
 
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Warm Start
+
+                            Dependent: None
+
+                            When set to True, reuse the solution of the previous call to fit as initialization, otherwise, just erase the previous solution.
+
+                            Repeatedly calling fit or partial_fit when warm_start is True can result in a different solution than when calling fit a 
+                            single time because of the way the data is shuffled. 
+
+                            If a dynamic learning rate is used, the learning rate is adapted depending on the number of samples already seen. 
+                            Calling fit resets this counter, while partial_fit will result in increasing the existing counter.
+                        -->
                         Warm Start:
                         <input type="radio" id="Hyperparameters" name="warm_start_true" value="true">
                         <label for="true">True</label>
@@ -204,6 +372,16 @@
                     </p>
 
                     <p>
+                        <!--
+                            Parameter: Average
+
+                            Dependent: None
+
+                            When set to True, computes the averaged SGD weights across all updates and stores the result in the coef_ attribute. 
+                            If set to an int greater than 1, averaging will begin once the total number of samples seen reaches average. 
+
+                            So average=10 will begin averaging after seeing 10 samples.
+                        -->
                         Average:
                         <input type="radio" id="Hyperparameters" name="average_true" value="true">
                         <label for="true">True</label>
