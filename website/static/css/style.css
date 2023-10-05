@@ -90,6 +90,8 @@ input.invalid {
 
 .tab{
   display: none;
+  height: 350px;
+  overflow-y: scroll;
 
 }
 

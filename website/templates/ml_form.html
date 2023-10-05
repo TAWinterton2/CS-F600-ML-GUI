@@ -48,10 +48,65 @@
                 </div>
 
                 <div class="tab"><h2>Step 4: Initialize the Model</h2>
-                    <p>Currently not set up, but this will contain a brief explanation of each hyper parameter that the model can accept.
-                        There will then be a section that allows the user to modify any settings that they wish.
+                    <p>
+                        List of all Hyperparameters associated with ML model are listed here 
+                        <br>
+                        <br>
+
+                        Users can adjust any of these as they wish <br>
+                        We will leave defaul values for all options and make a notice to the user that it is <br>
+                        reccomended that they do not mess with any of these values at first untill they are <br>
+                        comfertable with how the ML process works
+
+                        <br>
+                        <br>
+                        each of these parameters will also be accompanyed by a description of what they do.
+                        <br>  
+                        <br>
+                        <br>
+
+
                     </p>
-                    <!--<p><input placeholder="something..." oninput="this.className = ''"></p>-->
+
+                    <p>
+                        Loss Strength:
+                        <select name = "loss Strength" id="Param">
+                            <option value="square_error">Squared Error</option>
+                            <option value="epsilon_insensitive">Epsilon Insensitive</option>
+                            <option value="squared_epsilion_insensitive">Squared Epsilon Insensitive</option>
+                        </select>
+
+                        &ensp;
+
+                        Penalty:
+                        <select name="penalty" id="Param">
+                            <option value="l2">l2</option>
+                            <option value="l1">l1</option>
+                            <option value="elasticent">Elasticent</option>
+                            <option value="none">None</option>
+                        </select>
+
+                    </p>
+
+                    <p>
+
+                        <label for="alpha">Alpha:</label>
+                        <input type="text" id="alpha" name="alpha" placeholder="0.0001" oninput="this.className = ' '">
+
+                        &ensp;
+
+                        <label for="l1_ratio">l1 Ratio:</label>
+                        <input type="text" id="l1_ratio" name="l1_ratio" placeholder="0.15" oninput="this.className =''">
+    
+                    </p>
+
+                    <p>
+                        Fit Intercept:
+                        <select name="fit_interception" id="Param">
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
+                    </p>
                 </div>
 
                 <div class="tab"><h2>Step 5: Run</h2>
