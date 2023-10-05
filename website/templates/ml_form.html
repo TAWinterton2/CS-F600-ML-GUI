@@ -93,34 +93,102 @@
                     <p>
 
                         <label for="alpha">Alpha:</label>
-                        <input type="text" id="alpha" name="alpha" placeholder="0.0001" oninput="this.className = ' '">
+                        <input type="text" id="Hyperparameters" name="alpha" placeholder="0.0001" oninput="this.className = ' '">
                        
 
                         <label for="l1_ratio">l1 Ratio:</label>
-                        <input type="text" id="l1_ratio" name="l1_ratio" placeholder="0.15" oninput="this.className =''">
+                        <input type="text" id="Hyperparameters" name="l1_ratio" placeholder="0.15" oninput="this.className =''">
     
                     </p>
 
                     <p>
                         Fit Intercept:
-                        <input type="radio" id="true" name="true" value="True">
+                        <input type="radio" id="Hyperparameters" name="true" value="true">
                         <label for="true">True</label>
-                        <input type="radio" id="false" name="false" value="False">
+                        <input type="radio" id="Hyperparameters" name="false" value="false">
                         <label for="false">False</label><br>
                     </p>
 
                     <p>
                         <label for="max_iter">Max Iteration:</label>   
-                        <input type="text" id="max_iter" name="max_iter" placeholder="1000" oninput="this.className = ''">   
+                        <input type="text" id="Hyperparameters" name="max_iter" placeholder="1000" oninput="this.className = ''">   
                     </p>
 
                     <p>
                         Shuffle:
-                        <input type="radio" id="true" name="true" value="True">
+                        <input type="radio" id="Hyperparameters" name="true" value="true">
                         <label for="true">True</label>
-                        <input type="radio" id="false" name="false" value="False">
+                        <input type="radio" id="Hyperparameters" name="false" value="false">
                         <lable for="false">False</lable>
                     </p>
+
+                    <p>
+                        <label for="verbose">Verbose:</label>
+                        <input type="text" id="Hyperparameters" name="verbose" placeholder="0" oninput="this.className=''">
+                    </p>
+
+                    <p>
+                        <label for="epsilon">Epsilon</label>
+                        <input type="text" id="Hyperparameters" name="epsilon" placeholder="0.1" oninput="this.className=''">
+                    </p>
+
+                    <p>
+                        Learning Rate:
+                        <select name="learning_rate" id="Hyperparameters">
+                            <option value="invscaling">Invscaling</option>
+                            <option value="constant">Constant</option>
+                            <option value="optimal">Optimal</option>
+                            <option value="adaptive">Adaptive</option>
+                        </select>
+                    </p>
+
+                    <p>
+                        <label for="eta0">eta0</label>
+                        <input type="text" id="Hyperparameters" name="epsilon" placeholder="0.01" oninput="this.className=''">
+
+                    </p>
+
+                    <p>
+                        <label for="power_t">Power_T</label>
+                        <input type="text" id="Hyperparameters" name="power_t" placeholder="0.25" oninput="this.className=''">
+
+                    </p>
+
+                    <p>
+                        Early Stopping:
+                        <input type="radio" id="Hyperparameters" name="true" value="true">
+                        <label for="true">True</label>
+                        <input type="radio" id="Hyperparameters" name="false" value="false">
+                        <label for="false">False</label>
+                    </p>
+                    
+                    <p>
+                        <label for="validation_fraction">Validation Fraction</label>
+                        <input type="text" id="Hyperparameters" name="validation_fraction" placeholder="0.1" oninput="this.className=''">
+                    </p>
+
+                    <p>
+                        <label for="n_iter_no_change"> # of Iterations (no change) </label>
+                        <input type="text" id="Hyperparameters" name="n_iter_no_change" placeholder="5" oninput="this.className=''">
+
+                    </p>
+
+                    <p>
+                        Warm Start:
+                        <input type="radio" id="Hyperparameters" name="true" value="true">
+                        <label for="true">True</label>
+                        <input type="radio" id="Hyperparameters" name="false" value="false">
+                        <label for="false">false</label>
+                    </p>
+
+                    <p>
+                        Average:
+                        <input type="radio" id="Hyperparameters" name="true" value="true">
+                        <label for="true">True</label>
+                        <input type="radio" id="Hyperparameters" name="false" value="false">
+                        <label for="false">false</label>
+                    </p>
+
 
 
                 </div>
