@@ -2,53 +2,120 @@
 
 {% block head %}
     <title>Multi-Form Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
 {% endblock %}
 
 
 {% block body %}
     <div class="main">
-        <form id="regForm" action="">
-            <h1 class="ML"> Machine Learning Model Steps</h1>
-            <div class="tab">Step 1: Uploading Dataset
-                <p>We would put instructions here...</p>
-                <p><input placeholder="PutsomthingHere" oninput="this.className = ''"></p>
-            </div>
-
-            <div class="tab">Step 2
-                <p>We would put instructions here...</p>
-                <p><input placeholder="somthing..." oninput="this.className = ''"></p>
-            </div>
-
-            <div class="tab">Step 3
-                <p>We would put instructions here...</p>
-                <p><input placeholder="somthing..." oninput="this.className = ''"></p>
-            </div>
-
-            <div class="tab">Step 4
-                <p>We would put instructions here...</p>
-                <p><input placeholder="somthing..." oninput="this.className = ''"></p>
-            </div>
-
-            <div class="tab">Step 5
-                <p>Run the model!!!</p>
-            </div>
-
-            <div style="overflow:auto;">
-                <div style="float:right;">
-                <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
-                <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
+        <div class="steps">
+            <form id="regForm" action="">
+                <div style="text-align:left; margin-top:20px;">
+                    <span class="step"></span>
+                    <span class="step"></span>
+                    <span class="step"></span>
+                    <span class="step"></span>
                 </div>
-            </div>
+                <h1 class="ML">Linear Regression</h1>
+                <div class="tab"><h2>Step 1: Uploading Dataset</h2>
+                    <p>We would put instructions here to describe what type of dataset to use and what file type is accepted.</p>
+                    <p><a href="">Here is a fake link to a dataset incase the user does not have one prepared.</a></p>
+                    <p>Otherwise, the user can upload a .csv/.zip file.</p>
+                    <input type="file" name="file" accept=".csv"> <!--<input type="submit" value="Submit File">-->
+                    <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
+                    <!--<p><input placeholder="PutsomthingHere" oninput="this.className = ''" class="t"></p>-->
+                </div>
 
-            <div style="text-align:left;
-                        margin-top:20px;">
-                <span class="step"></span>
-                <span class="step"></span>
-                <span class="step"></span>
-                <span class="step"></span>
-            </div>
+                <div class="tab"><h2>Step 2: Scaling the Dataset</h2>
+                    <p>This section would explain what we mean by scaling the dataset, as well as what each option (if applicable)
+                        means. The user will select an option (with standardize being the default) and then continue to the next step.
+                    </p>
+                    <select name="Scaling Type" id="scale">
+                        <option value="Standardize">Standardize</option>
+                        <option value="Normalize">Normalize</option>
+                    </select>
+                </div>
 
-        </form>
-        <script type="text/javascript" src="{{url_for('static', filename='ml_form_script.js')}}"></script>
+                <div class="tab"><h2>Step 3: Training and Testing</h2>
+                    <p>We would explain what the testing + training datasets mean, the ideal split for this.</p>
+                    <p><label for="training">Training:</label>
+                    <input type="text" id="training" name="training "placeholder="80" oninput="this.className = ''"></p>
+                    <p><label for="training">Testing:</label>
+                    <input type="text" id="testing" name="testing" placeholder="20" oninput="this.className = ''"></p>
+                    <p style="color:red">If the user inputs values that do not make sense (testing > training, testing+training>100),
+                    an error will output here explaining what went wrong.</p>
+                </div>
+
+                <div class="tab"><h2>Step 4: Initialize the Model</h2>
+                    <p>Currently not set up, but this will contain a brief explanation of each hyper parameter that the model can accept.
+                        There will then be a section that allows the user to modify any settings that they wish.
+                    </p>
+                    <!--<p><input placeholder="something..." oninput="this.className = ''"></p>-->
+                </div>
+
+                <div class="tab"><h2>Step 5: Run</h2>
+                    <p>If possible, we would review all the settings the user has inputted so the user 
+                        can view everything before running. When the user presses the run button, the model
+                        will run with the provided settings and either output an error message OR proceed to evaluation.</p>
+                    <button type="button" id="run">Run!</button>
+
+                </div>
+
+                <div style="overflow:auto;">
+                    <div style="float:right;">
+                    <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
+                    </div>
+                </div>
+
+            </form>
+            <script type="text/javascript" src="{{url_for('static', filename='ml_form_script.js')}}"></script>
+        </div>
+        <div class="display">
+            <div class="output">
+                <h1>Output</h1>
+                <p>Here would be any visualizations from the program.</p>
+                <p>Usually, when the user finishes a step it will output some sort of visualization.</p>
+                <ul>Step 2: visualizes the whole dataset</ul>
+                <ul>Step 3: visualize the testing and training data-split</ul>
+                <ul>Step 5: Running the model outputs the error processing / evaluation graphs.</ul>
+                <canvas id="myChart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                <script>
+                    const xyValues = [
+                    {x:50, y:7},
+                    {x:60, y:8},
+                    {x:70, y:8},
+                    {x:80, y:9},
+                    {x:90, y:9},
+                    {x:100, y:9},
+                    {x:110, y:10},
+                    {x:120, y:11},
+                    {x:130, y:14},
+                    {x:140, y:14},
+                    {x:150, y:15}
+                    ];
+
+                    
+                new Chart("myChart", {
+                type: "scatter",
+                data: {
+                    datasets: [{
+                    pointRadius: 4,
+                    pointBackgroundColor: "rgb(0,0,255)",
+                    data: xyValues
+                    }]
+                },
+                options: {
+                    legend: {display: false},
+                    scales: {
+                    xAxes: [{ticks: {min: 40, max:160}}],
+                    yAxes: [{ticks: {min: 6, max:16}}],
+                    }
+                }
+                });
+                </script>
+            </div>
+        </div>
     </div>
 {% endblock %}

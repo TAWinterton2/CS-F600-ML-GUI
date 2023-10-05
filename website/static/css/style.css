@@ -27,7 +27,26 @@
 /* Main content */
 .main {
     margin-top: 3%; /* Add a top margin to avoid content overlay */
+    height:100%;
   }
+
+.steps {
+  width: 60%;
+  float:left;
+  display:flex;
+}
+
+.display {
+  flex-grow: 1;
+  width: 40%;
+  float: right;
+}
+
+.output {
+  background-color: silver;
+  margin: 10px auto;
+  padding: 40px;
+}
 
 .intro {
     background:#ddd ;
@@ -38,33 +57,34 @@ body{
 }
 
 .ML{
-  border-style: groove;
+  /*border-style: solid;*/
   border-color:aquamarine
 }
 /*style the form*/
 
 #regForm {
   background-color: #a8d5e0;
-  margin: 100px auto;
-  padding: 40px;
-  width: 70%;
+  margin: 10px auto;
+  padding: 20px;
+  width: 100%;
   min-width: 300px;
+  border: 1px solid #89ebb2;
+  float: left;
 }
 
 /* Style Input Fields*/
-input{
+input.t{
   padding:10px;
   width: 100%;
   font-size: 17px;
   font-family:  Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  border: 1px solid #89ebb2
+  border: 1px solid #89ebb2;
 }
 
 input.invalid {
-  background-color: red;
+  background-color: lightcoral;
 
 }
-
 
 /* Hide steps by default: */
 
