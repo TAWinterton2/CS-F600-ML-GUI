@@ -70,7 +70,7 @@
 
                     <p>
                         Loss Strength:
-                        <select name = "loss Strength" id="Param">
+                        <select name = "loss Strength" id="Hyperparameters">
                             <option value="square_error">Squared Error</option>
                             <option value="epsilon_insensitive">Epsilon Insensitive</option>
                             <option value="squared_epsilion_insensitive">Squared Epsilon Insensitive</option>
@@ -79,7 +79,7 @@
                         &ensp;
 
                         Penalty:
-                        <select name="penalty" id="Param">
+                        <select name="penalty" id="Hyperparameters">
                             <option value="l2">l2</option>
                             <option value="l1">l1</option>
                             <option value="elasticent">Elasticent</option>
@@ -92,8 +92,7 @@
 
                         <label for="alpha">Alpha:</label>
                         <input type="text" id="alpha" name="alpha" placeholder="0.0001" oninput="this.className = ' '">
-
-                        &ensp;
+                       
 
                         <label for="l1_ratio">l1 Ratio:</label>
                         <input type="text" id="l1_ratio" name="l1_ratio" placeholder="0.15" oninput="this.className =''">
@@ -102,11 +101,22 @@
 
                     <p>
                         Fit Intercept:
-                        <select name="fit_interception" id="Param">
-                            <option value="true">True</option>
-                            <option value="false">False</option>
-                        </select>
+                        <input type="radio" id="true" name="true" value="True">
+                        <label for="true">True</label><br>
+                        <input type="radio" id="false" name="false" value="False">
+                        <label for="false">False</label><br>
                     </p>
+
+                    <p>
+                        <label for="max_iter">Max Iteration:</label>   
+                        <input type="text" id="max_iter" name="max_iter" placeholder="1000" oninput="this.className = ''">   
+                    </p>
+
+                    <p>
+
+                    </p>
+
+
                 </div>
 
                 <div class="tab"><h2>Step 5: Run</h2>
