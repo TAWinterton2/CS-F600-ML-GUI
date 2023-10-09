@@ -37,6 +37,7 @@ def ml_form():
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
+                           user_input=True,
                            filename=request.files['file'].filename)
         
         if 'scaling' in request.form:
@@ -59,12 +60,14 @@ def ml_form():
         if 'hyperparams' in request.form:
             return render_template('ml_form.html',
                            tab=3,
-                           user_input=True)
+                           user_input=True,
+                           hyper=True)
         
         if 'run' in request.form:
             return render_template('ml_form.html',
                            tab=4,
-                           user_input=True)
+                           user_input=True,
+                           start=True)
         
 
     return render_template('ml_form.html',
