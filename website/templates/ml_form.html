@@ -6,11 +6,10 @@
 
 {% endblock %}
 
-
 {% block body %}
     <div class="main">
         <div class="steps">
-            <form id="regForm" action="">
+            <div id="regForm" action="">
                 <div style="text-align:left; margin-top:20px;">
                     <span class="step"></span>
                     <span class="step"></span>
@@ -21,18 +20,23 @@
                 <h1 class="ML">Linear Regression</h1>
                 
                 <!-- Div for Uploading Dataset-->
-                <div class="tab"><h2>Step 1: Uploading Dataset</h2>
+                <form class="tab" id="data" method="POST" enctype="multipart/form-data"><h2>Step 1: Uploading Dataset</h2>
                     <p>We would put instructions here to describe what type of dataset to use and what file type is accepted.</p>
                     <p>Below is a link that downloads a dummy CSV file that the user can use for testing</p>
-                    <p><a href="">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
+                    <p><a href="https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
                     <p>Otherwise, the user can upload a .csv/.zip file.</p>
-                    <input type="file" name="file" accept=".csv"> <!--<input type="submit" value="Submit File">-->
-                    <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
-                    <!--<p><input placeholder="PutsomthingHere" oninput="this.className = ''" class="t"></p>-->
-                </div>
+                    {% if file_upload == True %}
+                        <p style="color:blue">File uploaded: {{filename}}.</p>
+                        <p>Press the Next button to continue to Step 2.</p>
+                    {% else %}
+                        <input type="file" name="file" accept=".csv" value = "{{ request.form['file'] }}">
+                        <input type="submit" name="upload_file" value="Submit File">
+                        <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
+                    {% endif %}
+                </form>
 
                 <!-- Div for Scaling the Data Set-->
-                <div class="tab"><h2>Step 2: Scaling the Dataset</h2>
+                <form class="tab" id="scale" method="POST"><h2>Step 2: Scaling the Dataset</h2>
                     <p>This section would explain what we mean by scaling the dataset, as well as what each option (if applicable)
                         means. The user will select an option (with standardize being the default) and then continue to the next step.
                     </p>
@@ -40,24 +44,32 @@
                         <option value="Standardize">Standardize</option>
                         <option value="Normalize">Normalize</option>
                     </select>
-                </div>
+                    <input type="submit" name="scaling" value="Scaling Selected">
+                </form>
 
-                <!-- Div for Setting Testing and Traning Sets-->
-                <div class="tab"><h2>Step 3: Training and Testing</h2>
+                <!-- Div for Setting Testing and Training Sets-->
+                <form class="tab" id="trte" method="POST"><h2>Step 3: Training and Testing</h2>
                     <p>We would explain what the testing + training datasets mean, the ideal split for this.</p>
-                    <p><label for="training">Training:</label>
-                    <input type="text" id="training" name="training "placeholder="80" oninput="this.className = ''"></p>
-                    <p><label for="training">Testing:</label>
-                    <input type="text" id="testing" name="testing" placeholder="20" oninput="this.className = ''"></p>
-                    <p style="color:red">If the user inputs values that do not make sense (testing > training, testing+training>100),
-                    an error will output here explaining what went wrong.</p>
-                </div>
+                    {% if traintest == True %}
+                        <p>User inputs:</p>
+                        <p>Training: {{tr}} </p>
+                        <p>Testing: {{te}}</p>
+                    {% else %}
+                        <p><label for="training">Training:</label>
+                        <input type="text" id="training" name="training" placeholder="80" oninput="this.className = ''"></p>
+                        <p><label for="training">Testing:</label>
+                        <input type="text" id="testing" name="testing" placeholder="20" oninput="this.className = ''"></p>
+                        <input type="submit" name="tt" value="Training/Testing">
+                        <p style="color:red">If the user inputs values that do not make sense (testing > training, testing+training>100),
+                        an error will output here explaining what went wrong.</p>
+                    {% endif %}
+                </form>
 
 
                 <!-- Div for Changing all Hyperparameters-->
                 <!-- Sorry if this div becomes super long :( 
                                             -Travis         -->
-                <div class="tab"><h2>Step 4: Initialize the Model</h2>
+                <form class="tab" id="init" method="POST"><h2>Step 4: Initialize the Model</h2>
                     <p>
                         List of all Hyperparameters associated with ML model are listed here 
                         <br>
@@ -65,12 +77,12 @@
 
                         Users can adjust any of these as they wish <br>
                         We will leave default values for all options and make a notice to the user that it is <br>
-                        reccomended that they do not mess with any of these values at first untill they are <br>
-                        comfertable with how the ML process works
+                        recommended that they do not mess with any of these values at first until they are <br>
+                        comfortable with how the ML process works
 
                         <br>
                         <br>
-                        each of these parameters will also be accompanyed by a description of what they do.
+                        each of these parameters will also be accompanied by a description of what they do.
                         <br>  
                         <br>
                         <br>
@@ -96,7 +108,7 @@
                         <select name = "loss Strength" id="Hyperparameters">
                             <option value="square_error">Squared Error</option>
                             <option value="epsilon_insensitive">Epsilon Insensitive</option>
-                            <option value="squared_epsilion_insensitive">Squared Epsilon Insensitive</option>
+                            <option value="squared_epsilon_insensitive">Squared Epsilon Insensitive</option>
                         </select>
 
                         &ensp;
@@ -189,7 +201,7 @@
                         <input type="radio" id="Hyperparameters" name="shuffle_true" value="true" checked>
                         <label for="true">True</label>
                         <input type="radio" id="Hyperparameters" name="shuffle_false" value="false">
-                        <lable for="false">False</lable>
+                        <label for="false">False</label>
                     </p>
 
 
@@ -230,7 +242,7 @@
                             Pass an int for reproducible output across multiple function calls.
                         -->
                         <label for="rand_state">Random State</label>
-                        <input type="text" id="Hyperparameters" name="rand_state" placeholder="0" oninput="this.className=''" disabled>
+                        <input type="text" id="Hyperparameters" name="rand_state" placeholder="0" oninput="this.className=''">
 
                     </p>
 
@@ -390,28 +402,31 @@
                     </p>
 
 
-
-                </div>
+                    
+                    <input type="submit" name="hyperparams" value="Hyperparams">
+                </form>
                 
                 <!-- Div for Running the Model-->
-                <div class="tab"><h2>Step 5: Run</h2>
+                <form class="tab" id="run" method="POST"><h2>Step 5: Run</h2>
                     <p>If possible, we would review all the settings the user has inputted so the user 
                         can view everything before running. When the user presses the run button, the model
                         will run with the provided settings and either output an error message OR proceed to evaluation.</p>
-                    <button type="button" id="run">Run!</button>
+                    <input type="submit" name="run" value="Run the model">
 
-                </div>
+                </form>
 
                 <!-- Next and Previous Buttons for Multi-page form-->
                 <div style="overflow:auto;">
                     <div style="float:right;">
                     <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
-                    <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
+                    {% if user_input == True %}
+                        <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
+                    {% endif %}
                     </div>
                 </div>
 
-            </form>
-            <script type="text/javascript" src="{{url_for('static', filename='ml_form_script.js')}}"></script>
+            </div>
+            <script type="text/javascript" id="js_tabs" tab_num = {{tab}} src="{{url_for('static', filename='ml_form_script.js')}}"></script>
         </div>
 
 
@@ -419,46 +434,113 @@
         <div class="display">
             <div class="output">
                 <h1>Output</h1>
-                <p>Here would be any visualizations from the program.</p>
-                <p>Usually, when the user finishes a step it will output some sort of visualization.</p>
-                <ul>Step 2: visualizes the whole dataset</ul>
-                <ul>Step 3: visualize the testing and training data-split</ul>
-                <ul>Step 5: Running the model outputs the error processing / evaluation graphs.</ul>
-                <canvas id="myChart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
-                <script>
-                    const xyValues = [
-                    {x:50, y:7},
-                    {x:60, y:8},
-                    {x:70, y:8},
-                    {x:80, y:9},
-                    {x:90, y:9},
-                    {x:100, y:9},
-                    {x:110, y:10},
-                    {x:120, y:11},
-                    {x:130, y:14},
-                    {x:140, y:14},
-                    {x:150, y:15}
+                {% if user_input == False %}
+                    <p>Here would be any visualizations from the program.</p>
+                    <p>Usually, when the user finishes a step it will output some sort of visualization.</p>
+                    <ul>Step 2: visualizes the whole dataset</ul>
+                    <ul>Step 3: visualize the testing and training data-split</ul>
+                    <ul>Step 5: Running the model outputs the error processing / evaluation graphs.</ul>
+                {% endif %}
+
+                <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
+                {% if file_upload == True %}
+                <h2>"Original" Dataset</h2>
+                    <canvas id="myChart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <script>
+                        const xyValues = [{x:50, y:7},{x:60, y:8},{x:70, y:8},{x:80, y:9},{x:90, y:9},{x:100, y:9},{x:110, y:10},
+                        {x:120, y:11},{x:130, y:14},{x:140, y:14},{x:150, y:15}
                     ];
 
-                    
-                new Chart("myChart", {
-                type: "scatter",
-                data: {
-                    datasets: [{
-                    pointRadius: 4,
-                    pointBackgroundColor: "rgb(0,0,255)",
-                    data: xyValues
-                    }]
-                },
-                options: {
-                    legend: {display: false},
-                    scales: {
-                    xAxes: [{ticks: {min: 40, max:160}}],
-                    yAxes: [{ticks: {min: 6, max:16}}],
+                    new Chart("myChart", {
+                    type: "scatter",
+                    data: {
+                        datasets: [{
+                        pointRadius: 4,
+                        pointBackgroundColor: "rgb(0,0,255)",
+                        data: xyValues
+                        }]
+                    },
+                    options: {
+                        legend: {display: false},
+                        scales: {
+                        xAxes: [{ticks: {min: 40, max:160}}],
+                        yAxes: [{ticks: {min: 4, max:16}}],
+                        }
                     }
-                }
-                });
-                </script>
+                    });
+                    </script>
+                {% endif %}
+
+                <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->
+                {% if scaling==True %}
+                <h2>"Scaled" Data</h2>
+                    {% for table in tables %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for title in titles %}
+                                        <th>{{ title }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ table|safe }}
+                            </tbody>
+                        </table>
+                    {% endfor %}
+                {% endif %}
+
+                <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
+                {% if traintest==True %}
+                <h2>"Testing" Dataset</h2>
+                    <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <script>
+                        const test = [{x:.70, y:.8},{x:.90, y:.9},{x:.110, y:.10},{x:.140, y:.14}];
+
+                    new Chart("testing", {
+                    type: "scatter",
+                    data: {
+                        datasets: [{
+                        pointRadius: 4,
+                        pointBackgroundColor: "rgb(0,0,255)",
+                        data: test
+                        }]
+                    },
+                    options: {
+                        legend: {display: false},
+                        scales: {
+                        xAxes: [{ticks: {min: 0.1, max:1.0}}],
+                        yAxes: [{ticks: {min: 0.1, max:1.0}}],
+                        }
+                    }
+                    });
+                    </script>
+
+                    <h2>"Training" Dataset</h2>
+                    <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <script>
+                        const train = [{x:.50, y:.7},{x:.60, y:.8},{x:.80, y:.9},{x:.100, y:.9},
+                        {x:.110, y:.10},{x:.120, y:.11},{x:.130, y:.14},{x:.150, y:.15}];
+
+                    new Chart("training", {
+                    type: "scatter",
+                    data: {
+                        datasets: [{
+                        pointRadius: 4,
+                        pointBackgroundColor: "rgb(0,0,255)",
+                        data: train
+                        }]
+                    },
+                    options: {
+                        legend: {display: false},
+                        scales: {
+                        xAxes: [{ticks: {min: 0.1, max:1.0}}],
+                        yAxes: [{ticks: {min: 0.1, max:1.0}}],
+                        }
+                    }
+                    });
+                    </script>
+                {% endif %}
             </div>
         </div>
     </div>
