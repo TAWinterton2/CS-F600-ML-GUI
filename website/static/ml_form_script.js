@@ -83,3 +83,8 @@ function fixStepIndicator(n) {
   //... and adds the "active" class to the current step:
   x[n].className += " active";
 }
+
+function openWin(){
+  var myWindow = window.open("", "MsgWindow", "width=500,height=500");
+  myWindow.document.write("<p>[Insert Dummy Data here]</p>");
+}

@@ -407,8 +407,13 @@
 
                     
                     <input type="submit" name="hyperparams" value="Hyperparams">
+                    
                 {% endif %}
+
+               
                 </form>
+
+
                 
                 <!-- Div for Running the Model-->
                 <form class="tab" id="run" method="POST"><h2>Step 5: Run</h2>
@@ -432,7 +437,6 @@
             </div>
             <script type="text/javascript" id="js_tabs" tab_num = {{tab}} src="{{url_for('static', filename='ml_form_script.js')}}"></script>
         </div>
-
 
         <!-- Div for Output Display on Right Hand Side of Webpage-->
         <div class="display">
@@ -573,8 +577,14 @@
                     }
                     });
                     </script>
+                    
                 {% endif %}
+                <form>
+                    <input type="button" value="View Original Data" onclick="openWin()">
+                </form>
             </div>
+           
         </div>
+        
     </div>
 {% endblock %}
