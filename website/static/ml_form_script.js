@@ -1,5 +1,9 @@
-var currentTab = 0; // Current tab is set to be the first tab (0)
+var js_tabs = document.getElementById('js_tabs');
+var tab = js_tabs.getAttribute("tab_num"); // Current tab is set to be the first tab (0)
+var currentTab = parseInt(tab)
 showTab(currentTab); // Display the current tab
+// Update script to use ajax to submit a note to the server when the button is pressed to render the correct html for output?
+
 
 function showTab(n) {
   // This function will display the specified tab of the form ...
@@ -12,8 +16,11 @@ function showTab(n) {
     document.getElementById("prevStp").style.display = "inline";
   }
   if (n == (x.length - 1)) {
-    document.getElementById("nextStp").innerHTML = "Run!";
+
+    // Change this to run the model
+    document.getElementById("nextStp").innerHTML = "Submit";
   } else {
+
     document.getElementById("nextStp").innerHTML = "Next";
   }
   // ... and run a function that displays the correct step indicator:
@@ -65,7 +72,13 @@ function fixStepIndicator(n) {
   // This function removes the "active" class of all steps...
   var i, x = document.getElementsByClassName("step");
   for (i = 0; i < x.length; i++) {
-    x[i].className = x[i].className.replace(" active", "");
+    if(i < n) {
+      x[i].className = x[i].className.replace("active", "");
+      x[i].className += " finish";
+    }
+
+    else
+      x[i].className = x[i].className.replace("active", "");
   }
   //... and adds the "active" class to the current step:
   x[n].className += " active";
