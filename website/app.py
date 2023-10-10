@@ -71,7 +71,8 @@ def ml_form():
         
 
     return render_template('ml_form.html',
-                           tab=0)
+                           tab=0,
+                           user_input=False)
 
 
 if __name__ == "__main__":
