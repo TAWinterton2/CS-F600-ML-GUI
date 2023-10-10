@@ -1,0 +1,182 @@
+/* The navigation bar */
+.navbar {
+  overflow: hidden;
+  background-color: #333;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+  z-index:1;
+}
+
+
+/* Links inside the navbar */
+.navbar a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change background on mouse-over */
+.navbar a:hover {
+  background: #ddd;
+  color: black;
+}
+
+/* Main content */
+.main {
+  margin-top: 3%; /* Add a top margin to avoid content overlay */
+  height:100%;
+  background-repeat: no-repeat;
+  background-size:  auto;
+
+
+}
+
+.steps {
+width: 60%;
+float:left;
+display:flex;
+}
+
+.display {
+flex-grow: 1;
+width: 40%;
+float: right;
+}
+
+.welcome_tab {
+font-family: Arial, Helvetica, sans-serif;
+text-align: center;
+border-style: groove;
+border-radius:10px;
+background-color: rgb(245, 204, 228);
+
+margin: 10px auto;
+padding: 40px;
+
+height: auto;
+width: 1000px;
+}
+
+.lin_reg_tab {
+  text-align: center;
+
+  border-style:groove;
+  border-radius: 10px;
+  height: auto;
+  width: 500px;
+  padding-left: 5px;
+  background:#7daf98 ;
+  float: left;
+  margin: 60px;
+}
+
+
+.poly_reg_tab {
+  text-align: center;
+
+  border-style:groove;
+  border-radius: 10px;
+  float: left;
+  height: auto;
+  padding-left: 5px;
+  width: 500px;
+  margin: 60px;
+
+  background:#e7de89;
+}
+
+.log_reg_tab {
+  text-align: center;
+
+  background:#e97a7a ;
+  border-radius: 10px;
+  border-style: groove;
+  float: left;
+  height: auto;
+  padding-left: 5px;
+  width: 500px;
+  margin: 60px;
+}
+
+body{
+background-image: url(subtle-prism.svg);
+background-repeat: no-repeat;
+background-size: 3000px 3000px;
+}
+
+.ML{
+/*border-style: solid;*/
+border-color:aquamarine
+}
+/*style the form*/
+
+#regForm {
+border-radius: 20px;
+background-color: #a8d5e0;
+margin: 10px auto;
+padding: 20px;
+width: 100%;
+min-width: 300px;
+border: 1px solid #89ebb2;
+float: left;
+}
+
+.output{
+  text-align: center;
+  background-color: #90f3c5;
+  margin: 10px;
+  border-radius: 20px;
+  width: auto;
+
+}
+
+/* Style Input Fields*/
+input.t{
+padding:10px;
+width: 100%;
+font-size: 17px;
+font-family:  Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+border: 1px solid #89ebb2;
+}
+
+input.invalid {
+background-color: lightcoral;
+
+}
+
+/* Hide steps by default: */
+
+.tab{
+display: none;
+height: 350px;
+overflow-y: scroll;
+
+}
+
+/* Make circles */
+.step{
+height: 20px;
+width: 20px;
+margin: 0 2px;
+background-color: #bbbbbb;
+border: none;
+border-radius: 50%;
+display: inline-block;
+opacity: 0.5;
+}
+
+/* Mark the active step */
+.step.active{
+opacity: 1;
+
+}
+
+/* Mark steps that are finished */
+
+.step.finish {
+background-color: #04AA6D;
+}

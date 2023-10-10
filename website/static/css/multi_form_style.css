@@ -1,0 +1,64 @@
+body{
+    background-image: linear-gradient((to right, blue, white))
+}
+
+h1{
+    border-style: groove;
+    border-color:aquamarine
+}
+/*style the form*/
+
+#regForm {
+    background-color: #a8d5e0;
+    margin: 100px auto;
+    padding: 40px;
+    width: 70%;
+    min-width: 300px;
+  }
+
+  /* Style Input Fields*/
+  input{
+    padding:10px;
+    width: 100%;
+    font-size: 17px;
+    font-family:  Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    border: 1px solid #89ebb2
+  }
+
+  input.invalid {
+    background-color: red;
+
+}
+
+
+/* Hide steps by default: */
+
+.tab{
+    display: none;
+
+}
+
+/* Make circles */
+.step{
+    height: 20px;
+    width: 20px;
+    margin: 0 2px;
+    background-color: #bbbbbb;
+    border: none;
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.5;
+}
+
+/* Mark the active step */
+.step.active{
+    opacity: 1;
+
+}
+
+/* Mark steps that are finished */
+
+.step.finish {
+    background-color: #04AA6D;
+}
+
