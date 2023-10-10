@@ -443,11 +443,11 @@
             <div class="output">
                 <h1>Output</h1>
                 {% if user_input == False %}
-                    <p>Here would be any visualizations from the program.</p>
-                    <p>Usually, when the user finishes a step it will output some sort of visualization.</p>
-                    <ul>Step 2: visualizes the whole dataset</ul>
-                    <ul>Step 3: visualize the testing and training data-split</ul>
-                    <ul>Step 5: Running the model outputs the error processing / evaluation graphs.</ul>
+                    <p>Here will be any visualizations from the program.</p>
+                {% else %}
+                <form>
+                    <input type="button" value="View Original Data" onclick="openWin()">
+                </form>
                 {% endif %}
 
                 <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
@@ -579,9 +579,6 @@
                     </script>
                     
                 {% endif %}
-                <form>
-                    <input type="button" value="View Original Data" onclick="openWin()">
-                </form>
             </div>
            
         </div>
