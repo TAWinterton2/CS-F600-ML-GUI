@@ -130,3 +130,13 @@ Once the additional dependencies have been installed, it is time to activate the
 
 Do note that this implementation uses NodeJS to host the web server. When a file is uploaded, the buffered contents are sent to Python Flask at `127.0.0.1:8001/transfer` to simulate what might occur in the full program. The information is changed into a useable format and stored into a pandas data frame. This data frame is resolved in JSON format back to the NodeJS and is displayed in the console once the request is finished. NodeJS also parses the csv file to display the graph contents on the screen.
 </details>
+
+## Front End Implementation
+### Dependencies
+- [Python](https://www.python.org/downloads/)
+- [Python Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [Pandas](https://pandas.pydata.org/)
+- [chart.js](https://www.chartjs.org/)
+  
+### Activating the Project
+Navigate to the repository on the command line. Type the command `flask run` to launch the server. With the server running, open a web browser and navigate to `127.0.0.1:5000`. This will launch the homepage of the website.
