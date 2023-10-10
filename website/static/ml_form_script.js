@@ -86,5 +86,5 @@ function fixStepIndicator(n) {
 
 function openWin(){
   var myWindow = window.open("", "MsgWindow", "width=500,height=500");
-  myWindow.document.write("<p>[Insert Dummy Data here]</p>");
+  myWindow.document.write("<table> <tr> <th> X </th> <th> Y </th> <tr> <td> 0.5 </td> <td> .7 <td> </tr> <tr> <td> 0.5 </td> <td> .7 <td> </tr> <tr> <td> 0.5 </td> <td> .7 <td> </tr> <tr> <td> 0.5 </td> <td> .7 <td> </tr> </table>         ");
 }
