@@ -2,6 +2,23 @@ from flask import Flask, render_template, request
 import pandas as pd
 
 
+"""Input Parsing Functions"""
+def csv_upload(file):
+    pass
+
+
+def zip_unpack(zip):
+    pass
+
+
+def text_input_parse(s):
+    pass
+
+
+def clean_data(df):
+    pass
+
+
 def gen_points():
     """Generates a simple pandas dataframe to be displayed on the front end for "scaling" purposes."""
     dict = [{'x':.50, 'y':.7},
