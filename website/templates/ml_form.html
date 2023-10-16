@@ -60,8 +60,7 @@
                         <p><label for="training">Testing:</label>
                         <input type="text" id="testing" name="testing" placeholder="20" oninput="this.className = ''"></p>
                         <input type="submit" name="tt" value="Training/Testing">
-                        <p style="color:red">If the user inputs values that do not make sense (testing > training, testing+training>100),
-                        an error will output here explaining what went wrong.</p>
+                        <p style="color:red">"{{ error }}"</p>
                     {% endif %}
                 </form>
 
@@ -446,7 +445,7 @@
                     <p>Here will be any visualizations from the program.</p>
                 {% else %}
                 <form>
-                    <input type="button" value="View Original Data" onclick="openWin()">
+                    <input type="button" value="View Original Data" id="orig" og_df = '{{og_df}}' onclick="openWin()">
                 </form>
                 {% endif %}
 
