@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import sys
 
 
 """Input Parsing Functions"""
 def csv_upload(file):
-    pass
+    """This function takes a file input and converts it to a pandas DataFrame."""
+    df = pd.read_csv(file)
+    return df
 
 
 def zip_unpack(zip):
@@ -51,6 +54,7 @@ def ml_form():
         # If step 1 of the ml_form has been completed, return new information
         # Update this for WTForms later to better handle the data?
         if 'upload_file' in request.form:
+            df = csv_upload(request.files['file'])
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
