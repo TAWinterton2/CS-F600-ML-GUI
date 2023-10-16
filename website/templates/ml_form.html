@@ -29,7 +29,7 @@
                         <p style="color:blue">File uploaded: {{filename}}.</p>
                         <p>Press the Next button to continue to Step 2.</p>
                     {% else %}
-                        <input type="file" name="file" accept=".csv" value = "{{ request.form['file'] }}">
+                        <input type="file" name="file" accept=".csv">
                         <input type="submit" name="upload_file" value="Submit File">
                         <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
                     {% endif %}
@@ -452,31 +452,9 @@
 
                 <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
                 {% if file_upload == True %}
-                <h2>"Original" Dataset</h2>
-                    <canvas id="myChart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
-                    <script>
-                        const xyValues = [{x:50, y:7},{x:60, y:8},{x:70, y:8},{x:80, y:9},{x:90, y:9},{x:100, y:9},{x:110, y:10},
-                        {x:120, y:11},{x:130, y:14},{x:140, y:14},{x:150, y:15}
-                    ];
-
-                    new Chart("myChart", {
-                    type: "scatter",
-                    data: {
-                        datasets: [{
-                        pointRadius: 4,
-                        pointBackgroundColor: "rgb(0,0,255)",
-                        data: xyValues
-                        }]
-                    },
-                    options: {
-                        legend: {display: false},
-                        scales: {
-                        xAxes: [{ticks: {min: 40, max:160}}],
-                        yAxes: [{ticks: {min: 4, max:16}}],
-                        }
-                    }
-                    });
-                    </script>
+                <h2>Original Dataset</h2>
+                    <canvas id="myChart" style="width:80%; background-color: antiquewhite; align-content: center;"></canvas>
+                    <script type="text/javascript" id="graph" name = "{{name}}" data = '{{data}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 {% endif %}
 
                 <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->

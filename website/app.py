@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import sys
 
 
 """Input Parsing Functions"""
@@ -58,6 +57,8 @@ def ml_form():
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
+                           name="myChart",
+                           data=df.to_json(orient="records"),
                            user_input=True,
                            filename=request.files['file'].filename)
         
