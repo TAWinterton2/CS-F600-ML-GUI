@@ -1,10 +1,16 @@
 from flask import Flask, render_template, request
 import pandas as pd
-from sys import stderr
 
 class DataSnapshot():
+    """This class handles keeping track of the data snapshot that the user submits."""
     def __init__(self):
+        self.og_data = None
         self.data = None
+
+    def select_columns(self, x, y):
+        df = self.og_data[[x, y]].copy()
+        self.data = df
+
 
 snapshot = DataSnapshot()
 
@@ -19,13 +25,6 @@ def zip_unpack(zip):
     pass
 
 
-def test_tip():
-    test = text_input_parse("Hello!")
-    test = text_input_parse("80")
-    test = text_input_parse("73.421356")
-    test = text_input_parse("341.2")   
-
-
 def text_input_parse(s):
     """This function takes in a string submitted by the user and converts it to a float or an integer. If an error occurs, it
     returns an error to the user."""
@@ -33,14 +32,17 @@ def text_input_parse(s):
         if '.' in s:
             f = float(s)
             format_f = "{:.{}f}".format(f, 3)
-            print(s, ": ", format_f, " ", type(float(format_f)), file=stderr)
             return float(format_f), ""
         else:
-            print(s, ": ", int(s), " ", type(int(s)), file=stderr)
             return int(s), ""
     except ValueError as e:
-        print(e, file=stderr)
         return ValueError, e
+    
+
+def get_graph_data(self, df):
+    """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
+    json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[1]: 'y'})
+    return json
 
 
 def clean_data(df):
@@ -80,16 +82,26 @@ def ml_form():
         # Update this for WTForms later to better handle the data?
         if 'upload_file' in request.form:
             df = csv_upload(request.files['file'])
-            snapshot.data = df
-            test_tip()
+            snapshot.og_data = df
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
+                           filename=request.files['file'].filename,
+                           og_df=snapshot.og_data.to_html(),
+                           column_names=snapshot.og_data.columns.tolist())
+        
+        if 'select_xy' in request.form:
+            snapshot.select_columns(request.form['X'], request.form['Y'])
+            df = snapshot.get_graph_data(snapshot.data)
+            return render_template('ml_form.html',
+                           tab=0, 
+                           columns_selected=True,
                            name="myChart",
                            data=df.to_json(orient="records"),
                            user_input=True,
-                           filename=request.files['file'].filename,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html(),
+                           column_names=snapshot.data.columns.tolist())
+
         
         if 'scaling' in request.form:
             return render_template('ml_form.html',
@@ -98,7 +110,7 @@ def ml_form():
                            scaling=True,
                            tables=[snapshot.data.to_html(classes='data')],
                            titles=snapshot.data.columns.values,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html())
         
         if 'tt' in request.form:
             train, e = text_input_parse(request.form['training'])
@@ -109,14 +121,14 @@ def ml_form():
                            user_input=True,
                            traintest=False,
                            error=e,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html())
             if test is ValueError:
                 return render_template('ml_form.html',
                            tab=2,
                            user_input=True,
                            traintest=False,
                            error=e,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html())
 
             return render_template('ml_form.html',
                            tab=2,
@@ -124,21 +136,21 @@ def ml_form():
                            traintest=True,
                            tr=train,
                            te=test,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html())
         
         if 'hyperparams' in request.form:
             return render_template('ml_form.html',
                            tab=3,
                            user_input=True,
                            hyper=True,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html())
         
         if 'run' in request.form:
             return render_template('ml_form.html',
                            tab=4,
                            user_input=True,
                            start=True,
-                           og_df=snapshot.data.to_html())
+                           og_df=snapshot.og_data.to_html())
         
 
     return render_template('ml_form.html',

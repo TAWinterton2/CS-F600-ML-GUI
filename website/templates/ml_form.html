@@ -21,58 +21,81 @@
                 <h1 class="ML">Linear Regression</h1>
                 
                 <!-- Div for Uploading Dataset-->
-                <form class="tab" id="data" method="POST" enctype="multipart/form-data"><h2>Step 1: Uploading Dataset</h2>
+                <div class="tab" id="step_1"><h2>Step 1: Uploading Dataset</h2>
                     <p>We would put instructions here to describe what type of dataset to use and what file type is accepted.</p>
                     <p>Below is a link that downloads a dummy CSV file that the user can use for testing</p>
                     <p><a href="https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
                     <p>Otherwise, the user can upload a .csv/.zip file.</p>
                     {% if file_upload == True %}
+                    <form id="columns" method="POST">
                         <p style="color:blue">File uploaded: {{filename}}.</p>
-                        <p>Press the Next button to continue to Step 2.</p>
+                        <p>Please select which columns you would like to test over.</p>
+                        <p>Select X value</p>
+                        <select type="X" name="X">
+                            {% for c in column_names %}
+                            <option value="{{c}}">{{c}}</option>
+                            {% endfor %}
+                        </select>
+                        <p>Select Y value</p>
+                        <select type="Y" name="Y">
+                            {% for c in column_names %}
+                            <option value="{{c}}">{{c}}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit" name="select_xy" value="Submit Column Selection">
+                    </form>
+
                     {% else %}
+                    <form id="upload" method="POST" enctype="multipart/form-data">
                         <input type="file" name="file" accept=".csv">
                         <input type="submit" name="upload_file" value="Submit File">
+                    </form>
                         <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
                     {% endif %}
-                </form>
+                </div>
 
                 <!-- Div for Scaling the Data Set-->
-                <form class="tab" id="scale" method="POST"><h2>Step 2: Scaling the Dataset</h2>
+                <div class="tab" id="step_2"><h2>Step 2: Scaling the Dataset</h2>
                     <p>This section would explain what we mean by scaling the dataset, as well as what each option (if applicable)
                         means. The user will select an option (with standardize being the default) and then continue to the next step.
                     </p>
-                    <select name="Scaling Type" id="scale">
-                        <option value="Standardize">Standardize</option>
-                        <option value="Normalize">Normalize</option>
-                    </select>
-                    <input type="submit" name="scaling" value="Scaling Selected">
-                </form>
+                    <form id="scale_type" method="POST">
+                        <select name="Scaling Type" id="scale">
+                            <option value="Standardize">Standardize</option>
+                            <option value="Normalize">Normalize</option>
+                        </select>
+                        <input type="submit" name="scaling" value="Scaling Selected">
+                    </form>
+                </div>
 
                 <!-- Div for Setting Testing and Training Sets-->
-                <form class="tab" id="trte" method="POST"><h2>Step 3: Training and Testing</h2>
+                <div class="tab" id="step_3"><h2>Step 3: Training and Testing</h2>
                     <p>We would explain what the testing + training datasets mean, the ideal split for this.</p>
                     {% if traintest == True %}
                         <p>User inputs:</p>
                         <p>Training: {{tr}} </p>
                         <p>Testing: {{te}}</p>
                     {% else %}
+                    <form id="trte" method="POST">
                         <p><label for="training">Training:</label>
                         <input type="text" id="training" name="training" placeholder="80" oninput="this.className = ''"></p>
                         <p><label for="training">Testing:</label>
                         <input type="text" id="testing" name="testing" placeholder="20" oninput="this.className = ''"></p>
                         <input type="submit" name="tt" value="Training/Testing">
-                        <p style="color:red">"{{ error }}"</p>
+                    </form>
+                        <p style="color:red">{{ error }}</p>
                     {% endif %}
-                </form>
+                </div>
 
 
                 <!-- Div for Changing all Hyperparameters-->
                 <!-- Sorry if this div becomes super long :( 
                                             -Travis         -->
-                <form class="tab" id="init" method="POST"><h2>Step 4: Initialize the Model</h2>
+                <div class="tab" id="step_4"><h2>Step 4: Initialize the Model</h2>
                     {% if hyper==True %}
                     <p>Hyperparameters successfully inputted. Please press the next button to run the model.</p>
                     {% else %}
+                    <form id="init" method="POST">
                     <p>
                         List of all Hyperparameters associated with ML model are listed here 
                         <br>
@@ -407,30 +430,30 @@
 
                     
                     <input type="submit" name="hyperparams" value="Hyperparams">
-                    
+                </form>
                 {% endif %}
 
                
-                </form>
+                </div>
 
 
                 
                 <!-- Div for Running the Model-->
-                <form class="tab" id="run" method="POST"><h2>Step 5: Run</h2>
+                <div class="tab" id="step_5"><h2>Step 5: Run</h2>
+                    <form id="run" method="POST">
                     <p>If possible, we would review all the settings the user has inputted so the user 
                         can view everything before running. When the user presses the run button, the model
                         will run with the provided settings and either output an error message OR proceed to evaluation.</p>
                     <input type="submit" name="run" value="Run the model">
-
                 </form>
+
+                </div>
                 <p>Once you are done with the above step and have submitted, click on the next button.</p>
                 <!-- Next and Previous Buttons for Multi-page form-->
                 <div style="overflow:auto;">
                     <div style="float:right;">
                     <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
-                    {% if user_input == True %}
-                        <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
-                    {% endif %}
+                    <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
                     </div>
                 </div>
 
@@ -451,10 +474,10 @@
                 {% endif %}
 
                 <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
-                {% if file_upload == True %}
+                {% if columns_selected == True %}
                 <h2>Original Dataset</h2>
                     <canvas id="myChart" style="width:80%; background-color: antiquewhite; align-content: center;"></canvas>
-                    <script type="text/javascript" id="graph" name = "{{name}}" data = '{{data}}' src="{{url_for('static', filename='graph.js')}}"></script>
+                    <script type="text/javascript" id="graph" name = "{{name}}" data = '{{data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 {% endif %}
 
                 <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->
