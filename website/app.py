@@ -1,5 +1,11 @@
 from flask import Flask, render_template, request
 import pandas as pd
+from zipfile import ZipFile
+import pathlib 
+import os
+
+#Get current wording directory of server and save it as a string
+cwd = os.getcwd()
 
 
 """Input Parsing Functions"""
@@ -8,7 +14,13 @@ def csv_upload(file):
 
 
 def zip_unpack(zip):
-    pass
+    with ZipFile(cwd, 'r') as zObject:
+
+    #Extract all files in the zip
+    #into a specific location
+        zObject.extractall(path=cwd)
+        zObject.close()
+
 
 
 def text_input_parse(s):
@@ -45,12 +57,17 @@ def index():
 
 
 @app.route("/linear", methods=['POST', 'GET'])
+
+
+
 def ml_form():
     """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
     if request.method == 'POST':
         # If step 1 of the ml_form has been completed, return new information
         # Update this for WTForms later to better handle the data?
         if 'upload_file' in request.form:
+            f = request.files['file']
+            f.save(f.filename)
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
