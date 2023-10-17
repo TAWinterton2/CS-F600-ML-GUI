@@ -75,7 +75,7 @@ def ml_form():
         
         if 'select_xy' in request.form:
             snapshot.select_columns(request.form['X'], request.form['Y'])
-            df = snapshot.get_graph_data(snapshot.data)
+            df = get_graph_data(snapshot.data)
             return render_template('ml_form.html',
                            tab=0, 
                            columns_selected=True,
