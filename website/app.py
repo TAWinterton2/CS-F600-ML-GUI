@@ -39,7 +39,7 @@ def text_input_parse(s):
         return ValueError, e
     
 
-def get_graph_data(self, df):
+def get_graph_data(df):
     """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
     json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[1]: 'y'})
     return json
@@ -47,23 +47,6 @@ def get_graph_data(self, df):
 
 def clean_data(df):
     pass
-
-
-def gen_points():
-    """Generates a simple pandas dataframe to be displayed on the front end for "scaling" purposes."""
-    dict = [{'x':.50, 'y':.7},
-            {'x':.60, 'y':.8},
-            {'x':.70, 'y':.8},
-            {'x':.80, 'y':.9},
-            {'x':.90, 'y':.9},
-            {'x':.100, 'y':.9},
-            {'x':.110, 'y':.10},
-            {'x':.120, 'y':.11},
-            {'x':.130, 'y':.14},
-            {'x':.140, 'y':.14},
-            {'x':.150, 'y':.15}]
-    df = pd.DataFrame(dict)
-    return df
 
 
 app = Flask(__name__)
