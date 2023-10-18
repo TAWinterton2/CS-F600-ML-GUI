@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import zipfile
+from zipfile import ZipFile
+import pathlib 
+import os, shutil
 
 class DataSnapshot():
     """This class handles keeping track of the data snapshot that the user submits."""
@@ -20,9 +24,61 @@ def csv_upload(file):
     df = pd.read_csv(file)
     return df
 
+def zip_unpack(zip_file):
+   #Get current wording directory of server and save it as a string
+    cwd = os.getcwd()
+    zip_file_path = os.path.join(cwd, zip_file)
 
-def zip_unpack(zip):
-    pass
+    temp_dir = "temp"
+    temp_path = os.path.join(cwd, temp_dir)
+
+    ext = ('.csv')
+
+    #check if temp already exists
+    if not os.path.exists(temp_path):
+        os.mkdir(temp_path)
+
+    with ZipFile(zip_file_path, 'r') as zObject:
+    #Extract all files in the zip into a specific location
+        zObject.extractall(path=temp_path)
+        zObject.close()
+
+    temp_folder_name = os.path.splitext(zip_file)[0]
+    tmp = temp_path
+    temp_path = os.path.join(temp_path, temp_folder_name)
+
+    files = []
+    for file in os.listdir(temp_path):
+        # Mac
+        if not file.startswith('.'):
+            if file.endswith(ext):
+                files.append(file)
+
+            else:
+                shutil.rmtree(tmp)
+                os.remove(zip_file_path)
+                os.chdir(cwd)
+                return "There are files in " + zip_file + " that are not .csv files. Please try again with only .csv files."
+    
+    d = []
+    for f in files:
+        tmp_path = os.path.join(temp_path, f)
+        df = pd.read_csv(tmp_path, on_bad_lines='skip')
+        d.append(df)
+
+    columns = d[0].columns
+    for df in d:
+        if df.columns.difference(columns).empty is False:
+            shutil.rmtree(tmp)
+            os.remove(zip_file_path)
+            os.chdir(cwd)
+            return "The csv files within " + zip_file +" do not have the same column names. Please resubmit with .csvs that have matching columns."
+        # load all csv files, check if columns match, return either a dataframe or a string error
+    
+    shutil.rmtree(tmp)
+    os.remove(zip_file_path)
+    os.chdir(cwd)
+    return pd.concat(d, axis=0)
 
 
 def text_input_parse(s):
@@ -58,13 +114,31 @@ def index():
 
 
 @app.route("/linear", methods=['POST', 'GET'])
+
+
+
 def ml_form():
     """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
     if request.method == 'POST':
         # If step 1 of the ml_form has been completed, return new information
         # Update this for WTForms later to better handle the data?
         if 'upload_file' in request.form:
-            df = csv_upload(request.files['file'])
+            f = request.files['file']
+            f.save(f.filename)
+            if zipfile.is_zipfile(f):
+                result = zip_unpack(f.filename)
+                if isinstance(result, str):
+                    return render_template('ml_form.html',
+                           tab=0, 
+                           filename=request.files['file'].filename,
+                           error=result)
+                else:
+                    return render_template('ml_form.html',
+                           tab=0, 
+                           filename=request.files['file'].filename,
+                           error=type(result))
+            else:
+                df = csv_upload(request.files['file'])
             snapshot.og_data = df
             return render_template('ml_form.html',
                            tab=0, 
