@@ -1,26 +1,53 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import zipfile
 from zipfile import ZipFile
 import pathlib 
 import os
 
-#Get current wording directory of server and save it as a string
-cwd = os.getcwd()
+
 
 
 """Input Parsing Functions"""
 def csv_upload(file):
     pass
 
+def zip_unpack(zip_file):
+   #Get current wording directory of server and save it as a string
+    cwd = os.getcwd()
+    file_name = zip_file
+    print("zip_unpack")
+    zip_file_path = os.path.join(cwd, file_name)
 
-def zip_unpack(zip):
-    with ZipFile(cwd, 'r') as zObject:
+    temp_dir = "temp"
+    temp_path = os.path.join(cwd, temp_dir)
+
+    ext = ('.csv')
+
+
+
+    #check if temp already exists
+    if not os.path.exists(temp_path):
+        os.mkdir(temp_path)
+
+
+    print("Zip FIle Path: ", zip_file_path)
+    print("Current Working Directory", cwd)
+    print("Temporary Directory", temp_dir)
+    print("Temp Dir path", temp_path)
+
+
+    with ZipFile(zip_file_path, 'r') as zObject:
 
     #Extract all files in the zip
     #into a specific location
-        zObject.extractall(path=cwd)
+        zObject.extractall(path=temp_path)
         zObject.close()
 
+    temp_folder_name = os.path.splitext(zip_file)[0]
+    temp_path = os.path.join(temp_path, temp_folder_name)
+
+    print("Extract Success!!")
 
 
 def text_input_parse(s):
@@ -68,6 +95,9 @@ def ml_form():
         if 'upload_file' in request.form:
             f = request.files['file']
             f.save(f.filename)
+            if zipfile.is_zipfile(f):
+                print("Hey yo!")
+                zip_unpack(f.filename)
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
