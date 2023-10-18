@@ -26,31 +26,36 @@
                     <p>Below is a link that downloads a dummy CSV file that the user can use for testing</p>
                     <p><a href="https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
                     <p>Otherwise, the user can upload a .csv/.zip file.</p>
-                    {% if file_upload == True %}
-                    <form id="columns" method="POST">
-                        <p style="color:blue">File uploaded: {{filename}}.</p>
-                        <p>Please select which columns you would like to test over.</p>
-                        <p>Select X value</p>
-                        <select type="X" name="X">
-                            {% for c in column_names %}
-                            <option value="{{c}}">{{c}}</option>
-                            {% endfor %}
-                        </select>
-                        <p>Select Y value</p>
-                        <select type="Y" name="Y">
-                            {% for c in column_names %}
-                            <option value="{{c}}">{{c}}</option>
-                            {% endfor %}
-                        </select>
-                        <input type="submit" name="select_xy" value="Submit Column Selection">
-                    </form>
-
+                    {% if form_complete == True %}
+                    <p>Column X: {{column_names[0]}}</p>
+                    <p>Column Y: {{column_names[1]}}</p>
                     {% else %}
-                    <form id="upload" method="POST" enctype="multipart/form-data">
-                        <input type="file" name="file" accept=".csv">
-                        <input type="submit" name="upload_file" value="Submit File">
-                    </form>
-                        <p style="color:crimson">{{error}}</p>
+                        {% if file_upload == True %}
+                        <form id="columns" method="POST">
+                            <p style="color:blue">File uploaded: {{filename}}.</p>
+                            <p>Please select which columns you would like to test over.</p>
+                            <p>Select X value</p>
+                            <select type="X" name="X">
+                                {% for c in column_names %}
+                                <option value="{{c}}">{{c}}</option>
+                                {% endfor %}
+                            </select>
+                            <p>Select Y value</p>
+                            <select type="Y" name="Y">
+                                {% for c in column_names %}
+                                <option value="{{c}}">{{c}}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="submit" name="select_xy" value="Submit Column Selection">
+                        </form>
+
+                        {% else %}
+                        <form id="upload" method="POST" enctype="multipart/form-data">
+                            <input type="file" name="file">
+                            <input type="submit" name="upload_file" value="Submit File">
+                        </form>
+                            <p style="color:crimson">{{error}}</p>
+                        {% endif %}
                     {% endif %}
                 </div>
 
