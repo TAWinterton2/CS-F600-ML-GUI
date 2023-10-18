@@ -29,7 +29,7 @@
                         <p style="color:blue">File uploaded: {{filename}}.</p>
                         <p>Press the Next button to continue to Step 2.</p>
                     {% else %}
-                        <input type="file" name="file" accept=".csv" value = "{{ request.form['file'] }}">
+                        <input type="file" name="file" accept=".csv, .zip" value = "{{ request.form['file'] }}">
                         <input type="submit" name="upload_file" value="Submit File">
                         <p style="color:crimson">Here will be a notification that will appear when the file has been accepted or if an error occurred.</p>
                     {% endif %}
