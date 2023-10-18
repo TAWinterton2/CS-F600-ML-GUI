@@ -3,9 +3,7 @@ import pandas as pd
 import zipfile
 from zipfile import ZipFile
 import pathlib 
-import os
-
-
+import os, shutil
 
 
 """Input Parsing Functions"""
@@ -15,39 +13,58 @@ def csv_upload(file):
 def zip_unpack(zip_file):
    #Get current wording directory of server and save it as a string
     cwd = os.getcwd()
-    file_name = zip_file
-    print("zip_unpack")
-    zip_file_path = os.path.join(cwd, file_name)
+    zip_file_path = os.path.join(cwd, zip_file)
 
     temp_dir = "temp"
     temp_path = os.path.join(cwd, temp_dir)
 
     ext = ('.csv')
 
-
-
     #check if temp already exists
     if not os.path.exists(temp_path):
         os.mkdir(temp_path)
 
-
-    print("Zip FIle Path: ", zip_file_path)
-    print("Current Working Directory", cwd)
-    print("Temporary Directory", temp_dir)
-    print("Temp Dir path", temp_path)
-
-
     with ZipFile(zip_file_path, 'r') as zObject:
-
-    #Extract all files in the zip
-    #into a specific location
+    #Extract all files in the zip into a specific location
         zObject.extractall(path=temp_path)
         zObject.close()
 
     temp_folder_name = os.path.splitext(zip_file)[0]
+    tmp = temp_path
     temp_path = os.path.join(temp_path, temp_folder_name)
 
-    print("Extract Success!!")
+    files = []
+    for file in os.listdir(temp_path):
+        # Mac
+        if not file.startswith('.'):
+            if file.endswith(ext):
+                files.append(file)
+
+            else:
+                shutil.rmtree(tmp)
+                os.remove(zip_file_path)
+                os.chdir(cwd)
+                return "There are files in " + zip_file + " that are not .csv files. Please try again with only .csv files."
+    
+    d = []
+    for f in files:
+        tmp_path = os.path.join(temp_path, f)
+        df = pd.read_csv(tmp_path, on_bad_lines='skip')
+        d.append(df)
+
+    columns = d[0].columns
+    for df in d:
+        if df.columns.difference(columns).empty is False:
+            shutil.rmtree(tmp)
+            os.remove(zip_file_path)
+            os.chdir(cwd)
+            return "The csv files within " + zip_file +" do not have the same column names. Please resubmit with .csvs that have matching columns."
+        # load all csv files, check if columns match, return either a dataframe or a string error
+    
+    shutil.rmtree(tmp)
+    os.remove(zip_file_path)
+    os.chdir(cwd)
+    return pd.concat(d, axis=0)
 
 
 def text_input_parse(s):
@@ -96,8 +113,19 @@ def ml_form():
             f = request.files['file']
             f.save(f.filename)
             if zipfile.is_zipfile(f):
-                print("Hey yo!")
-                zip_unpack(f.filename)
+                result = zip_unpack(f.filename)
+                if isinstance(result, str):
+                    return render_template('ml_form.html',
+                           tab=0, 
+                           filename=request.files['file'].filename,
+                           error=result)
+                else:
+                    return render_template('ml_form.html',
+                           tab=0, 
+                           filename=request.files['file'].filename,
+                           error=type(result))
+
+
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
