@@ -5,10 +5,24 @@ from zipfile import ZipFile
 import pathlib 
 import os, shutil
 
+class DataSnapshot():
+    """This class handles keeping track of the data snapshot that the user submits."""
+    def __init__(self):
+        self.og_data = None
+        self.data = None
+
+    def select_columns(self, x, y):
+        df = self.og_data[[x, y]].copy()
+        self.data = df
+
+
+snapshot = DataSnapshot()
 
 """Input Parsing Functions"""
 def csv_upload(file):
-    pass
+    """This function takes a file input and converts it to a pandas DataFrame."""
+    df = pd.read_csv(file)
+    return df
 
 def zip_unpack(zip_file):
    #Get current wording directory of server and save it as a string
@@ -68,28 +82,27 @@ def zip_unpack(zip_file):
 
 
 def text_input_parse(s):
-    pass
+    """This function takes in a string submitted by the user and converts it to a float or an integer. If an error occurs, it
+    returns an error to the user."""
+    try:
+        if '.' in s:
+            f = float(s)
+            format_f = "{:.{}f}".format(f, 3)
+            return float(format_f), ""
+        else:
+            return int(s), ""
+    except ValueError as e:
+        return ValueError, e
+    
+
+def get_graph_data(df):
+    """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
+    json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[1]: 'y'})
+    return json
 
 
 def clean_data(df):
     pass
-
-
-def gen_points():
-    """Generates a simple pandas dataframe to be displayed on the front end for "scaling" purposes."""
-    dict = [{'x':.50, 'y':.7},
-            {'x':.60, 'y':.8},
-            {'x':.70, 'y':.8},
-            {'x':.80, 'y':.9},
-            {'x':.90, 'y':.9},
-            {'x':.100, 'y':.9},
-            {'x':.110, 'y':.10},
-            {'x':.120, 'y':.11},
-            {'x':.130, 'y':.14},
-            {'x':.140, 'y':.14},
-            {'x':.150, 'y':.15}]
-    df = pd.DataFrame(dict)
-    return df
 
 
 app = Flask(__name__)
@@ -124,42 +137,77 @@ def ml_form():
                            tab=0, 
                            filename=request.files['file'].filename,
                            error=type(result))
-
-
+            else:
+                df = csv_upload(request.files['file'])
+            snapshot.og_data = df
             return render_template('ml_form.html',
                            tab=0, 
                            file_upload=True,
+                           filename=request.files['file'].filename,
+                           og_df=snapshot.og_data.to_html(),
+                           column_names=snapshot.og_data.columns.tolist())
+        
+        if 'select_xy' in request.form:
+            snapshot.select_columns(request.form['X'], request.form['Y'])
+            df = get_graph_data(snapshot.data)
+            return render_template('ml_form.html',
+                           tab=0, 
+                           columns_selected=True,
+                           name="myChart",
+                           data=df.to_json(orient="records"),
                            user_input=True,
-                           filename=request.files['file'].filename)
+                           og_df=snapshot.og_data.to_html(),
+                           column_names=snapshot.data.columns.tolist())
+
         
         if 'scaling' in request.form:
-            df = gen_points()
             return render_template('ml_form.html',
                            tab=1,
                            user_input=True,
                            scaling=True,
-                           tables=[df.to_html(classes='data')],
-                           titles=df.columns.values)
+                           tables=[snapshot.data.to_html(classes='data')],
+                           titles=snapshot.data.columns.values,
+                           og_df=snapshot.og_data.to_html())
         
         if 'tt' in request.form:
+            train, e = text_input_parse(request.form['training'])
+            test, e = text_input_parse(request.form['testing'])
+            if train is ValueError:
+                return render_template('ml_form.html',
+                           tab=2,
+                           user_input=True,
+                           traintest=False,
+                           error=e,
+                           og_df=snapshot.og_data.to_html())
+            if test is ValueError:
+                return render_template('ml_form.html',
+                           tab=2,
+                           user_input=True,
+                           traintest=False,
+                           error=e,
+                           og_df=snapshot.og_data.to_html())
+
             return render_template('ml_form.html',
                            tab=2,
                            user_input=True,
                            traintest=True,
-                           tr=request.form['training'],
-                           te=request.form['testing'])
+                           tr=train,
+                           te=test,
+                           og_df=snapshot.og_data.to_html())
         
         if 'hyperparams' in request.form:
             return render_template('ml_form.html',
                            tab=3,
                            user_input=True,
-                           hyper=True)
+                           hyper=True,
+                           og_df=snapshot.og_data.to_html())
         
         if 'run' in request.form:
             return render_template('ml_form.html',
                            tab=4,
                            user_input=True,
-                           start=True)
+                           start=True,
+                           og_df=snapshot.og_data.to_html())
         
 
     return render_template('ml_form.html',
