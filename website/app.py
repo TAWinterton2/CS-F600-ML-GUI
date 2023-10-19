@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import zipfile
+import zipfile, os, shutil
 from zipfile import ZipFile
-import pathlib 
-import os, shutil
 
+"""Temp. Data Snapshot"""
 class DataSnapshot():
     """This class handles keeping track of the data snapshot that the user submits."""
     def __init__(self):
@@ -20,19 +19,20 @@ class DataSnapshot():
 snapshot = DataSnapshot()
 
 
-
 """Input Parsing Functions"""
-ALLOWED_EXTENSIONS = {'csv', 'zip'}
 def allowed_file(filename):
     """Method to ensure that the user supplied a file with the correct extension."""
+    allowed_extensions = {'csv', 'zip'}
     # https://flask.palletsprojects.com/en/2.3.x/patterns/fileuploads/
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
 
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     df = pd.read_csv(file)
     return df
+
 
 def zip_unpack(zip_file):
    #Get current wording directory of server and save it as a string
@@ -57,6 +57,8 @@ def zip_unpack(zip_file):
         temp_folder_name = os.path.splitext(zip_file)[0]
         tmp = temp_path
         temp_path = os.path.join(temp_path, temp_folder_name)
+        if os.path.isdir(temp_path) is False:
+            temp_path = tmp
 
         files = []
         for file in os.listdir(temp_path):
@@ -117,7 +119,7 @@ def get_graph_data(df):
 def clean_data(df):
     pass
 
-
+"""Flask Operation"""
 app = Flask(__name__)
 
 @app.route("/")
@@ -134,6 +136,7 @@ def ml_form():
         # Update this for WTForms later to better handle the data?
         if 'upload_file' in request.form:
             f = request.files['file']
+            # Maybe add a checkbox to see if the data comes from UCI. They have a specific standards for uploading data we can use for uploading.
             if allowed_file(f.filename):
                 f.save(f.filename)
                 if zipfile.is_zipfile(f):
