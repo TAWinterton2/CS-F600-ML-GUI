@@ -33,6 +33,8 @@
     margin: 10px;
     border-radius: 20px;
     width: auto;
+    height: 600px;
+    overflow-y: scroll;
 }
     
 /* Style Input Fields*/

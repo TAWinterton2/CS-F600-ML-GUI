@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pandas as pd
 import zipfile, os, shutil
 from zipfile import ZipFile
+from website.models import linear_regression as lr
 
 """Temp. Data Snapshot"""
 class DataSnapshot():
@@ -117,7 +118,8 @@ def get_graph_data(df):
 
 
 def clean_data(df):
-    pass
+    df.dropna(inplace=True)
+
 
 """Flask Operation"""
 app = Flask(__name__)
@@ -180,6 +182,8 @@ def ml_form():
 
         
         if 'scaling' in request.form:
+            clean_data(snapshot.data)
+            snapshot.data = lr.scaling(snapshot.data, request.form['scale'])
             return render_template('ml_form.html',
                            tab=1,
                            user_input=True,
