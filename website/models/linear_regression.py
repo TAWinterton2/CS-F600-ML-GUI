@@ -19,7 +19,9 @@ def scaling(df, bool):
     return pd.DataFrame({columns[0]: x, columns[1]: Y})
 
 
-def test_train_split():
+def test_train_split(X, Y, test_size, train_size):
+    """This function handles the process of splitting our dataset into testing and training sets."""
+    X_train_split, X_test_split, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
     pass
 
 
