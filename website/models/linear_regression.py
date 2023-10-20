@@ -1,16 +1,22 @@
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+import sys
 
 
-def scaling(y, bool):
+def scaling(df, bool):
     """This function handles the process of scaling our machine learning model."""
     # Normalize the data - Convert to range [0, 1]
-    if bool:
+    columns = df.columns
+    x = df.iloc[:,0].to_numpy()
+    y = df.iloc[:,1].to_numpy()
+    if bool == "Normalize":
         Y = (y - np.min(y)) / (np.max(y) - np.min(y))
     # Standardize the data - Convert to a normal distribution with mean 0 and standard deviation of 1
     else:
         Y = (y - np.mean(y)) / np.std(y)
-    return Y
+    
+    return pd.DataFrame({columns[0]: x, columns[1]: Y})
 
 
 def test_train_split():
