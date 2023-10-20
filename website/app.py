@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pandas as pd
 import zipfile, os, shutil
 from zipfile import ZipFile
+from .models import linear_regression as lr
 
 """Temp. Data Snapshot"""
 class DataSnapshot():
