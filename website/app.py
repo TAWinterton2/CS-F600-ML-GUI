@@ -217,7 +217,7 @@ def ml_form():
             
             #we need to generate colomn names so we can set x and y test/training splits
             
-            test_df, train_df = lr.test_train_split(df, test, train)
+            train_df, test_df = lr.test_train_split(df, test, train)
 
             test_df = get_graph_data(test_df)
             train_df=get_graph_data(train_df)

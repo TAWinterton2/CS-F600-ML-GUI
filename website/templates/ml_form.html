@@ -511,9 +511,11 @@
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
                     <h2>"Training" Dataset</h2>
                     <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
-                    <script type="text/javascript" id="graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
+                    <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
                 {% if start==True %}
+
+                
                 <p>Mean Absolute Error: .943124</p>
                 <p>Mean Squared Error: .9653214 </p>
                 <p>Root Mean Squared Error: .977777</p>

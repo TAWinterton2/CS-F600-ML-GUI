@@ -1,5 +1,5 @@
 // Import values from the html that called the script
-var graph = document.getElementById("graph");
+var graph = document.getElementById("train_graph");
 var chartName = graph.getAttribute("name");
 var pyData = JSON.parse(graph.getAttribute("data"));
 var ctx = document.getElementById(chartName).getContext('2d');
