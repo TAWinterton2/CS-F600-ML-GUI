@@ -5,6 +5,7 @@
     }
     
 .display {
+    overflow-y: scroll;
     flex-grow: 1;
     width: 40%;
     float: right;
@@ -28,13 +29,12 @@
     }
     
 .output {
+    overflow-y: scroll;
     text-align: center;
     background-color: #90f3c5;
     margin: 10px;
     border-radius: 20px;
     width: auto;
-    height: 600px;
-    overflow-y: scroll;
 }
     
 /* Style Input Fields*/
