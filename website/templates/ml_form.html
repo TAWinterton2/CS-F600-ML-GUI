@@ -26,10 +26,7 @@
                     <p>Below is a link that downloads a dummy CSV file that the user can use for testing</p>
                     <p><a href="https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
                     <p>Otherwise, the user can upload a .csv/.zip file.</p>
-                    {% if form_complete == True %}
-                    <p>Column X: {{column_names[0]}}</p>
-                    <p>Column Y: {{column_names[1]}}</p>
-                    {% else %}
+
                         {% if file_upload == True %}
                         <form id="columns" method="POST">
                             <p style="color:blue">File uploaded: {{filename}}.</p>
@@ -56,7 +53,6 @@
                         </form>
                             <p style="color:crimson">{{error}}</p>
                         {% endif %}
-                    {% endif %}
                 </div>
 
                 <!-- Div for Scaling the Data Set-->

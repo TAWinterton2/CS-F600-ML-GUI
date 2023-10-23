@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import zipfile, os, shutil
+import zipfile, os, shutil, csv
 from zipfile import ZipFile
 from website.models import linear_regression as lr
 
@@ -16,7 +16,6 @@ class DataSnapshot():
         df = self.og_data[[x, y]].copy()
         self.data = df
 
-
 snapshot = DataSnapshot()
 
 
@@ -24,19 +23,45 @@ snapshot = DataSnapshot()
 def allowed_file(filename):
     """Method to ensure that the user supplied a file with the correct extension."""
     allowed_extensions = {'csv', 'zip'}
+    type = filename.rsplit('.', 1)[1].lower()
+    if '.' in filename and type in allowed_extensions:
+        return True, type
     # https://flask.palletsprojects.com/en/2.3.x/patterns/fileuploads/
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in allowed_extensions
+    return '.' in filename and type in allowed_extensions, ""
+
+
+def has_header(df):
+    """Determine if the file has a header. It returns a list of headers to use when uploading the full file."""
+    return isinstance(df.columns[0], str)
+
+
+def gen_headers(x):
+    col = []
+    for n in range(x): col.append("Column " + str(n+1))
+    return col
 
 
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     try:
-        df = pd.read_csv(file)
-        return(df)
+        print(app.config['UPLOAD_FOLDER'])
+        print(file)
+        path = app.config['UPLOAD_FOLDER'] + file
+        with open(path,"r") as f:
+            sample = f.read(1024)
+            header = csv.Sniffer().has_header(sample)
+        if header:
+            header='infer'
+        else:
+            header=None
+        df = pd.read_csv(path, header=header, index_col=0)
+        if not header:
+            cols = gen_headers(df.shape[1])
+            df = df.set_axis(cols, axis='columns')
+        return df
     except Exception as e:
-        return "Program returned error: " + str(e)
-
+        return "Program returned error while uploading the csv: " + str(e)
+    
 
 def zip_unpack(zip_file):
    #Get current wording directory of server and save it as a string
@@ -80,7 +105,17 @@ def zip_unpack(zip_file):
         d = []
         for f in files:
             tmp_path = os.path.join(temp_path, f)
-            df = pd.read_csv(tmp_path, on_bad_lines='skip')
+            with open(tmp_path, "r") as f:
+                sample = f.read(1024)
+                header = csv.Sniffer().has_header(sample)
+            if header:
+                header='infer'
+            else:
+                header=None
+            df = pd.read_csv(tmp_path, on_bad_lines='skip', header=None, index_col=0)
+            if not header:
+                cols = gen_headers(df.shape[1])
+                df = df.set_axis(cols, axis='columns')
             d.append(df)
 
         columns = d[0].columns
@@ -92,13 +127,12 @@ def zip_unpack(zip_file):
                 return "The csv files within " + zip_file +" do not have the same column names. Please resubmit with .csvs that have matching columns."
             # load all csv files, check if columns match, return either a dataframe or a string error
         
-        print(df.shape[1], file=sys.stderr)
         shutil.rmtree(tmp)
         os.remove(zip_file_path)
         os.chdir(cwd)
         return pd.concat(d, axis=0)
-    except:
-        return "Something went wrong."
+    except Exception as e:
+        return "Program returned error while uploading the zip: " + str(e)
 
 
 def text_input_parse(s):
@@ -122,11 +156,13 @@ def get_graph_data(df):
 
 
 def clean_data(df):
+    """This function handles cleaning the dataset. This is done by removing all null values from the set."""
     df.dropna(inplace=True)
 
 
 """Flask Operation"""
 app = Flask(__name__)
+app.config["UPLOAD_FOLDER"] = "./temp/"
 
 @app.route("/")
 def index():
@@ -141,11 +177,25 @@ def ml_form():
         # If step 1 of the ml_form has been completed, return new information
         # Update this for WTForms later to better handle the data?
         if 'upload_file' in request.form:
+            if 'file' not in request.files:
+                return render_template('ml_form.html',
+                            tab=0, 
+                            filename=request.files['file'].filename,
+                            error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
+
             f = request.files['file']
+            if f.filename == '':
+                return render_template('ml_form.html',
+                            tab=0, 
+                            filename=request.files['file'].filename,
+                            error="No file submitted. Please submit a file with a valid extension (csv or zip).")
             # Maybe add a checkbox to see if the data comes from UCI. They have a specific standards for uploading data we can use for uploading.
-            if allowed_file(f.filename):
-                f.save(f.filename)
-                if zipfile.is_zipfile(f):
+            bool, type = allowed_file(f.filename)
+            if bool:
+                #f.save(f.filename)
+                #if zipfile.is_zipfile(f):
+                if type == 'zip':
+                    f.save(f.filename)
                     result = zip_unpack(f.filename)
                     if isinstance(result, str):
                         return render_template('ml_form.html',
@@ -156,7 +206,10 @@ def ml_form():
                         snapshot.og_data = result
 
                 else:
-                    result = csv_upload(request.files['file'])
+                    f = request.files.get('file')
+                    f.save(os.path.join(app.config['UPLOAD_FOLDER'], f.filename))
+                    result = csv_upload(f.filename)
+
                     if isinstance(result, str):
                         return render_template('ml_form.html',
                             tab=0, 
@@ -184,11 +237,12 @@ def ml_form():
                            tab=0, 
                            columns_selected=True,
                            form_complete=True,
+                           file_upload=True,
                            name="myChart",
                            data=df.to_json(orient="records"),
                            user_input=True,
                            og_df=snapshot.og_data.to_html(),
-                           column_names=snapshot.data.columns.tolist())
+                           column_names=snapshot.og_data.columns.tolist())
 
         
         if 'scaling' in request.form:
