@@ -281,8 +281,15 @@ def ml_form():
             
             #we need to generate colomn names so we can set x and y test/training splits
             
-            train_df, test_df = lr.test_train_split(df, test, train)
+            train_df, test_df, msg = lr.test_train_split(df, test, train)
 
+            if train_df is None:
+                return render_template('ml_form.html',
+                           tab=2,
+                           user_input=True,
+                           traintest=False,
+                           error=msg,
+                           og_df=snapshot.og_data.to_html())
             test_df = get_graph_data(test_df)
             train_df=get_graph_data(train_df)
 
@@ -298,6 +305,7 @@ def ml_form():
                            test_data=test_df.to_json(orient="records"),
                            training_data=train_df.to_json(orient="records"),
                            column_names=snapshot.data.columns.tolist(),
+                           error=msg
                            )
         
         if 'hyperparams' in request.form:

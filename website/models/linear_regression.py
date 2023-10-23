@@ -18,30 +18,35 @@ def scaling(df, bool):
     return pd.DataFrame({columns[0]: x, columns[1]: Y})
 
 
-def test_train_split(df,testsplit, trainsplit):
+def test_train_split(df,test_split, train_split):
     
     x = df.iloc[:,0].to_numpy()
     y = df.iloc[:,1].to_numpy()
     columns = df.columns
+    msg = ""
 
+    if test_split + train_split != 100:
+        return None, None, "Please ensure that the test/training split values total up to 100."
 
+    if test_split < 0 or train_split < 0:
+        return None, None, "Please ensure that the test/training are greater than 0 and total up to 100."
+    
+    if test_split > 1:
+        test_split = test_split/100
+    
+    if train_split > 1:
+        train_split = train_split/100
+
+    if test_split > train_split:
+        msg = "Please be aware that your training value should be greater than your testing value."
+    print(msg)
     x_train, x_test, y_train, y_test = train_test_split(x,y , 
                                    random_state=104,  
-                                   test_size=testsplit / 100,
-                                   train_size=trainsplit / 100,
+                                   test_size=test_split,
+                                   train_size=train_split,
                                    shuffle=True) 
     
-    print("Test / Train Split")
-    print(x_train)
-    print(x_test)
-    print(y_test)
-    print(y_train)
-
-
-  
-    return pd.DataFrame({columns[0]: x_train, columns[1]: y_train}), pd.DataFrame({columns[0]: x_test, columns[1]: y_test})
-
-
+    return pd.DataFrame({columns[0]: x_train, columns[1]: y_train}), pd.DataFrame({columns[0]: x_test, columns[1]: y_test}), msg
 
 
 def initialize():

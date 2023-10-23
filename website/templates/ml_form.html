@@ -76,6 +76,7 @@
                         <p>User inputs:</p>
                         <p>Training: {{tr}} </p>
                         <p>Testing: {{te}}</p>
+                        <p style="color:crimson">{{error}}</p>
                     {% else %}
                     <form id="trte" method="POST">
                         <p><label for="training">Training:</label>
@@ -502,10 +503,10 @@
 
                 <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
                 {% if traintest==True %}
-                <h2>"Testing" Dataset</h2>
+                <h2>Testing Dataset</h2>
                     <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
-                    <h2>"Training" Dataset</h2>
+                    <h2>Training Dataset</h2>
                     <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
