@@ -31,8 +31,11 @@ def allowed_file(filename):
 
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
-    df = pd.read_csv(file)
-    return df
+    try:
+        df = pd.read_csv(file)
+        return(df)
+    except Exception as e:
+        return "Program returned error: " + str(e)
 
 
 def zip_unpack(zip_file):
@@ -89,6 +92,7 @@ def zip_unpack(zip_file):
                 return "The csv files within " + zip_file +" do not have the same column names. Please resubmit with .csvs that have matching columns."
             # load all csv files, check if columns match, return either a dataframe or a string error
         
+        print(df.shape[1], file=sys.stderr)
         shutil.rmtree(tmp)
         os.remove(zip_file_path)
         os.chdir(cwd)
@@ -152,8 +156,14 @@ def ml_form():
                         snapshot.og_data = result
 
                 else:
-                    df = csv_upload(request.files['file'])
-                    snapshot.og_data = df
+                    result = csv_upload(request.files['file'])
+                    if isinstance(result, str):
+                        return render_template('ml_form.html',
+                            tab=0, 
+                            filename=request.files['file'].filename,
+                            error=result)
+                    else:
+                        snapshot.og_data = result
 
                 return render_template('ml_form.html',
                             tab=0, 
