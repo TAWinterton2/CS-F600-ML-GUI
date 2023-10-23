@@ -19,10 +19,30 @@ def scaling(df, bool):
     return pd.DataFrame({columns[0]: x, columns[1]: Y})
 
 
-def test_train_split(X, Y, test_size, train_size):
-    """This function handles the process of splitting our dataset into testing and training sets."""
-    X_train_split, X_test_split, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
-    pass
+def test_train_split(df,testsplit, trainsplit):
+    
+    x = df.iloc[:,0].to_numpy()
+    y = df.iloc[:,1].to_numpy()
+    columns = df.columns
+
+
+    x_train, x_test, y_train, y_test = train_test_split(x,y , 
+                                   random_state=104,  
+                                   test_size=testsplit / 100,
+                                   train_size=trainsplit / 100,
+                                   shuffle=True) 
+    
+    print("Test / Train Split")
+    print(x_train)
+    print(x_test)
+    print(y_test)
+    print(y_train)
+
+
+  
+    return pd.DataFrame({columns[0]: x_train, columns[1]: y_train}), pd.DataFrame({columns[0]: x_test, columns[1]: y_test})
+
+
 
 
 def initialize():

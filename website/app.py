@@ -169,6 +169,8 @@ def ml_form():
 
         if 'select_xy' in request.form:
             snapshot.select_columns(request.form['X'], request.form['Y'])
+
+
             df = get_graph_data(snapshot.data)
             return render_template('ml_form.html',
                            tab=0, 
@@ -193,6 +195,7 @@ def ml_form():
                            og_df=snapshot.og_data.to_html())
         
         if 'tt' in request.form:
+            print("Moving to Training / Testing Split")
             train, e = text_input_parse(request.form['training'])
             test, e = text_input_parse(request.form['testing'])
             if train is ValueError:
@@ -210,13 +213,28 @@ def ml_form():
                            error=e,
                            og_df=snapshot.og_data.to_html())
 
+            df = snapshot.data
+            
+            #we need to generate colomn names so we can set x and y test/training splits
+            
+            test_df, train_df = lr.test_train_split(df, test, train)
+
+            test_df = get_graph_data(test_df)
+            train_df=get_graph_data(train_df)
+
             return render_template('ml_form.html',
                            tab=2,
                            user_input=True,
                            traintest=True,
                            tr=train,
                            te=test,
-                           og_df=snapshot.og_data.to_html())
+                           og_df=snapshot.og_data.to_html(),
+                           test_name = "testing",
+                           training_name = "training",
+                           test_data=test_df.to_json(orient="records"),
+                           training_data=train_df.to_json(orient="records"),
+                           column_names=snapshot.data.columns.tolist(),
+                           )
         
         if 'hyperparams' in request.form:
             return render_template('ml_form.html',
