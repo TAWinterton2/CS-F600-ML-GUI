@@ -5,7 +5,6 @@
     }
     
 .display {
-    overflow-y: scroll;
     flex-grow: 1;
     width: 40%;
     float: right;
@@ -29,6 +28,7 @@
     }
     
 .output {
+    height: 600px;
     overflow-y: scroll;
     text-align: center;
     background-color: #90f3c5;
