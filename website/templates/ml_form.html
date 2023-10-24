@@ -26,10 +26,7 @@
                     <p>Below is a link that downloads a dummy CSV file that the user can use for testing</p>
                     <p><a href="https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
                     <p>Otherwise, the user can upload a .csv/.zip file.</p>
-                    {% if form_complete == True %}
-                    <p>Column X: {{column_names[0]}}</p>
-                    <p>Column Y: {{column_names[1]}}</p>
-                    {% else %}
+
                         {% if file_upload == True %}
                         <form id="columns" method="POST">
                             <p style="color:blue">File uploaded: {{filename}}.</p>
@@ -56,7 +53,6 @@
                         </form>
                             <p style="color:crimson">{{error}}</p>
                         {% endif %}
-                    {% endif %}
                 </div>
 
                 <!-- Div for Scaling the Data Set-->
@@ -80,6 +76,7 @@
                         <p>User inputs:</p>
                         <p>Training: {{tr}} </p>
                         <p>Testing: {{te}}</p>
+                        <p style="color:crimson">{{error}}</p>
                     {% else %}
                     <form id="trte" method="POST">
                         <p><label for="training">Training:</label>
@@ -487,7 +484,7 @@
 
                 <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->
                 {% if scaling==True %}
-                <h2>"Scaled" Data</h2>
+                <h2>Scaled Data</h2>
                     {% for table in tables %}
                         <table>
                             <thead>
@@ -506,56 +503,16 @@
 
                 <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
                 {% if traintest==True %}
-                <h2>"Testing" Dataset</h2>
+                <h2>Testing Dataset</h2>
                     <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
-                    <script>
-                        const test = [{x:.70, y:.8},{x:.90, y:.9},{x:.110, y:.10},{x:.140, y:.14}];
-
-                    new Chart("testing", {
-                    type: "scatter",
-                    data: {
-                        datasets: [{
-                        pointRadius: 4,
-                        pointBackgroundColor: "rgb(0,0,255)",
-                        data: test
-                        }]
-                    },
-                    options: {
-                        legend: {display: false},
-                        scales: {
-                        xAxes: [{ticks: {min: 0.1, max:1.0}}],
-                        yAxes: [{ticks: {min: 0.1, max:1.0}}],
-                        }
-                    }
-                    });
-                    </script>
-
-                    <h2>"Training" Dataset</h2>
+                    <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
+                    <h2>Training Dataset</h2>
                     <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
-                    <script>
-                        const train = [{x:.50, y:.7},{x:.60, y:.8},{x:.80, y:.9},{x:.100, y:.9},
-                        {x:.110, y:.10},{x:.120, y:.11},{x:.130, y:.14},{x:.150, y:.15}];
-
-                    new Chart("training", {
-                    type: "scatter",
-                    data: {
-                        datasets: [{
-                        pointRadius: 4,
-                        pointBackgroundColor: "rgb(0,0,255)",
-                        data: train
-                        }]
-                    },
-                    options: {
-                        legend: {display: false},
-                        scales: {
-                        xAxes: [{ticks: {min: 0.1, max:1.0}}],
-                        yAxes: [{ticks: {min: 0.1, max:1.0}}],
-                        }
-                    }
-                    });
-                    </script>
+                    <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
                 {% if start==True %}
+
+                
                 <p>Mean Absolute Error: .943124</p>
                 <p>Mean Squared Error: .9653214 </p>
                 <p>Root Mean Squared Error: .977777</p>

@@ -28,13 +28,13 @@
     }
     
 .output {
+    height: 600px;
+    overflow-y: scroll;
     text-align: center;
     background-color: #90f3c5;
     margin: 10px;
     border-radius: 20px;
     width: auto;
-    height: 600px;
-    overflow-y: scroll;
 }
     
 /* Style Input Fields*/
