@@ -309,6 +309,12 @@ def ml_form():
                            )
         
         if 'hyperparams' in request.form:
+            # TODO: Pull info from form. If text input, send to text_input_parse and return value.
+            # example:
+            val = []
+            val[0] = request.form['loss_strength']
+            # Rest of the code is here.
+            regr = lr.initialize(val)
             return render_template('ml_form.html',
                            tab=3,
                            user_input=True,
