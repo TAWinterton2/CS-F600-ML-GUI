@@ -51,12 +51,10 @@ def test_train_split(df,test_split, train_split):
 
 
 def initialize(val):
-    regr = SGDRegressor(loss=val[0], penalty=val[1], alpha=val[2], l1_ratio=val[3], fit_intercept=val[4],
-                        max_iter=val[5], tol=val[6], shuffle=val[7], verbose=val[8], epsilon=val[9], 
-                        random_state=val[10], learning_rate=val[11], eta0=val[12], power_t=val[13], 
-                        early_stopping=val[14], validation_fraction=val[15], n_iter_no_change=val[16], warm_start=val[17], 
-                        average=val[18])
-    return regr
+    for x in val:
+        print(x)
+        
+    pass
 
 
 def fit_model():

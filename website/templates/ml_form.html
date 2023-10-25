@@ -136,12 +136,10 @@
                     </p>
                     <p>
                         Fit Intercept:
-                        <div class ="regular-field">
-                            <input type="radio" class="Hyperparameters" name="fit_int_true" value="fit_int_true" checked>
-                            <label for="true">True</label>
-                            <input type="radio" class="Hyperparameters" name="fit_int_false" value="fit_int_false">
-                            <label for="false">False</label><br>
-                        </div>
+                        <select name="fit_intercept" id = "fit_intercept">
+                            <option value ='true'>True</option>
+                            <option value ='false'>False</option>
+                        </select>
                     </p>
 
                     <p>
@@ -151,10 +149,10 @@
 
                     <p>
                         Shuffle:
-                        <input type="radio" class="Hyperparameters" name="shuffle_true" value="true" checked>
-                        <label for="true">True</label>
-                        <input type="radio" class="Hyperparameters" name="shuffle_false" value="false">
-                        <label for="false">False</label>
+                        <select name="shuffle" class ="Hyperparameters">
+                            <option value='true'>True</option>
+                            <option value='false'>False</option>
+                        </select>
                     </p>
 
 
@@ -188,7 +186,7 @@
 
                     <p>
                         <label for="eta0">eta0</label>
-                        <input type="text" class="Hyperparameters" name="epsilon" value="0.01" oninput="this.className=''">
+                        <input type="text" class="Hyperparameters" name="eta0" value="0.01" oninput="this.className=''">
 
                     </p>
 
@@ -200,10 +198,10 @@
 
                     <p>
                         Early Stopping:
-                        <input type="radio" class="Hyperparameters" name="Erl_stop_true" value="true">
-                        <label for="true">True</label>
-                        <input type="radio" class="Hyperparameters" name="Erl_stop_false" value="false" checked>
-                        <label for="false">False</label>
+                        <select name = "early_stopping" class="Hyperparameters">
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
                     </p>
                     
                     <p>
@@ -224,18 +222,18 @@
 
                     <p>
                         Warm Start:
-                        <input type="radio" class="Hyperparameters" name="warm_start_true" value="true">
-                        <label for="true">True</label>
-                        <input type="radio" class="Hyperparameters" name="warm_start_false" value="false" checked>
-                        <label for="false">false</label>
+                        <select name ="warm_start" class = "Hyperparameters">
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
                     </p>
 
                     <p>
                         Average:
-                        <input type="radio" class="Hyperparameters" name="average_true" value="true">
-                        <label for="true">True</label>
-                        <input type="radio" class="Hyperparameters" name="average_false" value="false" checked>
-                        <label for="false">false</label>
+                        <select name="average" class ="Hyperparameters">
+                            <option value="true">True</option>
+                            <option value="false">False</option>
+                        </select>
                     </p>
 
 
