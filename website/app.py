@@ -159,6 +159,33 @@ def clean_data(df):
     """This function handles cleaning the dataset. This is done by removing all null values from the set."""
     df.dropna(inplace=True)
 
+def get_hypeparams():
+    #Have to fix the form in the html since all hyperparams w/ true/false
+    #buttons are not toggable, so a user can choose both by accident
+    val = []
+    val[0] = request.form['loss_strength']
+    val[1] = request.form['penalty']
+    val[2] = request.form['alpha']
+    val[3] = request.form['l1_ratio']
+    #Fit Intercept
+    val[5] = request.form['max_iter']
+    #shuffle
+    val[7] = request.form['verbose']
+    val[8] = request.form['epsilon']
+    val[9] = request.form['rand_state']
+    val[10] = request.form['learning_rate']
+    val[11] = request.form['eta0']
+    val[12] = request.form['power_t']
+    #Early stopping
+    val[14] = request.form['valdiation_fraction']
+    val[15] = request.form['tol']
+    val[16] = request.form['n_iter_no_change']
+    #warm start
+    #average
+
+    
+    return val
+
 
 """Flask Operation"""
 app = Flask(__name__)
@@ -311,8 +338,8 @@ def ml_form():
         if 'hyperparams' in request.form:
             # TODO: Pull info from form. If text input, send to text_input_parse and return value.
             # example:
-            val = []
-            val[0] = request.form['loss_strength']
+            val = get_hypeparams()
+            
             # Rest of the code is here.
             regr = lr.initialize(val)
             return render_template('ml_form.html',
