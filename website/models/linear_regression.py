@@ -19,13 +19,14 @@ def scaling(df, bool):
     return pd.DataFrame({columns[0]: x, columns[1]: Y})
 
 
-def test_train_split(df,test_split, train_split):
-    
+def test_train_split(df, test_split, train_split):
+    """This function handles the testing and training split of the data."""
     x = df.iloc[:,0].to_numpy()
     y = df.iloc[:,1].to_numpy()
     columns = df.columns
     msg = ""
 
+    # Simple error checking for the program to ensure proper user input.
     if test_split + train_split != 100:
         return None, None, "Please ensure that the test/training split values total up to 100."
 
@@ -40,7 +41,7 @@ def test_train_split(df,test_split, train_split):
 
     if test_split > train_split:
         msg = "Please be aware that your training value should be greater than your testing value."
-    print(msg)
+
     x_train, x_test, y_train, y_test = train_test_split(x,y , 
                                    random_state=104,  
                                    test_size=test_split,
@@ -51,14 +52,13 @@ def test_train_split(df,test_split, train_split):
 
 
 def initialize(val):
-    for x in val:
-        print(x)
+    """This function initializes the linear regression model based on the user provided inputs."""
     regr = SGDRegressor(loss=val[0], penalty=val[1], alpha=val[2], l1_ratio=val[3], fit_intercept=eval(val[4]), 
                  max_iter=val[5], tol=val[6], shuffle=eval(val[7]), verbose=val[8], epsilon=val[9], random_state=val[10], 
                  learning_rate=val[11], eta0=val[12], power_t=val[13], early_stopping=eval(val[14]), validation_fraction=val[15], 
                  n_iter_no_change=val[16], warm_start=eval(val[17]), average=eval(val[18]))
         
-    print(regr)
+
     return regr
 
 
