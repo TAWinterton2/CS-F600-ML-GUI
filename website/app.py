@@ -225,6 +225,7 @@ def ml_form():
                 # Else, save the snapshot.
                 else:
                     snapshot.og_data = result
+                    snapshot.filename = secure_filename(f.filename)
 
                 # Return the output to the user.
                 return render_template('ml_form.html',
@@ -242,8 +243,16 @@ def ml_form():
                             error="Please submit a file with a valid extension (csv or zip).")
 
         # If the user selects columns, display output.
-        # TODO: Added error handling if user same columns for X and Y
         if 'select_xy' in request.form:
+            if request.form['X'] == request.form['Y']:
+                return render_template('ml_form.html',
+                            tab=0, 
+                            file_upload=True,
+                            filename=snapshot.filename,
+                            og_df=snapshot.og_data.to_html(),
+                            column_names=snapshot.og_data.columns.tolist(),
+                            error="Please select different columns for X and Y.")
+            
             snapshot.select_columns(request.form['X'], request.form['Y'])
             df = get_graph_data(snapshot.data)
             return render_template('ml_form.html',
