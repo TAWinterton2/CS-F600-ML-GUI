@@ -269,7 +269,7 @@ def ml_form():
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
             snapshot.clean_data(snapshot.data)
-            snapshot.data = lr.scaling(snapshot.data, request.form['scale'])
+            snapshot.data = lr.scaling(snapshot, request.form['scale'])
             return render_template('ml_form.html',
                            tab=1,
                            user_input=True,
@@ -301,7 +301,7 @@ def ml_form():
 
             # df = snapshot.data
             # Run the testing/train split.
-            train_df, test_df, msg = lr.test_train_split(snapshot.data, test, train)
+            train_df, test_df, msg = lr.test_train_split(snapshot, test, train)
            
             # If an error is found while trying to split the data, display the error.
             if train_df is None:
@@ -332,7 +332,7 @@ def ml_form():
         if 'hyperparams' in request.form:
             # TODO: Finish error handling here.
             val = get_hyperparams(request)
-            lr.initialize(val)
+            lr.initialize(snapshot, val)
             return render_template('ml_form.html',
                            tab=3,
                            user_input=True,
@@ -341,6 +341,9 @@ def ml_form():
         
         if 'run' in request.form:
             # TODO: Implement fit + run
+            lr.fit_model(snapshot)
+            lr.predict_model(snapshot)
+            lr.evaluate(snapshot)
             return render_template('ml_form.html',
                            tab=4,
                            user_input=True,
