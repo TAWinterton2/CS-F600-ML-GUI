@@ -259,6 +259,8 @@
 
                 </div>
                 <p>Once you are done with the above step and have submitted, click on the next button.</p>
+                
+                
                 <!-- Next and Previous Buttons for Multi-page form-->
                 <div style="overflow:auto;">
                     <div style="float:right;">
@@ -314,13 +316,29 @@
                 <h2>Testing Dataset</h2>
                     <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
-                    <h2>Training Dataset</h2>
+                <h2>Training Dataset</h2>
                     <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
-                {% if start==True %}
 
                 
+                {% if start==True %}
+
+                <h2>Evaluation Data</h2>
+                    {% for table in tables %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for title in titles %}
+                                        <th>{{ title }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ table|safe }}
+                            </tbody>
+                        </table>
+                    {% endfor %}
                 <p><b>Mean Absolute Error</b>: {{eval['Mean Absolute Error']}}</p>
                 <p><b>Mean Square Error</b>: {{eval['Mean Square Error']}} </p>
                 <p><b>Root Mean Square Error</b>: {{eval['Root Mean Square Error']}}</p>
