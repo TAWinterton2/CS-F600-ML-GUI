@@ -112,9 +112,10 @@
                     <p>
                         Loss Strength:
                         <select name = "loss_strength" id="Hyperparameters">
-                            <option value="square_error">Squared Error</option>
+                            <option value="squared_error">Squared Error</option>
                             <option value="epsilon_insensitive">Epsilon Insensitive</option>
                             <option value="squared_epsilon_insensitive">Squared Epsilon Insensitive</option>
+                            <option value="huber">Huber</option>
                         </select>
 
                         &ensp;
@@ -322,9 +323,7 @@
 
                 
                 {% if start==True %}
-                <p>Mean Absolute Error: [PlaceHolder]</p>
-                <p>Mean Squared Error: [PlaceHolder] </p>
-                <p>Root Mean Squared Error: [PlaceHolder]</p>
+
                 <h2>Evaluation Data</h2>
                     {% for table in tables %}
                         <table>
@@ -340,6 +339,14 @@
                             </tbody>
                         </table>
                     {% endfor %}
+                <p><b>Mean Absolute Error</b>: {{eval['Mean Absolute Error']}}</p>
+                <p><b>Mean Square Error</b>: {{eval['Mean Square Error']}} </p>
+                <p><b>Root Mean Square Error</b>: {{eval['Root Mean Square Error']}}</p>
+                <p><b>R2 Score</b>: {{eval['R2 Score']}}</p>
+                <p><b>Max Error</b>: {{eval['Max Error']}}</p>
+                <canvas id="eval" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{column_names}}' src="{{url_for('static', filename='prediction.js')}}"></script>
+                    
                 {% endif %}
             </div>
            
