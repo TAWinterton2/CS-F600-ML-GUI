@@ -324,6 +324,8 @@
                 <p><b>Mean Absolute Error</b>: {{eval['Mean Absolute Error']}}</p>
                 <p><b>Mean Square Error</b>: {{eval['Mean Square Error']}} </p>
                 <p><b>Root Mean Square Error</b>: {{eval['Root Mean Square Error']}}</p>
+                <p><b>R2 Score</b>: {{eval['R2 Score']}}</p>
+                <p><b>Max Error</b>: {{eval['Max Error']}}</p>
                 <canvas id="eval" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                 <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{column_names}}' src="{{url_for('static', filename='prediction.js')}}"></script>
                     
