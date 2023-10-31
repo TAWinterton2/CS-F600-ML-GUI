@@ -258,6 +258,8 @@
 
                 </div>
                 <p>Once you are done with the above step and have submitted, click on the next button.</p>
+                
+                
                 <!-- Next and Previous Buttons for Multi-page form-->
                 <div style="overflow:auto;">
                     <div style="float:right;">
@@ -313,41 +315,31 @@
                 <h2>Testing Dataset</h2>
                     <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
-                    <h2>Training Dataset</h2>
+                <h2>Training Dataset</h2>
                     <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
-                {% if start==True %}
 
                 
-                <p>Mean Absolute Error: .943124</p>
-                <p>Mean Squared Error: .9653214 </p>
-                <p>Root Mean Squared Error: .977777</p>
-                <canvas id="eval" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
-                    <script>
-                        const error = [{x:50, y:7},{x:60, y:8},{x:70, y:8},{x:80, y:9},{x:90, y:9},{x:100, y:9},{x:110, y:10},
-                        {x:120, y:11},{x:130, y:14},{x:140, y:14},{x:150, y:15}
-                    ];
-
-                    new Chart("eval", {
-                    type: "scatter",
-                    data: {
-                        datasets: [{
-                        pointRadius: 4,
-                        pointBackgroundColor: "rgb(0,0,255)",
-                        data: error
-                        }]
-                    },
-                    options: {
-                        legend: {display: false},
-                        scales: {
-                        xAxes: [{ticks: {min: 40, max:160}}],
-                        yAxes: [{ticks: {min: 4, max:16}}],
-                        }
-                    }
-                    });
-                    </script>
-                    
+                {% if start==True %}
+                <p>Mean Absolute Error: [PlaceHolder]</p>
+                <p>Mean Squared Error: [PlaceHolder] </p>
+                <p>Root Mean Squared Error: [PlaceHolder]</p>
+                <h2>Evaluation Data</h2>
+                    {% for table in tables %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    {% for title in titles %}
+                                        <th>{{ title }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ table|safe }}
+                            </tbody>
+                        </table>
+                    {% endfor %}
                 {% endif %}
             </div>
            

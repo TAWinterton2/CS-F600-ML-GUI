@@ -175,6 +175,16 @@ def get_hyperparams(request):
 
     return val
 
+def display_table(df):
+    data = df
+    return render_template('ml_form.html',
+                           tab=4,
+                           user_input=True,
+                           start=True,
+                           tables = [data.to_html()],
+                           titles=data.columns.tolist(),
+                           og_df=snapshot.og_data.to_html())
+
 
 @app.route("/")
 def index():
@@ -314,7 +324,7 @@ def ml_form():
             
             # Otherwise, get the json graph data and return the information needed for chartJS.
             test_df = get_graph_data(test_df)
-            train_df=get_graph_data(train_df)
+            train_df = get_graph_data(train_df)
             return render_template('ml_form.html',
                                     tab=2,
                                     user_input=True,
@@ -341,11 +351,8 @@ def ml_form():
         
         if 'run' in request.form:
             # TODO: Implement fit + run
-            return render_template('ml_form.html',
-                           tab=4,
-                           user_input=True,
-                           start=True,
-                           og_df=snapshot.og_data.to_html())
+            df = snapshot.data
+            return display_table(df)
         
 
     return render_template('ml_form.html',
