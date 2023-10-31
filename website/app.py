@@ -342,13 +342,22 @@ def ml_form():
         if 'run' in request.form:
             # TODO: Implement fit + run
             lr.fit_model(snapshot)
-            lr.predict_model(snapshot)
-            lr.evaluate(snapshot)
+            df, prediction = lr.predict_model(snapshot)
+            pred = get_graph_data(prediction)
+            data = get_graph_data(df)
+            print(pred)
+            print(pred.to_json(orient="records"))
+            print(data)
+            results = lr.evaluate(snapshot)
             return render_template('ml_form.html',
                            tab=4,
                            user_input=True,
                            start=True,
-                           og_df=snapshot.og_data.to_html())
+                           name='eval',
+                           data=data.to_json(orient="records"),
+                           pred=pred.to_json(orient="records"),
+                           og_df=snapshot.og_data.to_html(),
+                           eval=results)
         
 
     return render_template('ml_form.html',

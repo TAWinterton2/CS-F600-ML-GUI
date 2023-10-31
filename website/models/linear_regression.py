@@ -63,7 +63,9 @@ def fit_model(snapshot):
     snapshot.model.fit(snapshot.x_train, snapshot.y_train)
 
 def predict_model(snapshot):
+    columns = snapshot.data.columns
     snapshot.y_pred = snapshot.model.predict(snapshot.x_test)
+    return pd.DataFrame({columns[0]: snapshot.x_test.flatten(), columns[1]: snapshot.y_test.flatten()}), pd.DataFrame({columns[0]: snapshot.x_test.flatten(), columns[1]: snapshot.y_pred})
 
 def graph_prediction():
     pass
@@ -72,7 +74,6 @@ def evaluate(snapshot):
     results = {'Mean Absolute Error': mean_absolute_error(snapshot),
                'Mean Square Error': mean_square_error(snapshot),
                'Root Mean Square Error': root_mean_square_error(snapshot)}
-    print(results)
     return results
 
 def mean_absolute_error(snapshot):
