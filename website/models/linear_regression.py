@@ -73,9 +73,13 @@ def graph_prediction():
 def evaluate(snapshot):
     results = {'Mean Absolute Error': mean_absolute_error(snapshot),
                'Mean Square Error': mean_square_error(snapshot),
-               'Root Mean Square Error': root_mean_square_error(snapshot)}
+               'Root Mean Square Error': root_mean_square_error(snapshot),
+               'R2 Score': r2_score(snapshot),
+               'Max Error': max_error(snapshot)}
+    print(results)
     return results
 
+# precision, recall, accuracy
 def mean_absolute_error(snapshot):
     result = metrics.mean_absolute_error(snapshot.y_test, snapshot.y_pred)
     return result
@@ -86,4 +90,31 @@ def mean_square_error(snapshot):
 
 def root_mean_square_error(snapshot):
     result = np.sqrt(metrics.mean_squared_error(snapshot.y_test, snapshot.y_pred))
+    return result
+
+def r2_score(snapshot):
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html#sklearn.metrics.r2_score
+    result = metrics.r2_score(snapshot.y_test, snapshot.y_pred)
+    return result
+
+def max_error(snapshot):
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html#sklearn.metrics.max_error
+    result = metrics.max_error(snapshot.y_test, snapshot.y_pred)
+    return result
+
+
+# While these 3 values were requested, the methods do not work with regression.
+def accuracy(snapshot):
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score
+    result = metrics.accuracy_score(snapshot.y_test, snapshot.y_pred)
+    return result
+
+def recall(snapshot):
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html
+    result = metrics.recall_score(snapshot.y_test, snapshot.y_pred)
+    return result
+
+def precision(snapshot):
+    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html#sklearn.metrics.precision_score
+    result = metrics.precision_score(snapshot.y_test, snapshot.y_pred)
     return result
