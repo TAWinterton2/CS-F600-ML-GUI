@@ -370,7 +370,7 @@ def ml_form():
                            data=data.to_json(orient="records"),
                            pred=pred.to_json(orient="records"),
                            og_df=snapshot.og_data.to_html(),
-                           eval=results
+                           eval=results)
         
 
     return render_template('ml_form.html',
