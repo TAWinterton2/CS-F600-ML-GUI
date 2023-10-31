@@ -2,28 +2,25 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import SGDRegressor
+from sklearn import metrics
 
-
-def scaling(df, bool):
+def scaling(snapshot, bool):
     """This function handles the process of scaling our machine learning model."""
     # Normalize the data - Convert to range [0, 1]
-    columns = df.columns
-    x = df.iloc[:,0].to_numpy()
-    y = df.iloc[:,1].to_numpy()
+    columns = snapshot.data.columns
+    snapshot.x = snapshot.data.iloc[:,0].to_numpy()
+    y = snapshot.data.iloc[:,1].to_numpy()
     if bool == "Normalize":
-        Y = (y - np.min(y)) / (np.max(y) - np.min(y))
+        snapshot.y = (y - np.min(y)) / (np.max(y) - np.min(y))
     # Standardize the data - Convert to a normal distribution with mean 0 and standard deviation of 1
     else:
-        Y = (y - np.mean(y)) / np.std(y)
+        snapshot.y = (y - np.mean(y)) / np.std(y)
     
-    return pd.DataFrame({columns[0]: x, columns[1]: Y})
+    return pd.DataFrame({columns[0]: snapshot.x, columns[1]: snapshot.y})
 
 
-def test_train_split(df, test_split, train_split):
+def test_train_split(snapshot, test_split, train_split):
     """This function handles the testing and training split of the data."""
-    x = df.iloc[:,0].to_numpy()
-    y = df.iloc[:,1].to_numpy()
-    columns = df.columns
     msg = ""
 
     # Simple error checking for the program to ensure proper user input.
@@ -42,45 +39,51 @@ def test_train_split(df, test_split, train_split):
     if test_split > train_split:
         msg = "Please be aware that your training value should be greater than your testing value."
 
-    x_train, x_test, y_train, y_test = train_test_split(x,y , 
-                                   random_state=104,  
-                                   test_size=test_split,
-                                   train_size=train_split,
-                                   shuffle=True) 
+    x_train, x_test, y_train, y_test = train_test_split(snapshot.x, 
+                                                        snapshot.y, 
+                                                        random_state=104,  
+                                                        test_size=test_split,
+                                                        train_size=train_split,
+                                                        shuffle=True)
+    train, test = snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
     
-    return pd.DataFrame({columns[0]: x_train, columns[1]: y_train}), pd.DataFrame({columns[0]: x_test, columns[1]: y_test}), msg
+    return train, test, msg
 
 
-def initialize(val):
+def initialize(snapshot, val):
     """This function initializes the linear regression model based on the user provided inputs."""
-    regr = SGDRegressor(loss=val[0], penalty=val[1], alpha=val[2], l1_ratio=val[3], fit_intercept=eval(val[4]), 
-                 max_iter=val[5], tol=val[6], shuffle=eval(val[7]), verbose=val[8], epsilon=val[9], random_state=val[10], 
-                 learning_rate=val[11], eta0=val[12], power_t=val[13], early_stopping=eval(val[14]), validation_fraction=val[15], 
-                 n_iter_no_change=val[16], warm_start=eval(val[17]), average=eval(val[18]))
-        
+    regr = SGDRegressor(loss=val[0], penalty=val[1], alpha=float(val[2]), l1_ratio=float(val[3]), fit_intercept=eval(val[4]), 
+                 max_iter=int(val[5]), tol=float(val[6]), shuffle=eval(val[7]), verbose=int(val[8]), epsilon=float(val[9]), random_state=int(val[10]), 
+                 learning_rate=val[11], eta0=float(val[12]), power_t=float(val[13]), early_stopping=eval(val[14]), validation_fraction=float(val[15]), 
+                 n_iter_no_change=int(val[16]), warm_start=eval(val[17]), average=eval(val[18]))
+    snapshot.model = regr
 
-    return regr
+def fit_model(snapshot):
+    snapshot.reshape_data()
+    snapshot.model.fit(snapshot.x_train, snapshot.y_train)
 
-
-def fit_model():
-    pass
-
-
-def predict_model():
-    pass
-
+def predict_model(snapshot):
+    columns = snapshot.data.columns
+    snapshot.y_pred = snapshot.model.predict(snapshot.x_test)
+    return pd.DataFrame({columns[0]: snapshot.x_test.flatten(), columns[1]: snapshot.y_test.flatten()}), pd.DataFrame({columns[0]: snapshot.x_test.flatten(), columns[1]: snapshot.y_pred})
 
 def graph_prediction():
     pass
 
+def evaluate(snapshot):
+    results = {'Mean Absolute Error': mean_absolute_error(snapshot),
+               'Mean Square Error': mean_square_error(snapshot),
+               'Root Mean Square Error': root_mean_square_error(snapshot)}
+    return results
 
-def mean_absolute_error():
-    pass
+def mean_absolute_error(snapshot):
+    result = metrics.mean_absolute_error(snapshot.y_test, snapshot.y_pred)
+    return result
 
+def mean_square_error(snapshot):
+    result = metrics.mean_squared_error(snapshot.y_test, snapshot.y_pred)
+    return result
 
-def mean_square_error():
-    pass
-
-
-def root_mean_square_error():
-    pass
+def root_mean_square_error(snapshot):
+    result = np.sqrt(metrics.mean_squared_error(snapshot.y_test, snapshot.y_pred))
+    return result
