@@ -185,6 +185,178 @@ def display_table(df):
                            titles=data.columns.tolist(),
                            og_df=snapshot.og_data.to_html())
 
+"""Forms"""
+def upload_form(request):
+    if 'file' not in request.files:
+        return render_template('ml_form.html',
+                    tab=0, 
+                    filename=request.files['file'].filename,
+                    error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
+
+    f = request.files['file']
+    if f.filename == '':
+        return render_template('ml_form.html',
+                    tab=0, 
+                    filename=request.files['file'].filename,
+                    error="No file submitted. Please submit a file with a valid extension (csv or zip).")
+    
+    
+    bool, type = allowed_file(f.filename)
+    if bool:
+        # If the uploaded file is a zip, send it to zip_unpack.
+        if type == 'zip':
+            f.save(secure_filename(f.filename))
+            result = zip_unpack(f.filename)
+
+        # Else, the uploaded file must be a csv file, and should go to csv_upload
+        else:
+            f = request.files.get('file')
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+            result = csv_upload(f.filename)
+
+        # If the upload functions return a string, an error was found and should be returned to the user.
+        if isinstance(result, str):
+            return render_template('ml_form.html',
+                tab=0, 
+                filename=request.files['file'].filename,
+                error=result)
+        
+        # Else, save the snapshot.
+        else:
+            snapshot.og_data = result
+            snapshot.filename = secure_filename(f.filename)
+
+        # Return the output to the user.
+        return render_template('ml_form.html',
+                    tab=0, 
+                    file_upload=True,
+                    filename=request.files['file'].filename,
+                    og_df=snapshot.og_data.to_html(),
+                    column_names=snapshot.og_data.columns.tolist())
+    
+    # In case something goes wrong, we ensure to render the template with a warning message.
+    else:
+        return render_template('ml_form.html',
+                    tab=0, 
+                    filename=request.files['file'].filename,
+                    error="Please submit a file with a valid extension (csv or zip).")
+
+def select_columns_form(request):
+    if request.form['X'] == request.form['Y']:
+        return render_template('ml_form.html',
+                    tab=0, 
+                    file_upload=True,
+                    filename=snapshot.filename,
+                    og_df=snapshot.og_data.to_html(),
+                    column_names=snapshot.og_data.columns.tolist(),
+                    error="Please select different columns for X and Y.")
+    
+    snapshot.select_columns(request.form['X'], request.form['Y'])
+    df = get_graph_data(snapshot.data)
+    return render_template('ml_form.html',
+                    tab=0, 
+                    columns_selected=True,
+                    form_complete=True,
+                    file_upload=True,
+                    name="myChart",
+                    data=df.to_json(orient="records"),
+                    user_input=True,
+                    og_df=snapshot.og_data.to_html(),
+                    column_names=snapshot.og_data.columns.tolist())
+
+def scaling_form(request):
+    snapshot.clean_data(snapshot.data)
+    snapshot.data = lr.scaling(snapshot, request.form['scale'])
+    return render_template('ml_form.html',
+                    tab=1,
+                    user_input=True,
+                    scaling=True,
+                    tables=[snapshot.data.to_html(classes='data')],
+                    titles=snapshot.data.columns.values,
+                    og_df=snapshot.og_data.to_html())
+
+def test_train_form(request):
+    train, e = text_input_parse(request.form['training'])
+    test, e = text_input_parse(request.form['testing'])
+    
+    # If the user submitted a non-integer/float value, return an error.
+    if train is ValueError:
+        return render_template('ml_form.html',
+                    tab=2,
+                    user_input=True,
+                    traintest=False,
+                    error=e,
+                    og_df=snapshot.og_data.to_html())
+    if test is ValueError:
+        return render_template('ml_form.html',
+                    tab=2,
+                    user_input=True,
+                    traintest=False,
+                    error=e,
+                    og_df=snapshot.og_data.to_html())
+
+    # df = snapshot.data
+    # Run the testing/train split.
+    train_df, test_df, msg = lr.test_train_split(snapshot, test, train)
+    
+    # If an error is found while trying to split the data, display the error.
+    if train_df is None:
+        return render_template('ml_form.html',
+                    tab=2,
+                    user_input=True,
+                    traintest=False,
+                    error=msg,
+                    og_df=snapshot.og_data.to_html())
+    
+    # Otherwise, get the json graph data and return the information needed for chartJS.
+    test_df = get_graph_data(test_df)
+    train_df = get_graph_data(train_df)
+    return render_template('ml_form.html',
+                            tab=2,
+                            user_input=True,
+                            traintest=True,
+                            tr=train,
+                            te=test,
+                            og_df=snapshot.og_data.to_html(),
+                            test_name = "testing",
+                            training_name = "training",
+                            test_data=test_df.to_json(orient="records"),
+                            training_data=train_df.to_json(orient="records"),
+                            column_names=snapshot.data.columns.tolist(),
+                            error=msg)
+
+def hyperparameter_form(request):
+    # TODO: Finish error handling here.
+        val = get_hyperparams(request)
+        lr.initialize(snapshot, val)
+        return render_template('ml_form.html',
+                        tab=3,
+                        user_input=True,
+                        hyper=True,
+                        og_df=snapshot.og_data.to_html())
+
+def run_model_form(request):
+    # df = snapshot.data
+    # return display_table(df)
+    
+    lr.fit_model(snapshot)
+    df, prediction = lr.predict_model(snapshot)
+    pred = get_graph_data(prediction)
+    data = get_graph_data(df)
+    print(pred)
+    print(pred.to_json(orient="records"))
+    print(data)
+    results = lr.evaluate(snapshot)
+    return render_template('ml_form.html',
+                    tab=4,
+                    user_input=True,
+                    start=True,
+                    name='eval',
+                    data=data.to_json(orient="records"),
+                    pred=pred.to_json(orient="records"),
+                    og_df=snapshot.og_data.to_html(),
+                    eval=results)
+
 
 @app.route("/")
 def index():
@@ -198,179 +370,25 @@ def ml_form():
     if request.method == 'POST':
         # If step 1 of the ml_form has been completed, return new information
         if 'upload_file' in request.form:
-            if 'file' not in request.files:
-                return render_template('ml_form.html',
-                            tab=0, 
-                            filename=request.files['file'].filename,
-                            error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
-
-            f = request.files['file']
-            if f.filename == '':
-                return render_template('ml_form.html',
-                            tab=0, 
-                            filename=request.files['file'].filename,
-                            error="No file submitted. Please submit a file with a valid extension (csv or zip).")
-            
-            
-            bool, type = allowed_file(f.filename)
-            if bool:
-                # If the uploaded file is a zip, send it to zip_unpack.
-                if type == 'zip':
-                    f.save(secure_filename(f.filename))
-                    result = zip_unpack(f.filename)
-
-                # Else, the uploaded file must be a csv file, and should go to csv_upload
-                else:
-                    f = request.files.get('file')
-                    f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
-                    result = csv_upload(f.filename)
-
-                # If the upload functions return a string, an error was found and should be returned to the user.
-                if isinstance(result, str):
-                    return render_template('ml_form.html',
-                        tab=0, 
-                        filename=request.files['file'].filename,
-                        error=result)
-                
-                # Else, save the snapshot.
-                else:
-                    snapshot.og_data = result
-                    snapshot.filename = secure_filename(f.filename)
-
-                # Return the output to the user.
-                return render_template('ml_form.html',
-                            tab=0, 
-                            file_upload=True,
-                            filename=request.files['file'].filename,
-                            og_df=snapshot.og_data.to_html(),
-                            column_names=snapshot.og_data.columns.tolist())
-            
-            # In case something goes wrong, we ensure to render the template with a warning message.
-            else:
-                return render_template('ml_form.html',
-                            tab=0, 
-                            filename=request.files['file'].filename,
-                            error="Please submit a file with a valid extension (csv or zip).")
+            return upload_form(request)
 
         # If the user selects columns, display output.
         if 'select_xy' in request.form:
-            if request.form['X'] == request.form['Y']:
-                return render_template('ml_form.html',
-                            tab=0, 
-                            file_upload=True,
-                            filename=snapshot.filename,
-                            og_df=snapshot.og_data.to_html(),
-                            column_names=snapshot.og_data.columns.tolist(),
-                            error="Please select different columns for X and Y.")
-            
-            snapshot.select_columns(request.form['X'], request.form['Y'])
-            df = get_graph_data(snapshot.data)
-            return render_template('ml_form.html',
-                           tab=0, 
-                           columns_selected=True,
-                           form_complete=True,
-                           file_upload=True,
-                           name="myChart",
-                           data=df.to_json(orient="records"),
-                           user_input=True,
-                           og_df=snapshot.og_data.to_html(),
-                           column_names=snapshot.og_data.columns.tolist())
+            return select_columns_form(request)
 
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
-            snapshot.clean_data(snapshot.data)
-            snapshot.data = lr.scaling(snapshot, request.form['scale'])
-            return render_template('ml_form.html',
-                           tab=1,
-                           user_input=True,
-                           scaling=True,
-                           tables=[snapshot.data.to_html(classes='data')],
-                           titles=snapshot.data.columns.values,
-                           og_df=snapshot.og_data.to_html())
+            return scaling_form(request)
         
         # If the user submits the testing/training form
         if 'tt' in request.form:
-            train, e = text_input_parse(request.form['training'])
-            test, e = text_input_parse(request.form['testing'])
-            
-            # If the user submitted a non-integer/float value, return an error.
-            if train is ValueError:
-                return render_template('ml_form.html',
-                           tab=2,
-                           user_input=True,
-                           traintest=False,
-                           error=e,
-                           og_df=snapshot.og_data.to_html())
-            if test is ValueError:
-                return render_template('ml_form.html',
-                           tab=2,
-                           user_input=True,
-                           traintest=False,
-                           error=e,
-                           og_df=snapshot.og_data.to_html())
-
-            # df = snapshot.data
-            # Run the testing/train split.
-            train_df, test_df, msg = lr.test_train_split(snapshot, test, train)
-           
-            # If an error is found while trying to split the data, display the error.
-            if train_df is None:
-                return render_template('ml_form.html',
-                           tab=2,
-                           user_input=True,
-                           traintest=False,
-                           error=msg,
-                           og_df=snapshot.og_data.to_html())
-            
-            # Otherwise, get the json graph data and return the information needed for chartJS.
-            test_df = get_graph_data(test_df)
-            train_df = get_graph_data(train_df)
-            return render_template('ml_form.html',
-                                    tab=2,
-                                    user_input=True,
-                                    traintest=True,
-                                    tr=train,
-                                    te=test,
-                                    og_df=snapshot.og_data.to_html(),
-                                    test_name = "testing",
-                                    training_name = "training",
-                                    test_data=test_df.to_json(orient="records"),
-                                    training_data=train_df.to_json(orient="records"),
-                                    column_names=snapshot.data.columns.tolist(),
-                                    error=msg)
+            return test_train_form(request)
         
         if 'hyperparams' in request.form:
-            # TODO: Finish error handling here.
-            val = get_hyperparams(request)
-            lr.initialize(snapshot, val)
-            return render_template('ml_form.html',
-                           tab=3,
-                           user_input=True,
-                           hyper=True,
-                           og_df=snapshot.og_data.to_html())
+            return hyperparameter_form(request)
         
         if 'run' in request.form:
-            # TODO: Implement fit + run
-           # df = snapshot.data
-           # return display_table(df)
-            
-            lr.fit_model(snapshot)
-            df, prediction = lr.predict_model(snapshot)
-            pred = get_graph_data(prediction)
-            data = get_graph_data(df)
-            print(pred)
-            print(pred.to_json(orient="records"))
-            print(data)
-            results = lr.evaluate(snapshot)
-            return render_template('ml_form.html',
-                           tab=4,
-                           user_input=True,
-                           start=True,
-                           name='eval',
-                           data=data.to_json(orient="records"),
-                           pred=pred.to_json(orient="records"),
-                           og_df=snapshot.og_data.to_html(),
-                           eval=results
+            return run_model_form(request)
         
 
     return render_template('ml_form.html',
