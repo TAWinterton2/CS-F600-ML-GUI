@@ -52,10 +52,10 @@ def test_train_split(snapshot, test_split, train_split):
 
 def initialize(snapshot, val):
     """This function initializes the linear regression model based on the user provided inputs."""
-    regr = SGDRegressor(loss=val[0], penalty=val[1], alpha=float(val[2]), l1_ratio=float(val[3]), fit_intercept=eval(val[4]), 
-                 max_iter=int(val[5]), tol=float(val[6]), shuffle=eval(val[7]), verbose=int(val[8]), epsilon=float(val[9]), random_state=int(val[10]), 
-                 learning_rate=val[11], eta0=float(val[12]), power_t=float(val[13]), early_stopping=eval(val[14]), validation_fraction=float(val[15]), 
-                 n_iter_no_change=int(val[16]), warm_start=eval(val[17]), average=eval(val[18]))
+    regr = SGDRegressor(loss=val[0], penalty=val[1], alpha=val[2], l1_ratio=val[3], fit_intercept=eval(val[4]), 
+                 max_iter=val[5], tol=val[6], shuffle=eval(val[7]), verbose=val[8], epsilon=val[9], random_state=val[10], 
+                 learning_rate=val[11], eta0=val[12], power_t=val[13], early_stopping=eval(val[14]), validation_fraction=val[15], 
+                 n_iter_no_change=val[16], warm_start=eval(val[17]), average=eval(val[18]))
     snapshot.model = regr
 
 def fit_model(snapshot):

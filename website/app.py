@@ -3,7 +3,8 @@ import pandas as pd
 import zipfile, os, shutil, csv
 from zipfile import ZipFile
 from website.models import linear_regression as lr
-from website.models import snapshot as ds
+from website.utils import snapshot as ds
+from website.utils import error_handle as err
 from werkzeug.utils import secure_filename
 
 
@@ -14,41 +15,16 @@ snapshot = ds.snapshot()
 
 
 """Input Parsing Functions"""
-def allowed_file(filename):
-    """Method to ensure that the user supplied a file with the correct extension."""
-    allowed_extensions = {'csv', 'zip'}
-    type = filename.rsplit('.', 1)[1].lower()
-    if '.' in filename and type in allowed_extensions:
-        return True, type
-    # https://flask.palletsprojects.com/en/2.3.x/patterns/fileuploads/
-    return '.' in filename and type in allowed_extensions, ""
-
-
-def text_input_parse(s):
-    """This function takes in a string submitted by the user and converts it to a float or an integer. If an error occurs, it
-    returns an error to the user."""
-    try:
-        if '.' in s:
-            f = float(s)
-            format_f = "{:.{}f}".format(f, 3)
-            return float(format_f), ""
-        else:
-            return int(s), ""
-    except ValueError as e:
-        return ValueError, e
-
-
 def has_header(df):
     """Determine if the file has a header. It returns a list of headers to use when uploading the full file."""
     return isinstance(df.columns[0], str)
 
 
 def gen_headers(x):
-    """This function generate generic column names for a csv file based on the number of columns."""
+    """This function generates generic column names for a csv file based on the number of columns."""
     col = []
     for n in range(x): col.append("Column " + str(n+1))
     return col
-
 
 """File Upload Functions"""
 def csv_upload(file):
@@ -70,7 +46,6 @@ def csv_upload(file):
     except Exception as e:
         return "Program returned error while uploading the csv: " + str(e)
     
-
 def zip_unpack(zip_file):
    #Get current wording directory of server and save it as a string
     try:
@@ -142,104 +117,108 @@ def zip_unpack(zip_file):
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
     
-
 """Output Parsing Functions"""
 def get_graph_data(df):
     """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
     json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[1]: 'y'})
     return json
 
+def display_table(df):
+    tables = df.to_html()
+    titles = df.columns.tolist()
+    return tables, titles
 
-"""Gather form information."""
+"""Gather/Validate form information."""
+def validate_hyperparameter(val):
+    item, e = err.text_input_parse(val)
+    if item is Exception:
+        return Exception
+    else:
+        return item
+    
 def get_hyperparams(request):
-    val = []
-    val.append(request.form['loss_strength'])
-    val.append(request.form['penalty'])
-    val.append(request.form['alpha'])
-    val.append(request.form['l1_ratio'])
-    val.append(request.form['fit_intercept'])
-    val.append(request.form['max_iter'])
-    val.append(request.form['tol'])
-    val.append(request.form['shuffle'])
-    val.append(request.form['verbose'])
-    val.append(request.form['epsilon']) 
-    val.append(request.form['rand_state'])
-    val.append(request.form['learning_rate'])
-    val.append(request.form['eta0'])
-    val.append(request.form['power_t'])
-    val.append(request.form['early_stopping'])
-    val.append(request.form['validation_fraction'])
-    val.append(request.form['n_iter_no_change'])
-    val.append(request.form['warm_start'])
-    val.append(request.form['average'])
-
+    try:
+        val = []
+        val.append(request.form['loss_strength'])
+        val.append(request.form['penalty'])
+        val.append(validate_hyperparameter(request.form['alpha']))
+        val.append(validate_hyperparameter(request.form['l1_ratio']))
+        val.append(request.form['fit_intercept'])
+        val.append(validate_hyperparameter(request.form['max_iter']))
+        val.append(validate_hyperparameter(request.form['tol']))
+        val.append(request.form['shuffle'])
+        val.append(validate_hyperparameter(request.form['verbose']))
+        val.append(validate_hyperparameter(request.form['epsilon']))
+        val.append(validate_hyperparameter(request.form['rand_state']))
+        val.append(request.form['learning_rate'])
+        val.append(validate_hyperparameter(request.form['eta0']))
+        val.append(validate_hyperparameter(request.form['power_t']))
+        val.append(request.form['early_stopping'])
+        val.append(validate_hyperparameter(request.form['validation_fraction']))
+        val.append(validate_hyperparameter(request.form['n_iter_no_change']))
+        val.append(request.form['warm_start'])
+        val.append(request.form['average'])
+    except Exception:
+        return Exception
     return val
 
-def display_table(df):
-    data = df
-    return render_template('ml_form.html',
-                           tab=4,
-                           user_input=True,
-                           start=True,
-                           tables = [data.to_html()],
-                           titles=data.columns.tolist(),
-                           og_df=snapshot.og_data.to_html())
-
-"""Forms"""
-def upload_form(request):
+def validate_file(request):
     if 'file' not in request.files:
         return render_template('ml_form.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
-    f = request.files['file']
-    if f.filename == '':
+    if request.files['file'].filename == '':
         return render_template('ml_form.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file submitted. Please submit a file with a valid extension (csv or zip).")
-    
-    
-    bool, type = allowed_file(f.filename)
-    if bool:
-        # If the uploaded file is a zip, send it to zip_unpack.
-        if type == 'zip':
-            f.save(secure_filename(f.filename))
-            result = zip_unpack(f.filename)
+    return True
 
-        # Else, the uploaded file must be a csv file, and should go to csv_upload
-        else:
-            f = request.files.get('file')
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
-            result = csv_upload(f.filename)
+"""Forms"""
+def upload_form(request):
+    if validate_file(request):
+        f = request.files['file']
+        type = err.allowed_file(f.filename)
+        if type:
+            # If the uploaded file is a zip, send it to zip_unpack.
+            if type == 'zip':
+                f.save(secure_filename(f.filename))
+                result = zip_unpack(f.filename)
 
-        # If the upload functions return a string, an error was found and should be returned to the user.
-        if isinstance(result, str):
+            # Else, the uploaded file must be a csv file, and should go to csv_upload
+            else:
+                f = request.files.get('file')
+                f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+                result = csv_upload(f.filename)
+
+            # If the upload functions return a string, an error was found and should be returned to the user.
+            if isinstance(result, str):
+                return render_template('ml_form.html',
+                    tab=0, 
+                    filename=request.files['file'].filename,
+                    error=result)
+            
+            # Else, save the snapshot.
+            else:
+                snapshot.og_data = result
+                snapshot.filename = secure_filename(f.filename)
+
+            # Return the output to the user.
             return render_template('ml_form.html',
-                tab=0, 
-                filename=request.files['file'].filename,
-                error=result)
+                        tab=0, 
+                        file_upload=True,
+                        filename=request.files['file'].filename,
+                        og_df=snapshot.og_data.to_html(),
+                        column_names=snapshot.og_data.columns.tolist())
         
-        # Else, save the snapshot.
+        # In case something goes wrong, we ensure to render the template with a warning message.
         else:
-            snapshot.og_data = result
-            snapshot.filename = secure_filename(f.filename)
-
-        # Return the output to the user.
-        return render_template('ml_form.html',
-                    tab=0, 
-                    file_upload=True,
-                    filename=request.files['file'].filename,
-                    og_df=snapshot.og_data.to_html(),
-                    column_names=snapshot.og_data.columns.tolist())
-    
-    # In case something goes wrong, we ensure to render the template with a warning message.
-    else:
-        return render_template('ml_form.html',
-                    tab=0, 
-                    filename=request.files['file'].filename,
-                    error="Please submit a file with a valid extension (csv or zip).")
+            return render_template('ml_form.html',
+                        tab=0, 
+                        filename=request.files['file'].filename,
+                        error="Please submit a file with a valid extension (csv or zip).")
 
 def select_columns_form(request):
     if request.form['X'] == request.form['Y']:
@@ -258,6 +237,7 @@ def select_columns_form(request):
                     columns_selected=True,
                     form_complete=True,
                     file_upload=True,
+                    filename=snapshot.filename,
                     name="myChart",
                     data=df.to_json(orient="records"),
                     user_input=True,
@@ -276,18 +256,18 @@ def scaling_form(request):
                     og_df=snapshot.og_data.to_html())
 
 def test_train_form(request):
-    train, e = text_input_parse(request.form['training'])
-    test, e = text_input_parse(request.form['testing'])
+    train, e = err.text_input_parse(request.form['training'])
+    test, e = err.text_input_parse(request.form['testing'])
     
     # If the user submitted a non-integer/float value, return an error.
-    if train is ValueError:
+    if train is Exception:
         return render_template('ml_form.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
-    if test is ValueError:
+    if test is Exception:
         return render_template('ml_form.html',
                     tab=2,
                     user_input=True,
@@ -326,8 +306,12 @@ def test_train_form(request):
                             error=msg)
 
 def hyperparameter_form(request):
-    # TODO: Finish error handling here.
         val = get_hyperparams(request)
+        if val is Exception:
+            return render_template('ml_form.html',
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
         lr.initialize(snapshot, val)
         return render_template('ml_form.html',
                         tab=3,
@@ -343,15 +327,15 @@ def run_model_form(request):
     df, prediction = lr.predict_model(snapshot)
     pred = get_graph_data(prediction)
     data = get_graph_data(df)
-    print(pred)
-    print(pred.to_json(orient="records"))
-    print(data)
     results = lr.evaluate(snapshot)
+    tables,titles = display_table(pd.DataFrame([results]))
     return render_template('ml_form.html',
                     tab=4,
                     user_input=True,
                     start=True,
                     name='eval',
+                    tables=[tables],
+                    titles=titles,
                     data=data.to_json(orient="records"),
                     pred=pred.to_json(orient="records"),
                     og_df=snapshot.og_data.to_html(),
