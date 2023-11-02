@@ -339,7 +339,7 @@ def run_model_form(request):
         return render_template('ml_form.html', 
                                tab=3, 
                                og_df=snapshot.og_data.to_html(), 
-                               hyper_error="Error found with one of the hyperparameters. Please double check values to avoid this error: " + ml_model)
+                               hyper_error=ml_model)
     y_pred = lr.predict_model(ml_model, snapshot.x_test)
     df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
     prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
