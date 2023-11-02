@@ -16,6 +16,7 @@
                     <span class="step"></span>
                     <span class="step"></span>
                     <span class="step"></span>
+                    <span class="step"></span>
                 </div>
 
                 <h1 class="ML">Linear Regression</h1>
@@ -31,18 +32,21 @@
                         <form id="columns" method="POST">
                             <p style="color:blue">File uploaded: {{filename}}.</p>
                             <p>Please select which columns you would like to test over.</p>
-                            <p>Select X value</p>
+
+                            <label>Select X value
                             <select type="X" name="X">
                                 {% for c in column_names %}
                                 <option value="{{c}}">{{c}}</option>
                                 {% endfor %}
-                            </select>
-                            <p>Select Y value</p>
+                            </select></label>
+
+                            <label>Select Y value
                             <select type="Y" name="Y">
                                 {% for c in column_names %}
                                 <option value="{{c}}">{{c}}</option>
                                 {% endfor %}
-                            </select>
+                            </select></label>
+
                             <input type="submit" name="select_xy" value="Submit Column Selection">
                         </form>
 
@@ -73,181 +77,138 @@
                 <div class="tab" id="step_3"><h2>Step 3: Training and Testing</h2>
                     <p>We would explain what the testing + training datasets mean, the ideal split for this.</p>
                     {% if traintest == True %}
-                        <p>User inputs:</p>
-                        <p>Training: {{tr}} </p>
-                        <p>Testing: {{te}}</p>
-                        <p style="color:crimson">{{error}}</p>
-                    {% else %}
-                    <form id="trte" method="POST">
-                        <p><label for="training">Training:</label>
-                        <input type="text" id="training" name="training" placeholder="80" oninput="this.className = ''"></p>
-                        <p><label for="training">Testing:</label>
-                        <input type="text" id="testing" name="testing" placeholder="20" oninput="this.className = ''"></p>
-                        <input type="submit" name="tt" value="Training/Testing">
-                    </form>
-                        <p style="color:red">{{ error }}</p>
+                        <p><b><u>User Supplied Inputs</u></b><br/>
+                        <b>Training</b>: {{tr}}<br/>
+                        <b>Testing</b>: {{te}}</p>
+                        <p>If you would like to continue to the next step, press the 'Next' button. If you would like to change the split, simply
+                            choose new test/train values and press the submit button.</p>
                     {% endif %}
+                    <form id="trte" method="POST">
+                        <label for="training">Training:
+                        <input type="number" step="1" min="1" max="99" id="training" name="training" placeholder="80" value="80" oninput="this.className = ''"></label>
+                        <label for="training">Testing:
+                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" placeholder="20" value="20"oninput="this.className = ''"></label>
+                        <input type="submit" name="tt" value="Submit Training/Testing">
+                    </form>
+                    <p style="color:red">{{ error }}</p>
                 </div>
 
-
-                <!-- Div for Changing all Hyperparameters-->
-                <!-- Sorry if this div becomes super long :( 
-                                            -Travis         -->
                 <div class="tab" id="step_4"><h2>Step 4: Initialize the Model</h2>
+                    <p style="color:red">{{ hyper_error }}</p>
                     {% if hyper==True %}
                     <p>Hyperparameters successfully inputted. Please press the next button to run the model.</p>
                     {% else %}
                     <form id="init" method="POST">
                     <p>
                         List of all Hyperparameters associated with ML model are listed here 
-                        <br><br>
                         Users can adjust any of these as they wish <br>
                         We will leave default values for all options and make a notice to the user that it is <br>
                         recommended that they do not mess with any of these values at first until they are <br>
                         comfortable with how the ML process works
-                        <br><br>
-                        each of these parameters will also be accompanied by a description of what they do.
-                        <br><br><br>
+                        Each of these parameters will also be accompanied by a description of what they do.
                     </p>
-                    <p>
-                        Loss Strength:
+                        <label>Loss Strength:
                         <select name = "loss_strength" id="Hyperparameters">
                             <option value="squared_error">Squared Error</option>
                             <option value="epsilon_insensitive">Epsilon Insensitive</option>
                             <option value="squared_epsilon_insensitive">Squared Epsilon Insensitive</option>
                             <option value="huber">Huber</option>
-                        </select>
-
-                        &ensp;
-                        Penalty:
+                        </select></label>
+                        <label>Penalty:
                         <select name="penalty" id="Hyperparameters">
                             <option value="l2">l2</option>
                             <option value="l1">l1</option>
                             <option value="elasticent">Elasticent</option>
                             <option value="none">None</option>
-                        </select>
+                        </select></label>
 
-                    </p>
+                        <label for="alpha">Alpha:   
+                        <input type="number" class="Hyperparameters" step="0.0001" min="0"name="alpha" value="0.0001" oninput="this.className = ' '">
+                        </label>
 
-                    <p>
-                        <label for="alpha">Alpha:</label>
-                        <input type="text" class="Hyperparameters" name="alpha" value="0.0001" oninput="this.className = ' '">
-                        <label for="l1_ratio">l1 Ratio:</label>
-                        <input type="text" class="Hyperparameters" name="l1_ratio" value="0.15" oninput="this.className =''">
-                    </p>
-                    <p>
-                        Fit Intercept:
+                        <label for="l1_ratio">l1 Ratio: 
+                        <input type="number" class="Hyperparameters" step="0.01" min="0" max = "1" name="l1_ratio" value="0.15" oninput="this.className =''">
+                        </label>
+
+                        <label>Fit Intercept:   
                         <select name="fit_intercept" id = "fit_intercept">
                             <option value ='True'>True</option>
                             <option value ='False'>False</option>
-                        </select>
-                    </p>
+                        </select></label>
 
-                    <p>
-                        <label for="max_iter">Max Iteration:</label>   
-                        <input type="text" class="Hyperparameters" name="max_iter" value="1000" oninput="this.className = ''">   
-                    </p>
+                        <label for="max_iter">Max Iteration:    
+                        <input type="number" step="1" min="0" class="Hyperparameters" name="max_iter" value="1000" oninput="this.className = ''">
+                        </label>
 
-                    <p>
-                        Shuffle:
+                        <label for ="tol">Tol:  
+                        <input type="number" step="0.001" min="0" class="Hyperparameters" name="tol" value="0.001" oninput="this.className=''">
+                        </label>
+
+                        <label>Shuffle: 
                         <select name="shuffle" class ="Hyperparameters">
                             <option value='True'>True</option>
                             <option value='False'>False</option>
-                        </select>
-                    </p>
+                        </select></label>
 
+                        <label for="verbose">Verbose:   
+                        <input type="number" step="1" min="0" class="Hyperparameters" name="verbose" value="0" oninput="this.className=''">
+                        </label>
 
+                        <label for="epsilon">Epsilon:   
+                        <input type="number" step="0.1" min="0" class="Hyperparameters" name="epsilon" value="0.1" oninput="this.className=''">
+                        </label>
 
-                    <p>
-                        <label for="verbose">Verbose:</label>
-                        <input type="text" class="Hyperparameters" name="verbose" value="0" oninput="this.className=''">
-                    </p>
+                        <label for="rand_state">Random State:   
+                        <input type="number" step="1" min="0" class="Hyperparameters" name="rand_state" value="0" oninput="this.className=''">
+                        </label>
 
-                    <p>
-
-                        <label for="epsilon">Epsilon</label>
-                        <input type="text" class="Hyperparameters" name="epsilon" value="0.1" oninput="this.className=''">
-                    </p>
-
-                    <p>
-                        <label for="rand_state">Random State</label>
-                        <input type="text" class="Hyperparameters" name="rand_state" value="0" oninput="this.className=''">
-
-                    </p>
-
-                    <p>
-                        Learning Rate:
+                        <label>Learning Rate:
                         <select name="learning_rate" class="Hyperparameters">
                             <option value="invscaling">Invscaling</option>
                             <option value="constant">Constant</option>
                             <option value="optimal">Optimal</option>
                             <option value="adaptive">Adaptive</option>
-                        </select>
-                    </p>
+                        </select></label>
 
-                    <p>
-                        <label for="eta0">eta0</label>
-                        <input type="text" class="Hyperparameters" name="eta0" value="0.01" oninput="this.className=''">
+                        <label for="eta0">eta0: 
+                        <input type="number" step="0.01" min="0" class="Hyperparameters" name="eta0" value="0.01" oninput="this.className=''">
+                        </label>
 
-                    </p>
+                        <label for="power_t">Power_T:   
+                        <input type="number" step="0.01" min="0" class="Hyperparameters" name="power_t" value="0.25" oninput="this.className=''">
+                        </label>
 
-                    <p>
-                        <label for="power_t">Power_T</label>
-                        <input type="text" class="Hyperparameters" name="power_t" value="0.25" oninput="this.className=''">
-
-                    </p>
-
-                    <p>
-                        Early Stopping:
+                        <label>Early Stopping:
                         <select name = "early_stopping" class="Hyperparameters">
                             <option value="True">True</option>
                             <option value="False">False</option>
-                        </select>
-                    </p>
-                    
-                    <p>
-                        <label for="validation_fraction">Validation Fraction</label>
-                        <input type="text" class="Hyperparameters" name="validation_fraction" value="0.1" oninput="this.className=''">
-                    </p>
+                        </select></label>
 
-                    <p>
-                        <label for ="tol">Tol</label>
-                        <input type="text" class="Hyperparameters" name="tol" value="0.001" oninput="this.className=''">
-                    </p>
+                        <label for="validation_fraction">Validation Fraction:
+                        <input type="number" step="0.1" min="0.1" max="1.0" class="Hyperparameters" name="validation_fraction" value="0.1" oninput="this.className=''">
+                        </label>
 
-                    <p>
-                        <label for="n_iter_no_change"> # of Iterations (no change) </label>
+                        <label for="n_iter_no_change"> Number of Iterations (no change):
                         <input type="text" class="Hyperparameters" name="n_iter_no_change" value="5" oninput="this.className=''">
+                        </label>
 
-                    </p>
-
-                    <p>
-                        Warm Start:
+                        <label>Warm Start:  
                         <select name ="warm_start" class = "Hyperparameters">
                             <option value="True">True</option>
                             <option value="False">False</option>
-                        </select>
-                    </p>
+                        </select></label>
 
-                    <p>
-                        Average:
+                        <label>Average: 
                         <select name="average" class ="Hyperparameters">
                             <option value="True">True</option>
                             <option value="False">False</option>
-                        </select>
-                    </p>
-
-
-                    
+                        </select></label>
+                    <br/>      
                     <input type="submit" name="hyperparams" value="Hyperparams">
                 </form>
                 {% endif %}
-
-               
                 </div>
 
-
-                
                 <!-- Div for Running the Model-->
                 <div class="tab" id="step_5"><h2>Step 5: Run</h2>
                     <form id="run" method="POST">
@@ -297,13 +258,6 @@
                 <h2>Scaled Data</h2>
                     {% for table in tables %}
                         <table>
-                            <thead>
-                                <tr>
-                                    {% for title in titles %}
-                                        <th>{{ title }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
                             <tbody>
                                 {{ table|safe }}
                             </tbody>
@@ -314,10 +268,10 @@
                 <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
                 {% if traintest==True %}
                 <h2>Testing Dataset</h2>
-                    <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <canvas id="test_chart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 <h2>Training Dataset</h2>
-                    <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <canvas id="train_chart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
 
@@ -327,23 +281,11 @@
                 <h2>Evaluation Data</h2>
                     {% for table in tables %}
                         <table>
-                            <thead>
-                                <tr>
-                                    {% for title in titles %}
-                                        <th>{{ title }}</th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
                             <tbody>
                                 {{ table|safe }}
                             </tbody>
                         </table>
                     {% endfor %}
-                <p><b>Mean Absolute Error</b>: {{eval['Mean Absolute Error']}}</p>
-                <p><b>Mean Square Error</b>: {{eval['Mean Square Error']}} </p>
-                <p><b>Root Mean Square Error</b>: {{eval['Root Mean Square Error']}}</p>
-                <p><b>R2 Score</b>: {{eval['R2 Score']}}</p>
-                <p><b>Max Error</b>: {{eval['Max Error']}}</p>
                 <canvas id="eval" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                 <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{column_names}}' src="{{url_for('static', filename='prediction.js')}}"></script>
                     
