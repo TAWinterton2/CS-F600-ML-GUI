@@ -16,6 +16,7 @@
                     <span class="step"></span>
                     <span class="step"></span>
                     <span class="step"></span>
+                    <span class="step"></span>
                 </div>
 
                 <h1 class="ML">Linear Regression</h1>
@@ -76,27 +77,24 @@
                 <div class="tab" id="step_3"><h2>Step 3: Training and Testing</h2>
                     <p>We would explain what the testing + training datasets mean, the ideal split for this.</p>
                     {% if traintest == True %}
-                        <p>User inputs:</p>
-                        <p>Training: {{tr}} </p>
-                        <p>Testing: {{te}}</p>
-                        <p style="color:crimson">{{error}}</p>
-                    {% else %}
+                        <p><b><u>User Supplied Inputs</u></b><br/>
+                        <b>Training</b>: {{tr}}<br/>
+                        <b>Testing</b>: {{te}}</p>
+                        <p>If you would like to continue to the next step, press the 'Next' button. If you would like to change the split, simply
+                            choose new test/train values and press the submit button.</p>
+                    {% endif %}
                     <form id="trte" method="POST">
                         <label for="training">Training:
                         <input type="number" step="1" min="1" max="99" id="training" name="training" placeholder="80" value="80" oninput="this.className = ''"></label>
                         <label for="training">Testing:
                         <input type="number" step="1" min="1" max="99" id="testing" name="testing" placeholder="20" value="20"oninput="this.className = ''"></label>
-                        <input type="submit" name="tt" value="Training/Testing">
+                        <input type="submit" name="tt" value="Submit Training/Testing">
                     </form>
-                        <p style="color:red">{{ error }}</p>
-                    {% endif %}
+                    <p style="color:red">{{ error }}</p>
                 </div>
 
-
-                <!-- Div for Changing all Hyperparameters-->
-                <!-- Sorry if this div becomes super long :( 
-                                            -Travis         -->
                 <div class="tab" id="step_4"><h2>Step 4: Initialize the Model</h2>
+                    <p style="color:red">{{ hyper_error }}</p>
                     {% if hyper==True %}
                     <p>Hyperparameters successfully inputted. Please press the next button to run the model.</p>
                     {% else %}
@@ -272,10 +270,10 @@
                 <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
                 {% if traintest==True %}
                 <h2>Testing Dataset</h2>
-                    <canvas id="testing" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <canvas id="test_chart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 <h2>Training Dataset</h2>
-                    <canvas id="training" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
+                    <canvas id="train_chart" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 {% endif %}
 
@@ -290,11 +288,6 @@
                             </tbody>
                         </table>
                     {% endfor %}
-                <!-- <p><b>Mean Absolute Error</b>: {{eval['Mean Absolute Error']}}</p>
-                <p><b>Mean Square Error</b>: {{eval['Mean Square Error']}} </p>
-                <p><b>Root Mean Square Error</b>: {{eval['Root Mean Square Error']}}</p>
-                <p><b>R2 Score</b>: {{eval['R2 Score']}}</p>
-                <p><b>Max Error</b>: {{eval['Max Error']}}</p> -->
                 <canvas id="eval" style="width:100%;max-width:300px;background-color: antiquewhite;align-content: center;"></canvas>
                 <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{column_names}}' src="{{url_for('static', filename='prediction.js')}}"></script>
                     

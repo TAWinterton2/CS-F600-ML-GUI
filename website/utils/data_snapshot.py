@@ -1,7 +1,6 @@
 import pandas as pd
-import numpy as np
 
-class snapshot():
+class DataSnapshot():
     """This class handles keeping track of the data snapshot that the user submits."""
     def __init__(self):
         self.og_data = None
@@ -14,11 +13,20 @@ class snapshot():
         self.y_train = None
         self.x_test = None
         self.y_test = None
-        self.y_pred = None
+
+    def create_x_y_split(self, df):
+        self.x = df.iloc[:,0].to_numpy()
+        self.y = df.iloc[:,1].to_numpy()
+        return self.x, self.y
+
+    def merge_x_y(self, x, y):
+        cols = self.data.columns.tolist()
+        return pd.DataFrame({cols[0]: x, cols[1]: y})
 
     def select_columns(self, x, y):
         df = self.og_data[[x, y]].copy()
         self.data = df
+        self.create_x_y_split(df)
 
     def clean_data(self, df):
         """This function handles cleaning the dataset. This is done by removing all null values from the set."""
@@ -30,9 +38,8 @@ class snapshot():
         self.y_train = y_train
         self.y_test = y_test
 
-        columns = self.data.columns
-        train = pd.DataFrame({columns[0]: x_train, columns[1]: y_train})
-        test = pd.DataFrame({columns[0]: x_test, columns[1]: y_test})
+        train = self.merge_x_y(x_train, y_train)
+        test = self.merge_x_y(x_test, y_test)
         return train, test
     
     def reshape_data(self):

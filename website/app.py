@@ -2,8 +2,8 @@ from flask import Flask, render_template, request
 import pandas as pd
 import zipfile, os, shutil, csv
 from zipfile import ZipFile
-from website.models import linear_regression as lr
-from website.utils import snapshot as ds
+from website.utils.linear_regression import LinearRegression as lr
+from website.utils import data_snapshot as ds
 from website.utils import error_handle as err
 from werkzeug.utils import secure_filename
 
@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 """Flask Operation"""
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "./temp/"
-snapshot = ds.snapshot()
+snapshot = ds.DataSnapshot()
 
 
 """Input Parsing Functions"""
@@ -249,13 +249,15 @@ def select_columns_form(request):
 
 def scaling_form(request):
     snapshot.clean_data(snapshot.data)
-    snapshot.data = lr.scaling(snapshot, request.form['scale'])
+    x, y = snapshot.create_x_y_split(snapshot.data)
+    snapshot.y = lr.scaling(x, y, request.form['scale'])
+    snapshot.data = snapshot.merge_x_y(x, snapshot.y)
     return render_template('ml_form.html',
                     tab=1,
                     user_input=True,
                     scaling=True,
                     tables=[snapshot.data.to_html(classes='data')],
-                    titles=snapshot.data.columns.values,
+                    titles=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html())
 
 def test_train_form(request):
@@ -280,8 +282,15 @@ def test_train_form(request):
 
     # df = snapshot.data
     # Run the testing/train split.
-    train_df, test_df, msg = lr.test_train_split(snapshot, test, train)
-    
+    x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
+    if x_train is None:
+        return render_template('ml_form.html',
+                    tab=2,
+                    user_input=True,
+                    traintest=False,
+                    error=msg,
+                    og_df=snapshot.og_data.to_html())
+    train_df, test_df = snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
     # If an error is found while trying to split the data, display the error.
     if train_df is None:
         return render_template('ml_form.html',
@@ -294,6 +303,7 @@ def test_train_form(request):
     # Otherwise, get the json graph data and return the information needed for chartJS.
     test_df = get_graph_data(test_df)
     train_df = get_graph_data(train_df)
+    print("form method is working!")
     return render_template('ml_form.html',
                             tab=2,
                             user_input=True,
@@ -301,8 +311,8 @@ def test_train_form(request):
                             tr=train,
                             te=test,
                             og_df=snapshot.og_data.to_html(),
-                            test_name = "testing",
-                            training_name = "training",
+                            test_name = "test_chart",
+                            training_name = "train_chart",
                             test_data=test_df.to_json(orient="records"),
                             training_data=train_df.to_json(orient="records"),
                             column_names=snapshot.data.columns.tolist(),
@@ -315,7 +325,7 @@ def hyperparameter_form(request):
                         tab=3,
                         og_df=snapshot.og_data.to_html(),
                         error="Please input proper integer/float values for the given hyperparameters.")
-        lr.initialize(snapshot, val)
+        snapshot.model = lr.initialize(val)
         return render_template('ml_form.html',
                         tab=3,
                         user_input=True,
@@ -323,14 +333,19 @@ def hyperparameter_form(request):
                         og_df=snapshot.og_data.to_html())
 
 def run_model_form(request):
-    # df = snapshot.data
-    # return display_table(df)
-    
-    lr.fit_model(snapshot)
-    df, prediction = lr.predict_model(snapshot)
+    snapshot.reshape_data()
+    ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+    if isinstance(ml_model, str):
+        return render_template('ml_form.html', 
+                               tab=3, 
+                               og_df=snapshot.og_data.to_html(), 
+                               hyper_error="Error found with one of the hyperparameters. Please double check values to avoid this error: " + ml_model)
+    y_pred = lr.predict_model(ml_model, snapshot.x_test)
+    df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
+    prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
     pred = get_graph_data(prediction)
     data = get_graph_data(df)
-    results = lr.evaluate(snapshot)
+    results = lr.evaluate(snapshot.y_test, y_pred)
     tables,titles = display_table(pd.DataFrame([results]))
     return render_template('ml_form.html',
                     tab=4,
