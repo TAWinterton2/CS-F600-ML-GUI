@@ -18,9 +18,9 @@ function showTab(n) {
   if (n == (x.length - 1)) {
 
     // Change this to run the model
-    document.getElementById("nextStp").innerHTML = "Submit";
+    document.getElementById("nextStp").style.display = "none";
   } else {
-
+    document.getElementById("nextStp").style.display = "inline";
     document.getElementById("nextStp").innerHTML = "Next";
   }
   // ... and run a function that displays the correct step indicator:

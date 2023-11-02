@@ -163,13 +163,15 @@ def get_hyperparams(request):
     return val
 
 def validate_file(request):
+    print(request.files['file'])
+    print(request.files['file'].filename)
     if 'file' not in request.files:
         return render_template('ml_form.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
-    if request.files['file'].filename == '':
+    if request.files['file'].filename == "":
         return render_template('ml_form.html',
                     tab=0, 
                     filename=request.files['file'].filename,
@@ -178,7 +180,8 @@ def validate_file(request):
 
 """Forms"""
 def upload_form(request):
-    if validate_file(request):
+    test = validate_file(request)
+    if test is True:
         f = request.files['file']
         type = err.allowed_file(f.filename)
         if type:
@@ -213,12 +216,12 @@ def upload_form(request):
                         og_df=snapshot.og_data.to_html(),
                         column_names=snapshot.og_data.columns.tolist())
         
-        # In case something goes wrong, we ensure to render the template with a warning message.
-        else:
-            return render_template('ml_form.html',
-                        tab=0, 
-                        filename=request.files['file'].filename,
-                        error="Please submit a file with a valid extension (csv or zip).")
+    # In case something goes wrong, we ensure to render the template with a warning message.
+    else:
+        return render_template('ml_form.html',
+                    tab=0, 
+                    filename=request.files['file'].filename,
+                    error="Please submit a file with a valid extension (csv or zip).")
 
 def select_columns_form(request):
     if request.form['X'] == request.form['Y']:
