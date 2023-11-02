@@ -390,8 +390,7 @@ def ml_form():
             return hyperparameter_form(request)
         
         if 'run' in request.form:
-            return run_model_form(request)
-        
+            return run_model_form(request)        
 
     return render_template('ml_form.html',
                            tab=0,
