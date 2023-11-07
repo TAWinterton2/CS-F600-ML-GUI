@@ -1,10 +1,11 @@
 var js_tabs = document.getElementById('js_tabs');
 var tab = js_tabs.getAttribute("tab_num"); // Current tab is set to be the first tab (0)
-var currentTab = parseInt(tab)
+//var tab_complete = js_tabs.getAttribute("tab_complete"); // Current tab is set to be the first tab (0)
+var currentTab = parseInt(tab);
 showTab(currentTab); // Display the current tab
 // Update script to use ajax to submit a note to the server when the button is pressed to render the correct html for output?
 
-
+console.log(tab_complete);
 function showTab(n) {
   // This function will display the specified tab of the form ...
   var x = document.getElementsByClassName("tab");
@@ -13,7 +14,14 @@ function showTab(n) {
   if (n == 0) {
     document.getElementById("prevStp").style.display = "none";
   } else {
-    document.getElementById("prevStp").style.display = "inline";
+    // Prevents the user from returning to the first step (file upload)
+    if (n==1)
+    {
+      document.getElementById("prevStp").style.display = "none";
+    }
+    else {
+      document.getElementById("prevStp").style.display = "inline";
+    }
   }
   if (n == (x.length - 1)) {
 
