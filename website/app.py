@@ -302,18 +302,18 @@ def test_train_form(request):
                             error=msg)
 
 def hyperparameter_form(request):
-        val = get_hyperparams(request)
-        if val is Exception:
-            return render_template('ml_form.html',
-                        tab=3,
-                        og_df=snapshot.og_data.to_html(),
-                        error="Please input proper integer/float values for the given hyperparameters.")
-        snapshot.model = lr.initialize(val)
+    val = get_hyperparams(request)
+    if val is Exception:
         return render_template('ml_form.html',
-                        tab=3,
-                        user_input=True,
-                        hyper=True,
-                        og_df=snapshot.og_data.to_html())
+                    tab=3,
+                    og_df=snapshot.og_data.to_html(),
+                    error="Please input proper integer/float values for the given hyperparameters.")
+    snapshot.model = lr.initialize(val)
+    return render_template('ml_form.html',
+                    tab=3,
+                    user_input=True,
+                    hyper=True,
+                    og_df=snapshot.og_data.to_html())
 
 def run_model_form(request):
     snapshot.reshape_data()
@@ -373,8 +373,7 @@ def ml_form():
             return hyperparameter_form(request)
         
         if 'run' in request.form:
-            return run_model_form(request)
-        
+            return run_model_form(request)        
 
     return render_template('ml_form.html',
                            tab=0,
