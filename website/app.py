@@ -15,83 +15,105 @@ snapshot = ds.DataSnapshot()
 
 
 """Input Parsing Functions"""
-def gen_header(df):
-    """This function generates generic column names for a csv file based on the number of columns."""
-    cols = []
-    x = df.shape[1]
-    for n in range(x): cols.append("Column " + str(n+1))
-    df = df.set_axis(cols, axis='columns')
-    return df
+def has_header(df):
+    """Determine if the file has a header. It returns a list of headers to use when uploading the full file."""
+    return isinstance(df.columns[0], str)
 
-def determine_header(path):
-    """This function determines if a given file has a header."""
-    with open(path,"r") as f:
-        sample = f.read(1024)
-        header = csv.Sniffer().has_header(sample)
-    return header
+
+def gen_headers(x):
+    """This function generates generic column names for a csv file based on the number of columns."""
+    col = []
+    for n in range(x): col.append("Column " + str(n+1))
+    return col
 
 """File Upload Functions"""
-def remove_temp_files(path):
-    for file in os.listdir(path):
-        tmp = os.path.join(path, file)
-        if os.path.isfile(tmp):
-            os.remove(tmp)
-        else:
-            shutil.rmtree(tmp)
-
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     try:
         path = os.path.join(app.config['UPLOAD_FOLDER'], file)
-        header = None
-        if determine_header(path):
+        with open(path,"r") as f:
+            sample = f.read(1024)
+            header = csv.Sniffer().has_header(sample)
+        if header:
             header='infer'
+        else:
+            header=None
         df = pd.read_csv(path, header=header, index_col=0)
-        if not header:
-            df = gen_header(df)
-        os.remove(path)
+        if not header: 
+            cols = gen_headers(df.shape[1])
+            df = df.set_axis(cols, axis='columns')
         return df
     except Exception as e:
-        os.remove(path)
         return "Program returned error while uploading the csv: " + str(e)
-
-def zip_unpack(file):
+    
+def zip_unpack(zip_file):
    #Get current wording directory of server and save it as a string
     try:
-        file_like_object = file.stream._file  
-        zipfile_ob = zipfile.ZipFile(file_like_object)
-        file_names = zipfile_ob.infolist()
-        names = []
-        # Filter names to only include the filetype that you want:
-        for name in file_names:
-            if name.is_dir():
-                continue
-            if name.filename.endswith(".csv"):
-                names.append(name.filename)
-            else:
-                # Maybe ignore MACOSX/DS_STORE for now?
-                return "There are files in " + str(file.filename) + " that are not .csv files. Please try again with only .csv files."
-        files = []
-        for name in file_names:
-            sample = zipfile_ob.open(name).read(1024).decode()
-            header = csv.Sniffer().has_header(sample)
+        cwd = os.getcwd()
+        zip_file_path = os.path.join(cwd, zip_file)
 
+        temp_dir = "temp"
+        temp_path = os.path.join(cwd, temp_dir)
+
+        ext = ('.csv')
+
+        #check if temp already exists
+        if not os.path.exists(temp_path):
+            os.mkdir(temp_path)
+
+        with ZipFile(zip_file_path, 'r') as zObject:
+        #Extract all files in the zip into a specific location
+            zObject.extractall(path=temp_path)
+            zObject.close()
+
+        temp_folder_name = os.path.splitext(zip_file)[0]
+        tmp = temp_path
+        temp_path = os.path.join(temp_path, temp_folder_name)
+        if os.path.isdir(temp_path) is False:
+            temp_path = tmp
+
+        files = []
+        for file in os.listdir(temp_path):
+            # Mac
+            if not file.startswith('.'):
+                if file.endswith(ext):
+                    files.append(file)
+
+                else:
+                    #shutil.rmtree(tmp)
+                    os.remove(zip_file_path)
+                    os.chdir(cwd)
+                    return "There are files in " + zip_file + " that are not .csv files. Please try again with only .csv files."
+        
+        d = []
+        for f in files:
+            tmp_path = os.path.join(temp_path, f)
+            with open(tmp_path, "r") as f:
+                sample = f.read(1024)
+                header = csv.Sniffer().has_header(sample)
             if header:
                 header='infer'
             else:
                 header=None
-            df = pd.read_csv(zipfile_ob.open(name), header=header, index_col=0)
+            df = pd.read_csv(tmp_path, on_bad_lines='skip', header=None, index_col=0)
             if not header:
-                df = gen_header(df)
-            files.append(df)
+                cols = gen_headers(df.shape[1])
+                df = df.set_axis(cols, axis='columns')
+            d.append(df)
 
-        # Determine if the csv files share the same column names.
-        cols = files[0].columns
-        for df in files:
-            if sorted(list(cols)) != sorted(list(df.columns)):
-                return "The csv files within " + file.filename +" do not have the same column names. Please resubmit with .csvs that have matching columns."
-        return pd.concat(files, axis=0)
-
+        columns = d[0].columns
+        for df in d:
+            if df.columns.difference(columns).empty is False:
+                #shutil.rmtree(tmp)
+                os.remove(zip_file_path)
+                os.chdir(cwd)
+                return "The csv files within " + zip_file +" do not have the same column names. Please resubmit with .csvs that have matching columns."
+            # load all csv files, check if columns match, return either a dataframe or a string error
+        
+        #shutil.rmtree(tmp)
+        os.remove(zip_file_path)
+        os.chdir(cwd)
+        return pd.concat(d, axis=0)
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
     
@@ -141,6 +163,8 @@ def get_hyperparams(request):
     return val
 
 def validate_file(request):
+    print(request.files['file'])
+    print(request.files['file'].filename)
     if 'file' not in request.files:
         return render_template('ml_form.html',
                     tab=0, 
@@ -164,13 +188,12 @@ def upload_form(request):
             # If the uploaded file is a zip, send it to zip_unpack.
             if type == 'zip':
                 f.save(secure_filename(f.filename))
-                #result = zip_unpack(f.filename)
-                result = zip_unpack(f)
+                result = zip_unpack(f.filename)
 
             # Else, the uploaded file must be a csv file, and should go to csv_upload
             else:
                 f = request.files.get('file')
-                f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+                #f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
                 result = csv_upload(f.filename)
 
             # If the upload functions return a string, an error was found and should be returned to the user.
@@ -189,16 +212,10 @@ def upload_form(request):
             return render_template('ml_form.html',
                         tab=0, 
                         file_upload=True,
-                        filename=snapshot.filename,
+                        filename=request.files['file'].filename,
                         og_df=snapshot.og_data.to_html(),
                         column_names=snapshot.og_data.columns.tolist())
         
-        # In case something goes wrong, we ensure to render the template with a warning message.
-        else:
-            return render_template('ml_form.html',
-                        tab=0, 
-                        filename=request.files['file'].filename,
-                        error="Please submit a file with a valid extension (csv or zip).")
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
         return render_template('ml_form.html',
@@ -244,6 +261,7 @@ def scaling_form(request):
                     og_df=snapshot.og_data.to_html())
 
 def test_train_form(request):
+        
     train, e = err.text_input_parse(request.form['training'])
     test, e = err.text_input_parse(request.form['testing'])
     
@@ -286,7 +304,7 @@ def test_train_form(request):
     # Otherwise, get the json graph data and return the information needed for chartJS.
     test_df = get_graph_data(test_df)
     train_df = get_graph_data(train_df)
-
+    print("form method is working!")
     return render_template('ml_form.html',
                             tab=2,
                             user_input=True,
@@ -302,18 +320,18 @@ def test_train_form(request):
                             error=msg)
 
 def hyperparameter_form(request):
-    val = get_hyperparams(request)
-    if val is Exception:
+        val = get_hyperparams(request)
+        if val is Exception:
+            return render_template('ml_form.html',
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = lr.initialize(val)
         return render_template('ml_form.html',
-                    tab=3,
-                    og_df=snapshot.og_data.to_html(),
-                    error="Please input proper integer/float values for the given hyperparameters.")
-    snapshot.model = lr.initialize(val)
-    return render_template('ml_form.html',
-                    tab=3,
-                    user_input=True,
-                    hyper=True,
-                    og_df=snapshot.og_data.to_html())
+                        tab=3,
+                        user_input=True,
+                        hyper=True,
+                        og_df=snapshot.og_data.to_html())
 
 def run_model_form(request):
     snapshot.reshape_data()
