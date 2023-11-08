@@ -51,7 +51,7 @@ class Model:
             model = ml_model.fit(x_train, y_train)
             return model
         except Exception as e:
-            return str(e)
+            return 'An error has occured when trying to fit the model. \n Please review your hyperparameters settings'
 
     def predict_model(ml_model, x_test):
         y_pred = ml_model.predict(x_test)
