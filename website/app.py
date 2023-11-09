@@ -38,7 +38,13 @@ def csv_upload(file):
         if not header:
             df = gen_header(df)
         else:
-            df=df.set_axis(df.iloc[0], axis='columns')
+            col = df.iloc[0]
+            df=df.set_axis(col.fillna(0), axis='columns')
+            # If the first column of the csv is an index, set the index.
+            if df.columns.values[0] == 0:
+                df.drop(index=0, axis=0, inplace=True)
+                df.set_index(0, inplace=True)
+            
         return df
     except Exception as e:
         return "Program returned error while uploading the csv: " + str(e)
