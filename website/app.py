@@ -141,13 +141,13 @@ def get_hyperparams(request):
 
 def validate_file(request):
     if 'file' not in request.files:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
     if request.files['file'].filename == "":
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file submitted. Please submit a file with a valid extension (csv or zip).")
@@ -170,7 +170,7 @@ def upload_form(request):
 
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
-                return render_template('ml_form.html',
+                return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error=result)
@@ -181,7 +181,7 @@ def upload_form(request):
                 snapshot.filename = secure_filename(f.filename)
 
             # Return the output to the user.
-            return render_template('ml_form.html',
+            return render_template('linear.html',
                         tab=0, 
                         file_upload=True,
                         filename=snapshot.filename,
@@ -190,20 +190,20 @@ def upload_form(request):
         
         # In case something goes wrong, we ensure to render the template with a warning message.
         else:
-            return render_template('ml_form.html',
+            return render_template('linear.html',
                         tab=0, 
                         filename=request.files['file'].filename,
                         error="Please submit a file with a valid extension (csv or zip).")
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="Please submit a file with a valid extension (csv or zip).")
 
 def select_columns_form(request):
     if request.form['X'] == request.form['Y']:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     file_upload=True,
                     filename=snapshot.filename,
@@ -213,7 +213,7 @@ def select_columns_form(request):
     
     snapshot.select_columns(request.form['X'], request.form['Y'])
     df = get_graph_data(snapshot.data)
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=0, 
                     columns_selected=True,
                     form_complete=True,
@@ -230,7 +230,7 @@ def scaling_form(request):
     x, y = snapshot.create_x_y_split(snapshot.data)
     snapshot.y = lr.scaling(x, y, request.form['scale'])
     snapshot.data = snapshot.merge_x_y(x, snapshot.y)
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=1,
                     user_input=True,
                     scaling=True,
@@ -244,14 +244,14 @@ def test_train_form(request):
     
     # If the user submitted a non-integer/float value, return an error.
     if train is Exception:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
     if test is Exception:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
@@ -261,7 +261,7 @@ def test_train_form(request):
     # Run the testing/train split.
     x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
     if x_train is None:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
@@ -270,7 +270,7 @@ def test_train_form(request):
     train_df, test_df = snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
     # If an error is found while trying to split the data, display the error.
     if train_df is None:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
@@ -281,7 +281,7 @@ def test_train_form(request):
     test_df = get_graph_data(test_df)
     train_df = get_graph_data(train_df)
 
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                             tab=2,
                             user_input=True,
                             traintest=True,
@@ -298,12 +298,12 @@ def test_train_form(request):
 def hyperparameter_form(request):
     val = get_hyperparams(request)
     if val is Exception:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=3,
                     og_df=snapshot.og_data.to_html(),
                     error="Please input proper integer/float values for the given hyperparameters.")
     snapshot.model = lr.initialize(val)
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=3,
                     user_input=True,
                     hyper=True,
@@ -313,7 +313,7 @@ def run_model_form(request):
     snapshot.reshape_data()
     ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
     if isinstance(ml_model, str):
-        return render_template('ml_form.html', 
+        return render_template('linear.html', 
                                tab=3, 
                                og_df=snapshot.og_data.to_html(), 
                                hyper_error=ml_model)
@@ -324,7 +324,7 @@ def run_model_form(request):
     data = get_graph_data(df)
     results = lr.evaluate(snapshot.y_test, y_pred)
     tables,titles = display_table(pd.DataFrame([results]))
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=4,
                     user_input=True,
                     start=True,
@@ -369,7 +369,7 @@ def ml_form():
         if 'run' in request.form:
             return run_model_form(request)        
 
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                            tab=0,
                            user_input=False)
 
