@@ -15,8 +15,8 @@ class DataSnapshot():
         self.y_test = None
 
     def create_x_y_split(self, df):
-        self.x = df.iloc[:,0].to_numpy()
-        self.y = df.iloc[:,1].to_numpy()
+        self.x = df.iloc[:,0].astype(float).to_numpy()
+        self.y = df.iloc[:,1].astype(float).to_numpy()
         return self.x, self.y
 
     def merge_x_y(self, x, y):

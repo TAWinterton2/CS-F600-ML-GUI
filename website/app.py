@@ -40,10 +40,11 @@ def csv_upload(file):
         else:
             col = df.iloc[0]
             df=df.set_axis(col.fillna(0), axis='columns')
+            df.drop(index=0, axis=0, inplace=True)
             # If the first column of the csv is an index, set the index.
             if df.columns.values[0] == 0:
-                df.drop(index=0, axis=0, inplace=True)
                 df.set_index(0, inplace=True)
+                df.index.name = None
             
         return df
     except Exception as e:
@@ -165,7 +166,6 @@ def upload_form(request):
 
             # Else, the uploaded file must be a csv file, and should go to csv_upload
             else:
-                #f = request.files.get('file')
                 result = csv_upload(f)
 
             # If the upload functions return a string, an error was found and should be returned to the user.
@@ -258,7 +258,6 @@ def test_train_form(request):
                     error=e,
                     og_df=snapshot.og_data.to_html())
 
-    # df = snapshot.data
     # Run the testing/train split.
     x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
     if x_train is None:
