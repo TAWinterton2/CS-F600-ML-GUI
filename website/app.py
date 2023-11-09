@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import zipfile, os, shutil, csv
-from zipfile import ZipFile
+import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
 from website.utils import data_snapshot as ds
 from website.utils import error_handle as err
@@ -10,7 +9,6 @@ from werkzeug.utils import secure_filename
 
 """Flask Operation"""
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = "/tmp"
 snapshot = ds.DataSnapshot()
 
 
@@ -20,77 +18,71 @@ def gen_header(df):
     cols = []
     x = df.shape[1]
     for n in range(x): cols.append("Column " + str(n+1))
-    df = df.set_axis(cols, axis='columns')
+    df.columns = cols
     return df
 
-def determine_header(path):
-    """This function determines if a given file has a header."""
-    with open(path,"r") as f:
-        sample = f.read(1024)
-        header = csv.Sniffer().has_header(sample)
-    return header
-
 """File Upload Functions"""
-def remove_temp_files(path):
-    for file in os.listdir(path):
-        tmp = os.path.join(path, file)
-        if os.path.isfile(tmp):
-            os.remove(tmp)
-        else:
-            shutil.rmtree(tmp)
-
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     try:
-        path = os.path.join(app.config['UPLOAD_FOLDER'], file)
-        header = None
-        if determine_header(path):
-            header='infer'
-        df = pd.read_csv(path, header=header, index_col=0)
+        # Read in the csv file.
+        # Currently, if there is a bad line it will warn the user. 
+        df = pd.read_csv(file, header=None, encoding="ISO-8859-1", on_bad_lines='warn')
+
+        # Convert the dataframe to a string object for the sniffer.
+        strIO = io.StringIO()
+        df.to_csv(strIO)
+
+        # Determine if the dataframe has column names. If it doesn't, generate column names.
+        header = csv.Sniffer().has_header(strIO.getvalue())
         if not header:
             df = gen_header(df)
-        os.remove(path)
+        else:
+            df=df.set_axis(df.iloc[0], axis='columns')
         return df
     except Exception as e:
-        os.remove(path)
         return "Program returned error while uploading the csv: " + str(e)
 
 def zip_unpack(file):
-   #Get current wording directory of server and save it as a string
     try:
         file_like_object = file.stream._file  
         zipfile_ob = zipfile.ZipFile(file_like_object)
         file_names = zipfile_ob.infolist()
-        names = []
-        # Filter names to only include the filetype that you want:
+        names, files = [], []
+
+        # Filter names to ensure that every file is correct in the directory. If it is a hidden file or subdirectory, ignore it.
         for name in file_names:
             if name.is_dir():
                 continue
-            if name.filename.endswith(".csv"):
+            elif name.filename.__contains__("__MACOSX") or name.filename.__contains__(".DS_Store"):
+                continue
+            elif name.filename.endswith(".csv"):
                 names.append(name.filename)
             else:
-                # Maybe ignore MACOSX/DS_STORE for now?
                 return "There are files in " + str(file.filename) + " that are not .csv files. Please try again with only .csv files."
-        files = []
-        for name in file_names:
-            sample = zipfile_ob.open(name).read(1024).decode()
-            header = csv.Sniffer().has_header(sample)
 
-            if header:
-                header='infer'
+        # Upload each csv file. Append the returned dataframe to a list.
+        if names:
+            for name in names:
+                df = csv_upload(zipfile_ob.open(name))
+                if isinstance(df, str):
+                    return df
+                files.append(df)
+
+            # Determine if the csv files share the same column names.
+            cols = files[0].columns
+            if len(files) > 1:
+                for df in files:
+                    if list(cols) != list(df.columns):
+                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns. 
+                                Please resubmit with .csvs that have matching columns."""
+                # If all csv files match, return the concatted data.
+                return pd.concat(files, axis=0)
             else:
-                header=None
-            df = pd.read_csv(zipfile_ob.open(name), header=header, index_col=0)
-            if not header:
-                df = gen_header(df)
-            files.append(df)
-
-        # Determine if the csv files share the same column names.
-        cols = files[0].columns
-        for df in files:
-            if sorted(list(cols)) != sorted(list(df.columns)):
-                return "The csv files within " + file.filename +" do not have the same column names. Please resubmit with .csvs that have matching columns."
-        return pd.concat(files, axis=0)
+                return files[0]
+        else:
+            return """No valid files were located within the submitted archive. 
+                    Please submit a csv file or a zip folder containing csv file(s)."""
 
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
@@ -163,15 +155,12 @@ def upload_form(request):
         if type:
             # If the uploaded file is a zip, send it to zip_unpack.
             if type == 'zip':
-                f.save(secure_filename(f.filename))
-                #result = zip_unpack(f.filename)
                 result = zip_unpack(f)
 
             # Else, the uploaded file must be a csv file, and should go to csv_upload
             else:
-                f = request.files.get('file')
-                f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
-                result = csv_upload(f.filename)
+                #f = request.files.get('file')
+                result = csv_upload(f)
 
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
