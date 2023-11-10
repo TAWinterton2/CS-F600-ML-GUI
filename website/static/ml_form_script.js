@@ -6,6 +6,7 @@ showTab(currentTab); // Display the current tab
 // Update script to use ajax to submit a note to the server when the button is pressed to render the correct html for output?
 
 console.log(tab_complete);
+
 function showTab(n) {
   // This function will display the specified tab of the form ...
   var x = document.getElementsByClassName("tab");
@@ -34,7 +35,6 @@ function showTab(n) {
   // ... and run a function that displays the correct step indicator:
   fixStepIndicator(n)
 }
-
 function nextPrev(n) {
   // This function will figure out which tab to display
   var x = document.getElementsByClassName("tab");
@@ -93,8 +93,9 @@ function fixStepIndicator(n) {
 }
 
 function openWin(){
-  var myWindow = window.open("", "MsgWindow", "width=500,height=500");
+  var myWindow = window.open("", "OriginalDataset", "width=500,height=500");
   var ow = document.getElementById('orig');
   var data = ow.getAttribute("og_df");
   myWindow.document.write(data);
+  myWindow.focus();
 }

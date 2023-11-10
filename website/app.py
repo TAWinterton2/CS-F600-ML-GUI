@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import zipfile, os, shutil, csv
-from zipfile import ZipFile
+import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
 from website.utils import data_snapshot as ds
 from website.utils import error_handle as err
@@ -10,7 +9,6 @@ from werkzeug.utils import secure_filename
 
 """Flask Operation"""
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = "/tmp"
 snapshot = ds.DataSnapshot()
 
 
@@ -22,98 +20,84 @@ def has_header(df):
 
 def gen_headers(x):
     """This function generates generic column names for a csv file based on the number of columns."""
-    col = []
-    for n in range(x): col.append("Column " + str(n+1))
-    return col
+
+    cols = []
+    x = df.shape[1]
+    for n in range(x): cols.append("Column " + str(n+1))
+    df.columns = cols
+    return df
+
 
 """File Upload Functions"""
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     try:
-        path = os.path.join(app.config['UPLOAD_FOLDER'], file)
-        with open(path,"r") as f:
-            sample = f.read(1024)
-            header = csv.Sniffer().has_header(sample)
-        if header:
-            header='infer'
+        # Read in the csv file.
+        # Currently, if there is a bad line it will warn the user. 
+        df = pd.read_csv(file, header=None, encoding="ISO-8859-1", on_bad_lines='warn')
+
+        # Convert the dataframe to a string object for the sniffer.
+        strIO = io.StringIO()
+        df.to_csv(strIO)
+
+        # Determine if the dataframe has column names. If it doesn't, generate column names.
+        header = csv.Sniffer().has_header(strIO.getvalue())
+        if not header:
+            df = gen_header(df)
         else:
-            header=None
-        df = pd.read_csv(path, header=header, index_col=0)
-        if not header: 
-            cols = gen_headers(df.shape[1])
-            df = df.set_axis(cols, axis='columns')
+            col = df.iloc[0]
+            df=df.set_axis(col.fillna(0), axis='columns')
+            df.drop(index=0, axis=0, inplace=True)
+            # If the first column of the csv is an index, set the index.
+            if df.columns.values[0] == 0:
+                df.set_index(0, inplace=True)
+                df.index.name = None
+            
         return df
     except Exception as e:
         return "Program returned error while uploading the csv: " + str(e)
-    
-def zip_unpack(zip_file):
-   #Get current wording directory of server and save it as a string
+
+def zip_unpack(file):
     try:
-        cwd = os.getcwd()
-        zip_file_path = os.path.join(cwd, zip_file)
+        file_like_object = file.stream._file  
+        zipfile_ob = zipfile.ZipFile(file_like_object)
+        file_names = zipfile_ob.infolist()
+        names, files = [], []
 
-        temp_dir = "temp"
-        temp_path = os.path.join(cwd, temp_dir)
-
-        ext = ('.csv')
-
-        #check if temp already exists
-        if not os.path.exists(temp_path):
-            os.mkdir(temp_path)
-
-        with ZipFile(zip_file_path, 'r') as zObject:
-        #Extract all files in the zip into a specific location
-            zObject.extractall(path=temp_path)
-            zObject.close()
-
-        temp_folder_name = os.path.splitext(zip_file)[0]
-        tmp = temp_path
-        temp_path = os.path.join(temp_path, temp_folder_name)
-        if os.path.isdir(temp_path) is False:
-            temp_path = tmp
-
-        files = []
-        for file in os.listdir(temp_path):
-            # Mac
-            if not file.startswith('.'):
-                if file.endswith(ext):
-                    files.append(file)
-
-                else:
-                    #shutil.rmtree(tmp)
-                    os.remove(zip_file_path)
-                    os.chdir(cwd)
-                    return "There are files in " + zip_file + " that are not .csv files. Please try again with only .csv files."
-        
-        d = []
-        for f in files:
-            tmp_path = os.path.join(temp_path, f)
-            with open(tmp_path, "r") as f:
-                sample = f.read(1024)
-                header = csv.Sniffer().has_header(sample)
-            if header:
-                header='infer'
+        # Filter names to ensure that every file is correct in the directory. If it is a hidden file or subdirectory, ignore it.
+        for name in file_names:
+            if name.is_dir():
+                continue
+            elif name.filename.__contains__("__MACOSX") or name.filename.__contains__(".DS_Store"):
+                continue
+            elif name.filename.endswith(".csv"):
+                names.append(name.filename)
             else:
-                header=None
-            df = pd.read_csv(tmp_path, on_bad_lines='skip', header=None, index_col=0)
-            if not header:
-                cols = gen_headers(df.shape[1])
-                df = df.set_axis(cols, axis='columns')
-            d.append(df)
+                return "There are files in " + str(file.filename) + " that are not .csv files. Please try again with only .csv files."
 
-        columns = d[0].columns
-        for df in d:
-            if df.columns.difference(columns).empty is False:
-                #shutil.rmtree(tmp)
-                os.remove(zip_file_path)
-                os.chdir(cwd)
-                return "The csv files within " + zip_file +" do not have the same column names. Please resubmit with .csvs that have matching columns."
-            # load all csv files, check if columns match, return either a dataframe or a string error
-        
-        #shutil.rmtree(tmp)
-        os.remove(zip_file_path)
-        os.chdir(cwd)
-        return pd.concat(d, axis=0)
+        # Upload each csv file. Append the returned dataframe to a list.
+        if names:
+            for name in names:
+                df = csv_upload(zipfile_ob.open(name))
+                if isinstance(df, str):
+                    return df
+                files.append(df)
+
+            # Determine if the csv files share the same column names.
+            cols = files[0].columns
+            if len(files) > 1:
+                for df in files:
+                    if list(cols) != list(df.columns):
+                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns. 
+                                Please resubmit with .csvs that have matching columns."""
+                # If all csv files match, return the concatted data.
+                return pd.concat(files, axis=0)
+            else:
+                return files[0]
+        else:
+            return """No valid files were located within the submitted archive. 
+                    Please submit a csv file or a zip folder containing csv file(s)."""
+
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
     
@@ -166,13 +150,13 @@ def validate_file(request):
     print(request.files['file'])
     print(request.files['file'].filename)
     if 'file' not in request.files:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
     if request.files['file'].filename == "":
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file submitted. Please submit a file with a valid extension (csv or zip).")
@@ -187,18 +171,15 @@ def upload_form(request):
         if type:
             # If the uploaded file is a zip, send it to zip_unpack.
             if type == 'zip':
-                f.save(secure_filename(f.filename))
-                result = zip_unpack(f.filename)
+                result = zip_unpack(f)
 
             # Else, the uploaded file must be a csv file, and should go to csv_upload
             else:
-                f = request.files.get('file')
-                #f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
-                result = csv_upload(f.filename)
+                result = csv_upload(f)
 
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
-                return render_template('ml_form.html',
+                return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error=result)
@@ -209,23 +190,31 @@ def upload_form(request):
                 snapshot.filename = secure_filename(f.filename)
 
             # Return the output to the user.
-            return render_template('ml_form.html',
+            return render_template('linear.html',
                         tab=0, 
                         file_upload=True,
                         filename=request.files['file'].filename,
                         og_df=snapshot.og_data.to_html(),
                         column_names=snapshot.og_data.columns.tolist())
         
+
+        # In case something goes wrong, we ensure to render the template with a warning message.
+        else:
+            return render_template('linear.html',
+                        tab=0, 
+                        filename=request.files['file'].filename,
+                        error="Please submit a file with a valid extension (csv or zip).")
+
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="Please submit a file with a valid extension (csv or zip).")
 
 def select_columns_form(request):
     if request.form['X'] == request.form['Y']:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=0, 
                     file_upload=True,
                     filename=snapshot.filename,
@@ -235,7 +224,7 @@ def select_columns_form(request):
     
     snapshot.select_columns(request.form['X'], request.form['Y'])
     df = get_graph_data(snapshot.data)
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=0, 
                     columns_selected=True,
                     form_complete=True,
@@ -252,7 +241,7 @@ def scaling_form(request):
     x, y = snapshot.create_x_y_split(snapshot.data)
     snapshot.y = lr.scaling(x, y, request.form['scale'])
     snapshot.data = snapshot.merge_x_y(x, snapshot.y)
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=1,
                     user_input=True,
                     scaling=True,
@@ -267,25 +256,24 @@ def test_train_form(request):
     
     # If the user submitted a non-integer/float value, return an error.
     if train is Exception:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
     if test is Exception:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
 
-    # df = snapshot.data
     # Run the testing/train split.
     x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
     if x_train is None:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
@@ -294,7 +282,7 @@ def test_train_form(request):
     train_df, test_df = snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
     # If an error is found while trying to split the data, display the error.
     if train_df is None:
-        return render_template('ml_form.html',
+        return render_template('linear.html',
                     tab=2,
                     user_input=True,
                     traintest=False,
@@ -304,8 +292,8 @@ def test_train_form(request):
     # Otherwise, get the json graph data and return the information needed for chartJS.
     test_df = get_graph_data(test_df)
     train_df = get_graph_data(train_df)
-    print("form method is working!")
-    return render_template('ml_form.html',
+
+    return render_template('linear.html',
                             tab=2,
                             user_input=True,
                             traintest=True,
@@ -320,24 +308,24 @@ def test_train_form(request):
                             error=msg)
 
 def hyperparameter_form(request):
-        val = get_hyperparams(request)
-        if val is Exception:
-            return render_template('ml_form.html',
-                        tab=3,
-                        og_df=snapshot.og_data.to_html(),
-                        error="Please input proper integer/float values for the given hyperparameters.")
-        snapshot.model = lr.initialize(val)
-        return render_template('ml_form.html',
-                        tab=3,
-                        user_input=True,
-                        hyper=True,
-                        og_df=snapshot.og_data.to_html())
+    val = get_hyperparams(request)
+    if val is Exception:
+        return render_template('linear.html',
+                    tab=3,
+                    og_df=snapshot.og_data.to_html(),
+                    error="Please input proper integer/float values for the given hyperparameters.")
+    snapshot.model = lr.initialize(val)
+    return render_template('linear.html',
+                    tab=3,
+                    user_input=True,
+                    hyper=True,
+                    og_df=snapshot.og_data.to_html())
 
 def run_model_form(request):
     snapshot.reshape_data()
     ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
     if isinstance(ml_model, str):
-        return render_template('ml_form.html', 
+        return render_template('linear.html', 
                                tab=3, 
                                og_df=snapshot.og_data.to_html(), 
                                hyper_error=ml_model)
@@ -348,7 +336,7 @@ def run_model_form(request):
     data = get_graph_data(df)
     results = lr.evaluate(snapshot.y_test, y_pred)
     tables,titles = display_table(pd.DataFrame([results]))
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                     tab=4,
                     user_input=True,
                     start=True,
@@ -393,7 +381,7 @@ def ml_form():
         if 'run' in request.form:
             return run_model_form(request)        
 
-    return render_template('ml_form.html',
+    return render_template('linear.html',
                            tab=0,
                            user_input=False)
 
