@@ -13,13 +13,20 @@ snapshot = ds.DataSnapshot()
 
 
 """Input Parsing Functions"""
-def gen_header(df):
+def has_header(df):
+    """Determine if the file has a header. It returns a list of headers to use when uploading the full file."""
+    return isinstance(df.columns[0], str)
+
+
+def gen_headers(x):
     """This function generates generic column names for a csv file based on the number of columns."""
+
     cols = []
     x = df.shape[1]
     for n in range(x): cols.append("Column " + str(n+1))
     df.columns = cols
     return df
+
 
 """File Upload Functions"""
 def csv_upload(file):
@@ -140,6 +147,8 @@ def get_hyperparams(request):
     return val
 
 def validate_file(request):
+    print(request.files['file'])
+    print(request.files['file'].filename)
     if 'file' not in request.files:
         return render_template('linear.html',
                     tab=0, 
@@ -184,16 +193,18 @@ def upload_form(request):
             return render_template('linear.html',
                         tab=0, 
                         file_upload=True,
-                        filename=snapshot.filename,
+                        filename=request.files['file'].filename,
                         og_df=snapshot.og_data.to_html(),
                         column_names=snapshot.og_data.columns.tolist())
         
+
         # In case something goes wrong, we ensure to render the template with a warning message.
         else:
             return render_template('linear.html',
                         tab=0, 
                         filename=request.files['file'].filename,
                         error="Please submit a file with a valid extension (csv or zip).")
+
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
         return render_template('linear.html',
@@ -239,6 +250,7 @@ def scaling_form(request):
                     og_df=snapshot.og_data.to_html())
 
 def test_train_form(request):
+        
     train, e = err.text_input_parse(request.form['training'])
     test, e = err.text_input_parse(request.form['testing'])
     
