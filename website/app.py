@@ -43,7 +43,7 @@ def csv_upload(file):
         # Determine if the dataframe has column names. If it doesn't, generate column names.
         header = csv.Sniffer().has_header(strIO.getvalue())
         if not header:
-            df = gen_header(df)
+            df = gen_headers(df)
         else:
             col = df.iloc[0]
             df=df.set_axis(col.fillna(0), axis='columns')
