@@ -79,6 +79,15 @@ input.invalid {
     background-color: #04AA6D;
 }
 
+.error {
+    color:crimson;
+    padding: 5px;
+}
+
+.success {
+    color:blue;
+    padding: 5px;
+}
 label {
     display:block;
 }

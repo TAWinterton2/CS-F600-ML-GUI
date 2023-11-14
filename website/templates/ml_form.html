@@ -23,25 +23,38 @@
                 
                 <!-- Div for Uploading Dataset-->
                 <div class="tab" id="step_1"><h2>Step 1: Uploading Dataset</h2>
-                    <p>To begin, we will start by uploading a dataset that our model will use.</p>
-                    <p>You may use your own dataset, or use the one provided by the link below</p>
-                    <p><a href="https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv">https://cdn.wsform.com/wp-content/uploads/2020/06/probability.csv.</a></p>
-                    <p><strong>make sure that your dataset is stricly numerical data! and is in the <br> form
-                        form of a .csv file!</strong></p>
+                    <h3>Part A</h3>
+                    <p>To begin, we will start by uploading the dataset that our model will use. This dataset should be a .csv file or
+                         an archive (.zip) file that contains .csv files with a matching structure (e.g., the same number of columns 
+                         and the same column names).</p>
+                    <p>You may use your own dataset, or select one from the <a href="https://archive.ics.uci.edu/datasets"target="_blank">UC Irvine Machine 
+                        Learning Repository</a>. The <a href="https://archive.ics.uci.edu/dataset/109/wine"target="_blank">wine dataset</a> is a good
+                        example of a dataset that can be used with this model to try out this program. Be sure to open the archive and 
+                        submit just the .data file (converted to a .csv file) for testing.</p>
+                    <p><strong>Uploaded files should be strictly numerical data. If uploading an archive (.zip) file, please ensure that all 
+                        files within the archive have the same structure (e.g., the same number of columns and the same column names). All 
+                        uploaded files should be .csv.</strong></p>
 
                         {% if file_upload == True %}
                         <form id="columns" method="POST">
-                            <p style="color:blue">File uploaded: {{filename}}.</p>
-                            <p>Please select which columns you would like to test over.</p>
+                            <p class="success">File uploaded: {{filename}}.</p>
+                            <h3>Part B</h3>
+                            <p>The next step of this process is selecting which columns you would like to test over. The <b>X column</b>, or 
+                                the input column, is the independent variable. The <b>Y column</b> is the dependent variable, or the 
+                                variable that will be predicted by the model.</p>
+                            <p>Please select which columns you would like to test over. After you press submit, a graph will appear in the 
+                                <b>Output</b> section. You will also be allowed to resubmit with different columns should you wish. Once you progress
+                                past this step by pressing the <b>Next</b> button, you will be unable to return to this step without restarting
+                                the entire process.</p>
 
-                            <label>Select X value
+                            <label>Select X Column
                             <select type="X" name="X">
                                 {% for c in column_names %}
                                 <option value="{{c}}">{{c}}</option>
                                 {% endfor %}
                             </select></label>
 
-                            <label>Select Y value
+                            <label>Select Y Column
                             <select type="Y" name="Y">
                                 {% for c in column_names %}
                                 <option value="{{c}}">{{c}}</option>
@@ -57,18 +70,21 @@
                             <input type="submit" name="upload_file" value="Submit File">
                         </form>
                         {% endif %}
-                        <p style="color:crimson">{{error}}</p>
+                        <p class="error">{{error}}</p>
                 </div>
 
                 <!-- Div for Scaling the Data Set-->
                 <div class="tab" id="step_2"><h2>Step 2: Scaling the Dataset</h2>
-                    <p>Now we will scale our data.</p>
+                    <p>For this step, we will scale our data.</p>
                     <p>Scaling refers to putting our values in our dataset into the same range. There are two
-                        ways we can scale our data.
-                    </p>
+                        ways that we can scale our data.</p>
                     <p><strong> Normalize:</strong> We map the minimum feature value to 0 and 
-                    the maximum to 1, creating a [0, 1] range</p>
-                    <p><strong>Standardized:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
+                    the maximum to 1, creating a [0, 1] range <br/>
+                    <strong>Standardized:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
+                    <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the program has finished
+                        scaling the data based on your selection, a table will appear in the <b>Output</b> section that will display the entire
+                        dataset with the newly scaled values. You can resubmit with a different scaling method or return to this step later should
+                         you wish to try with a different scaling method. </p>
                     <form id="scale_type" method="POST">
                         <select name="scale" id="scale">
                             <option value="Standardize">Standardize</option>
@@ -81,11 +97,17 @@
 
                 <!-- Div for Setting Testing and Training Sets-->
                 <div class="tab" id="step_3"><h2>Step 3: Training and Testing</h2>
-                    <p>Now we will split our dataset into 2 different sets. A Training set and a Testing Set</p>
-                    <p><strong>Training Set:</strong> This is the part of the data that will be used to train our model</p>
-                    <p><strong>Testing Set:</strong> This is the part of data that we will use to test our model</p>
-                    <p>What ratio which you set your 2 sets will affect the accuracy of your final ML model</p>
-                    <p>To start, we reccommend using the provided default values, before entering your own</p>
+                    <p>Now we will split our dataset into 2 different sets.</p>
+                    <p><strong>Training Set:</strong> This is the part of the data that will be used to train our model. This is used
+                        as a way to generate and learn examples, or otherwise teach our model how to make predictions on the 
+                        supplied data.<br/>
+                    <strong>Testing Set:</strong> This is the part of data that we will use to test our model. It is a portion of the 
+                        original dataset that has not been seen by the model during training. This enables the model to view this data and make
+                        a prediction on the information presented.</p>
+                    <p>Ideally, the ratio should ensure that the training set is larger than the testing set. The default values 
+                        (displayed below) are an 80/20 split. While starting out, it is recommended that you use the provided default
+                        values before experimenting with your own. Once you press submit, two graphs will be displayed in the <b>Output</b>
+                        section. These graphs will visualize the data stored in the split datasets.</p>
                     {% if traintest == True %}
                         <p><b><u>User Supplied Inputs</u></b><br/>
                         <b>Training</b>: {{tr}}<br/>
@@ -100,25 +122,24 @@
                         <input type="number" step="1" min="1" max="99" id="testing" name="testing" placeholder="20" value="20"oninput="this.className = ''"></label>
                         <input type="submit" name="tt" value="Submit Training/Testing">
                     </form>
-                    <p style="color:red">{{ error }}</p>
+                    <p class="error">{{ error }}</p>
                 </div>
 
                 <div class="tab" id="step_4"><h2>Step 4: Initialize the Model</h2>
-                    <p style="color:red">{{ hyper_error }}</p>
+                    <p class="error">{{ hyper_error }}</p>
                     {% if hyper==True %}
                     <p>Hyperparameters successfully inputted. Please press the next button to run the model.</p>
                     {% else %}
                     <form id="init" method="POST">
-                    <p>
-                        In this page, you can adjust various aspects about how Machine Learning Model will behave. 
-                        Hyperparameters are parameters of the model that cannot be directly learned from the data
-                    </p>
+                    <p>Now we will handle the hyperparameters. These are parameters of the model that cannot be directly learned from
+                        the data. Below, you will find many options that can be adjusted to tweak how Machine Learning Model will
+                        behave. For more detailed information about the hyperparameters, review the
+                        <a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDRegressor.html"target="_blank">relevant
+                             documentation</a>.</p>
 
-                    <p> We reccommend you run your first model using the defaul Hyperparameters values. Afterwards
-                        then you can experiment with each setting.
-                    </p>
-
-                    <p> For more details about each hyperparmeter, hover your mouse courser over the hyperparmeter name.</p>
+                    <p> We recommend you run your first model using the default Hyperparameter values supplied below. Afterwards, feel
+                        free to experiment with each setting. If you'd rather not adjust any setting, scroll to the bottom of this page and
+                        press the submit button.</p>
                         
                         <label>Penalty:
                         <select name="penalty" id="Hyperparameters">
@@ -230,7 +251,7 @@
                             <option value="False">False</option>
                         </select></label>
                     <br/>      
-                    <input type="submit" name="hyperparams" value="Hyperparams">
+                    <input type="submit" name="hyperparams" value="Submit Hyperparameters">
                 </form>
                 {% endif %}
                 </div>
@@ -238,8 +259,23 @@
                 <!-- Div for Running the Model-->
                 <div class="tab" id="step_5"><h2>Step 5: Run</h2>
                     <form id="run" method="POST">
-                    <p> Please review and confirm all of your selected settings for your model. When you are ready, click the "Run the Model" button.</p>
-                    <input type="submit" name="run" value="Run the model">
+                    <p>When you are ready, click the "Run Model" button. When the model has finished running, key outputs will be 
+                        visualized in the <b>Output</b> section. A graph visualizing the predicted values (a red line) 
+                        compared to the actual values (blue dots) will be provided to the user. Additionally, key evaluation metrics
+                        will be displayed in a table. These metrics are provided below.</p>
+                    <ul>
+                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html"target="_blank">Mean Absolute Error</a></strong>
+                        </li>
+                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Mean Square Error</a></strong>
+                        </li>
+                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Root Mean Square Error</a></strong>
+                        </li>
+                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html"target="_blank">R2 Score</a></strong>
+                        </li>
+                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html"target="_blank">Max Error</a></strong>
+                        </li>
+                    </ul>
+                    <input type="submit" name="run" value="Run Model">
                 </form>
 
                 </div>
