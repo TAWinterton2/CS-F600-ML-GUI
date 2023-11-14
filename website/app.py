@@ -238,8 +238,8 @@ def select_columns_form(request):
 def scaling_form(request):
     snapshot.clean_data(snapshot.data)
     x, y = snapshot.create_x_y_split(snapshot.data)
-    snapshot.y = lr.scaling(x, y, request.form['scale'])
-    snapshot.data = snapshot.merge_x_y(x, snapshot.y)
+    snapshot.x, snapshot.y = lr.scaling(x, y, request.form['scale'])
+    snapshot.data = snapshot.merge_x_y(snapshot.x, snapshot.y)
     return render_template('linear.html',
                     tab=1,
                     user_input=True,
