@@ -18,9 +18,8 @@ def has_header(df):
     return isinstance(df.columns[0], str)
 
 
-def gen_headers(x):
+def gen_headers(df):
     """This function generates generic column names for a csv file based on the number of columns."""
-
     cols = []
     x = df.shape[1]
     for n in range(x): cols.append("Column " + str(n+1))
