@@ -30,7 +30,7 @@ class Model:
         if test_split < 0 or train_split < 0:
             return None, None, None, None, "Please ensure that the test/training are greater than 0 and total up to 100."
         
-        if test_split > train_split:
+        if test_split >= train_split:
             msg = "Please be aware that your training value should be greater than your testing value."
 
         if test_split > 1:
