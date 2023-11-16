@@ -142,7 +142,21 @@ Do note that this implementation uses NodeJS to host the web server. When a file
 
 <details>  
 <summary><h1>Running the Project</h1></summary>
+<h2>Deployment Installation</h2>
+For ease of installation, we recommend using [Anaconda](https://www.anaconda.com/download) for managing the packages for this project: `conda create myenv`
+Once the environment is created, download the following dependencies.
+- `conda install flask`
+- `conda install pandas`
+- `conda install scikit-learn`
+- `npm install chartjs`
+>If using a remote Linux server, ensure that Anaconda is installed on your account. If it is not, be sure to use wget to get the latest version of Anaconda to install it before attempting to create an environment for this project.
 
+Once the required dependencies are installed in the virtual environment, download or clone a copy of the this repository.
+>If you choose to download a .zip file of this repository, you can use scp to transfer the file to the Linux server.
+
+On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. To run, use the following command: `flask run --host:0.0.0.0 --port:6002`.
+
+<h2>Installation on Personal Machine</h2>
 - Clone the repository `gh repo clone TAWinterton2/CS-F600-ML-GUI` in directory of your choice.
 - On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. 
 - run the app by using the command: `flask run`
