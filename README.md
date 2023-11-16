@@ -145,7 +145,7 @@ Do note that this implementation uses NodeJS to host the web server. When a file
 <h2>Deployment Installation</h2>
 
 For ease of installation, we recommend using [Anaconda](https://www.anaconda.com/download) for managing the packages for this project:
-`conda create myenv`
+`conda create -n myenv`
 
 Once the environment is created, download the following dependencies:
 `conda install flask`
