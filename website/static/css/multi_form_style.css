@@ -1,45 +1,64 @@
-body{
-    background-image: linear-gradient((to right, blue, white))
+.steps {
+    width: 60%;
+    float:left;
+    display:flex;
+    }
+    
+.display {
+    flex-grow: 1;
+    width: 40%;
+    float: right;
 }
-
-h1{
-    border-style: groove;
+    
+.ML {
+    /*border-style: solid;*/
     border-color:aquamarine
 }
-/*style the form*/
-
+    
+/*style the form*/   
 #regForm {
+    border-radius: 20px;
     background-color: #a8d5e0;
-    margin: 100px auto;
-    padding: 40px;
-    width: 70%;
+    margin: 10px auto;
+    padding: 20px;
+    width: 100%;
     min-width: 300px;
-  }
-
-  /* Style Input Fields*/
-  input{
+    border: 1px solid #89ebb2;
+    float: left;
+    }
+    
+.output {
+    height: 600px;
+    overflow-y: scroll;
+    text-align: center;
+    background-color: #90f3c5;
+    margin: 10px;
+    border-radius: 20px;
+    width: auto;
+}
+    
+/* Style Input Fields*/
+input.t{
     padding:10px;
     width: 100%;
     font-size: 17px;
     font-family:  Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-    border: 1px solid #89ebb2
-  }
-
-  input.invalid {
-    background-color: red;
-
+    border: 1px solid #89ebb2;
 }
-
-
-/* Hide steps by default: */
-
-.tab{
+    
+input.invalid {
+    background-color: lightcoral;
+}
+    
+/* Hide steps by default: */ 
+.tab {
     display: none;
-
+    height: 350px;
+    overflow-y: scroll;
 }
-
+    
 /* Make circles */
-.step{
+.step {
     height: 20px;
     width: 20px;
     margin: 0 2px;
@@ -49,16 +68,52 @@ h1{
     display: inline-block;
     opacity: 0.5;
 }
-
+    
 /* Mark the active step */
 .step.active{
-    opacity: 1;
-
+    opacity: 1;    
 }
-
+    
 /* Mark steps that are finished */
-
 .step.finish {
     background-color: #04AA6D;
 }
 
+.error {
+    color:crimson;
+    padding: 5px;
+}
+
+.success {
+    color:blue;
+    padding: 5px;
+}
+label {
+    display:block;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: antiquewhite;
+}
+
+th, td {
+    padding: 5px;
+  }
+  th {
+    text-align: center;
+  }
+
+canvas {
+    margin: 0 auto;
+    width:100%;
+    max-width:500px;
+    max-height: 1000px;
+    background-color: antiquewhite;
+    align-content: center;
+    border: 1px solid black;
+    border-collapse: collapse;
+}

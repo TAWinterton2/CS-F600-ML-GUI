@@ -1,9 +1,11 @@
 var js_tabs = document.getElementById('js_tabs');
 var tab = js_tabs.getAttribute("tab_num"); // Current tab is set to be the first tab (0)
-var currentTab = parseInt(tab)
+//var tab_complete = js_tabs.getAttribute("tab_complete"); // Current tab is set to be the first tab (0)
+var currentTab = parseInt(tab);
 showTab(currentTab); // Display the current tab
 // Update script to use ajax to submit a note to the server when the button is pressed to render the correct html for output?
 
+console.log(tab_complete);
 
 function showTab(n) {
   // This function will display the specified tab of the form ...
@@ -13,20 +15,26 @@ function showTab(n) {
   if (n == 0) {
     document.getElementById("prevStp").style.display = "none";
   } else {
-    document.getElementById("prevStp").style.display = "inline";
+    // Prevents the user from returning to the first step (file upload)
+    if (n==1)
+    {
+      document.getElementById("prevStp").style.display = "none";
+    }
+    else {
+      document.getElementById("prevStp").style.display = "inline";
+    }
   }
   if (n == (x.length - 1)) {
 
     // Change this to run the model
-    document.getElementById("nextStp").innerHTML = "Submit";
+    document.getElementById("nextStp").style.display = "none";
   } else {
-
+    document.getElementById("nextStp").style.display = "inline";
     document.getElementById("nextStp").innerHTML = "Next";
   }
   // ... and run a function that displays the correct step indicator:
   fixStepIndicator(n)
 }
-
 function nextPrev(n) {
   // This function will figure out which tab to display
   var x = document.getElementsByClassName("tab");
@@ -85,6 +93,9 @@ function fixStepIndicator(n) {
 }
 
 function openWin(){
-  var myWindow = window.open("", "MsgWindow", "width=500,height=500");
-  myWindow.document.write("<table> <tr> <th> X </th> <th> Y </th> <tr> <td> 0.5 </td> <td> .7 <td> </tr> <tr> <td> 0.5 </td> <td> .7 <td> </tr> <tr> <td> 0.5 </td> <td> .7 <td> </tr> <tr> <td> 0.5 </td> <td> .7 <td> </tr> </table>         ");
+  var myWindow = window.open("", "OriginalDataset", "width=500,height=500");
+  var ow = document.getElementById('orig');
+  var data = ow.getAttribute("og_df");
+  myWindow.document.write(data);
+  myWindow.focus();
 }

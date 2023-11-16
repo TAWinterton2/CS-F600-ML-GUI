@@ -465,6 +465,8 @@ dist
 
 # User Files
 locust_report.html
+gen_test.csv
+
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 

@@ -1,6 +1,14 @@
 # CS-F600-ML-GUI
 Repository for CSf600 Project 
 
+## Front End Implementation
+### Dependencies
+- [Python](https://www.python.org/downloads/)
+- [Python Flask](https://flask.palletsprojects.com/en/2.3.x/)
+- [Pandas](https://pandas.pydata.org/)
+- [chart.js](https://www.chartjs.org/)
+- [scikit-learn](https://scikit-learn.org/stable/install.html#installation-instructions)
+
 <details>
 <summary><h1>Benchmark Testing</h1></summary>
 
@@ -131,12 +139,30 @@ Once the additional dependencies have been installed, it is time to activate the
 Do note that this implementation uses NodeJS to host the web server. When a file is uploaded, the buffered contents are sent to Python Flask at `127.0.0.1:8001/transfer` to simulate what might occur in the full program. The information is changed into a useable format and stored into a pandas data frame. This data frame is resolved in JSON format back to the NodeJS and is displayed in the console once the request is finished. NodeJS also parses the csv file to display the graph contents on the screen.
 </details>
 
-## Front End Implementation
-### Dependencies
-- [Python](https://www.python.org/downloads/)
-- [Python Flask](https://flask.palletsprojects.com/en/2.3.x/)
-- [Pandas](https://pandas.pydata.org/)
-- [chart.js](https://www.chartjs.org/)
-  
-### Activating the Project
-Navigate to the repository on the command line. Type the command `flask run` to launch the server. With the server running, open a web browser and navigate to `127.0.0.1:5000`. This will launch the homepage of the website.
+
+<details>  
+<summary><h1>Running the Project</h1></summary>
+<h2>Deployment Installation</h2>
+
+For ease of installation, we recommend using [Anaconda](https://www.anaconda.com/download) for managing the packages for this project:
+`conda create myenv`
+
+Once the environment is created, download the following dependencies:
+`conda install flask`
+`conda install pandas`
+`conda install scikit-learn`
+`npm install chartjs`
+>If using a remote Linux server, ensure that Anaconda is installed on your account. If it is not, be sure to use wget to get the latest version of Anaconda to install it before attempting to create an environment for this project.
+
+Once the required dependencies are installed in the virtual environment, download or clone a copy of the this repository.
+>If you choose to download a .zip file of this repository, you can use scp to transfer the file to the Linux server.
+
+On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. To run, use the following command: `flask run --host=0.0.0.0 --port=6002`.
+
+<h2>Installation on Personal Machine</h2>
+- Clone the repository `gh repo clone TAWinterton2/CS-F600-ML-GUI` in directory of your choice.
+- On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. 
+- run the app by using the command: `flask run`
+- This will open up the app on `http://127.0.0.1:5000` (unless changed by the user).
+- If app.py is renamed to something else, the command to run the project will change to: `flask --app name_of_python_file run`
+- To run the server in debug mode, use the command `flask run --debug`
