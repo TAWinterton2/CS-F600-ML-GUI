@@ -229,7 +229,7 @@ def select_columns_form(request):
                     form_complete=True,
                     file_upload=True,
                     filename=snapshot.filename,
-                    name="myChart",
+                    name="Selected Columns",
                     data=df.to_json(orient="records"),
                     user_input=True,
                     og_df=snapshot.og_data.to_html(),
@@ -238,8 +238,8 @@ def select_columns_form(request):
 def scaling_form(request):
     snapshot.clean_data(snapshot.data)
     x, y = snapshot.create_x_y_split(snapshot.data)
-    snapshot.y = lr.scaling(x, y, request.form['scale'])
-    snapshot.data = snapshot.merge_x_y(x, snapshot.y)
+    snapshot.x, snapshot.y = lr.scaling(x, y, request.form['scale'])
+    snapshot.data = snapshot.merge_x_y(snapshot.x, snapshot.y)
     return render_template('linear.html',
                     tab=1,
                     user_input=True,
@@ -299,8 +299,8 @@ def test_train_form(request):
                             tr=train,
                             te=test,
                             og_df=snapshot.og_data.to_html(),
-                            test_name = "test_chart",
-                            training_name = "train_chart",
+                            test_name = "Test Values",
+                            training_name = "Train Values",
                             test_data=test_df.to_json(orient="records"),
                             training_data=train_df.to_json(orient="records"),
                             column_names=snapshot.data.columns.tolist(),

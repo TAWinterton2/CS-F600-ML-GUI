@@ -95,6 +95,9 @@ label {
 table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: antiquewhite;
 }
 
 th, td {
@@ -103,3 +106,14 @@ th, td {
   th {
     text-align: center;
   }
+
+canvas {
+    margin: 0 auto;
+    width:100%;
+    max-width:500px;
+    max-height: 1000px;
+    background-color: antiquewhite;
+    align-content: center;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
