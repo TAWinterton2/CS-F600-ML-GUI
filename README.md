@@ -157,7 +157,7 @@ Once the environment is created, download the following dependencies:
 Once the required dependencies are installed in the virtual environment, download or clone a copy of the this repository.
 >If you choose to download a .zip file of this repository, you can use scp to transfer the file to the Linux server.
 
-On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. To run, use the following command: `flask run --host:0.0.0.0 --port:6002`.
+On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. To run, use the following command: `flask run --host=0.0.0.0 --port=6002`.
 
 <h2>Installation on Personal Machine</h2>
 - Clone the repository `gh repo clone TAWinterton2/CS-F600-ML-GUI` in directory of your choice.
