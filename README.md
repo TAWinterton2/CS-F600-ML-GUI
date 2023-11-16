@@ -143,12 +143,15 @@ Do note that this implementation uses NodeJS to host the web server. When a file
 <details>  
 <summary><h1>Running the Project</h1></summary>
 <h2>Deployment Installation</h2>
-For ease of installation, we recommend using [Anaconda](https://www.anaconda.com/download) for managing the packages for this project: `conda create myenv`
-Once the environment is created, download the following dependencies.
-- `conda install flask`
-- `conda install pandas`
-- `conda install scikit-learn`
-- `npm install chartjs`
+
+For ease of installation, we recommend using [Anaconda](https://www.anaconda.com/download) for managing the packages for this project:
+`conda create myenv`
+
+Once the environment is created, download the following dependencies:
+`conda install flask`
+`conda install pandas`
+`conda install scikit-learn`
+`npm install chartjs`
 >If using a remote Linux server, ensure that Anaconda is installed on your account. If it is not, be sure to use wget to get the latest version of Anaconda to install it before attempting to create an environment for this project.
 
 Once the required dependencies are installed in the virtual environment, download or clone a copy of the this repository.
