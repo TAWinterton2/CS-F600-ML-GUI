@@ -4,7 +4,6 @@ var chartName = graph.getAttribute("name");
 var pyData = JSON.parse(graph.getAttribute("data"));
 var ctx = document.getElementById(chartName).getContext('2d');
 
-console.log(chartName)
 // Create new chart utilizing DataFrame values
 new Chart(ctx, {
     type: "scatter",
@@ -13,8 +12,10 @@ new Chart(ctx, {
         datasets: [
             {
             pointRadius: 4,
-            pointBackgroundColor: "rgb(0,0,255)",
+            pointBackgroundColor: "rgb(0,255,0)",
+            backgroundColor: "rgb(0,255,0)",
             data: pyData,
+            label: chartName
         }
     ]
     },
@@ -22,7 +23,7 @@ new Chart(ctx, {
     {
         legend: 
         {
-            display: false
+            display: true,
         },
         scales: 
         {

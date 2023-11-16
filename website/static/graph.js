@@ -14,7 +14,9 @@ new Chart(ctx, {
             {
             pointRadius: 4,
             pointBackgroundColor: "rgb(0,0,255)",
+            backgroundColor: "rgb(0,0,255)",
             data: pyData,
+            label: chartName,
         }
     ]
     },
@@ -22,7 +24,7 @@ new Chart(ctx, {
     {
         legend: 
         {
-            display: false
+            display: true,
         },
         scales: 
         {

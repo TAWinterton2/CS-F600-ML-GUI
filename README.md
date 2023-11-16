@@ -7,6 +7,7 @@ Repository for CSf600 Project
 - [Python Flask](https://flask.palletsprojects.com/en/2.3.x/)
 - [Pandas](https://pandas.pydata.org/)
 - [chart.js](https://www.chartjs.org/)
+- [scikit-learn](https://scikit-learn.org/stable/install.html#installation-instructions)
 
 <details>
 <summary><h1>Benchmark Testing</h1></summary>
