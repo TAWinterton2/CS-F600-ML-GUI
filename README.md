@@ -160,9 +160,15 @@ Once the required dependencies are installed in the virtual environment, downloa
 On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. To run, use the following command: `flask run --host=0.0.0.0 --port=6002`.
 
 <h2>Installation on Personal Machine</h2>
+
 - Clone the repository `gh repo clone TAWinterton2/CS-F600-ML-GUI` in directory of your choice.
-- On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located. 
+
+- On command line (Windows Shell, Visual Studio, Terminal Emulator in Linux) navigate to `./CS-F600-ML-GUI/website`, where the `app.py` file is located.
+  
 - run the app by using the command: `flask run`
+  
 - This will open up the app on `http://127.0.0.1:5000` (unless changed by the user).
+  
 - If app.py is renamed to something else, the command to run the project will change to: `flask --app name_of_python_file run`
+  
 - To run the server in debug mode, use the command `flask run --debug`
