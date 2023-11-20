@@ -9,7 +9,11 @@ from werkzeug.utils import secure_filename
 
 """Flask Operation"""
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit 
+
+
 snapshot = ds.DataSnapshot()
+
 
 
 """Input Parsing Functions"""
@@ -383,6 +387,11 @@ def ml_form():
     return render_template('linear.html',
                            tab=0,
                            user_input=False)
+
+@app.errorhandler(413)
+def file_too_large(e):
+        return "File too large", 413
+
 
 
 if __name__ == "__main__":
