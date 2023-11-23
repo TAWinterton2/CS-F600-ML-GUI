@@ -78,9 +78,9 @@
                     <p>For this step, we will scale our data.</p>
                     <p>Scaling refers to putting our values in our dataset into the same range. There are two
                         ways that we can scale our data.</p>
-                    <p><strong> Normalize:</strong> We map the minimum feature value to 0 and 
+                    <p><strong> Standardize:</strong> We map the minimum feature value to 0 and 
                     the maximum to 1, creating a [0, 1] range <br/>
-                    <strong>Standardized:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
+                    <strong>Normalize:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
                     <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the program has finished
                         scaling the data based on your selection, a table will appear in the <b>Output</b> section that will display the entire
                         dataset with the newly scaled values. You can resubmit with a different scaling method or return to this step later should
@@ -142,10 +142,10 @@
                         press the submit button.</p>
                         
                         <label>Penalty:
-                        <select name="penalty" id="Hyperparameters">
+                        <select name="penalty" id="Hyperparameters" onchange="showL1('l1_ratio', this)">
                             <option value="l2">l2</option>
                             <option value="l1">l1</option>
-                            <option value="elasticent">Elasticent</option>
+                            <option value="elasticnet">Elasticnet</option>
                             <option value="none">None</option>
                         </select></label>
 
@@ -311,12 +311,12 @@
                 {% endif %}
 
                 {% if traintest==True %}
-                <h2>Testing Dataset</h2>
-                    <canvas id="Test Values"></canvas>
-                    <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 <h2>Training Dataset</h2>
                     <canvas id="Train Values"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
+                <h2>Testing Dataset</h2>
+                    <canvas id="Test Values"></canvas>
+                    <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{column_names}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 {% endif %}
       
                 {% if start==True %}
