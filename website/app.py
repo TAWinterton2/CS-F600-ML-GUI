@@ -231,6 +231,7 @@ def select_columns_form(request):
                     filename=snapshot.filename,
                     name="Selected Columns",
                     data=df.to_json(orient="records"),
+                    data_columns=snapshot.data.columns.tolist(),
                     user_input=True,
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist())
@@ -303,6 +304,7 @@ def test_train_form(request):
                             training_name = "Train Values",
                             test_data=test_df.to_json(orient="records"),
                             training_data=train_df.to_json(orient="records"),
+                            data_columns=snapshot.data.columns.tolist(),
                             column_names=snapshot.data.columns.tolist(),
                             error=msg)
 
@@ -344,6 +346,7 @@ def run_model_form(request):
                     titles=titles,
                     data=data.to_json(orient="records"),
                     pred=pred.to_json(orient="records"),
+                    data_columns=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html(),
                     eval=results)
 

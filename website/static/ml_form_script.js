@@ -5,8 +5,6 @@ var currentTab = parseInt(tab);
 showTab(currentTab); // Display the current tab
 // Update script to use ajax to submit a note to the server when the button is pressed to render the correct html for output?
 
-console.log(tab_complete);
-
 function showTab(n) {
   // This function will display the specified tab of the form ...
   var x = document.getElementsByClassName("tab");
