@@ -8,11 +8,11 @@ def allowed_file(filename):
     return False
 
 
-
 def text_input_parse(s):
     """This function takes in a string submitted by the user and converts it to a float or an integer. If an error occurs, it
     returns an error to the user."""
     try:
+        s = s.strip()
         if '.' in s:
             f = float(s)
             format_f = "{:.{}f}".format(f, 3)

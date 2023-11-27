@@ -151,7 +151,7 @@ Once the environment is created, download the following dependencies:
 `conda install flask`
 `conda install pandas`
 `conda install scikit-learn`
-`npm install chartjs`
+`npm install chart.js`
 >If using a remote Linux server, ensure that Anaconda is installed on your account. If it is not, be sure to use wget to get the latest version of Anaconda to install it before attempting to create an environment for this project.
 
 Once the required dependencies are installed in the virtual environment, download or clone a copy of the this repository.

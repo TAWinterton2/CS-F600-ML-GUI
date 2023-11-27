@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import numpy as np
 import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
 from website.utils import data_snapshot as ds
@@ -26,6 +27,12 @@ def gen_headers(df):
     df.columns = cols
     return df
 
+def check_numeric_df(df):
+    """This function checks if any columns contain non numeric values."""
+    first_str = df.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+    if first_str.all() == True:
+        return True
+    return False
 
 """File Upload Functions"""
 def csv_upload(file):
@@ -51,7 +58,8 @@ def csv_upload(file):
             if df.columns.values[0] == 0:
                 df.set_index(0, inplace=True)
                 df.index.name = None
-            
+        if not check_numeric_df(df):
+            return "CSV file contains non numeric values. Please submit a csv file that only contains numeric values for the model."
         return df
     except Exception as e:
         return "Program returned error while uploading the csv: " + str(e)
@@ -146,8 +154,6 @@ def get_hyperparams(request):
     return val
 
 def validate_file(request):
-    print(request.files['file'])
-    print(request.files['file'].filename)
     if 'file' not in request.files:
         return render_template('linear.html',
                     tab=0, 
@@ -231,6 +237,7 @@ def select_columns_form(request):
                     filename=snapshot.filename,
                     name="Selected Columns",
                     data=df.to_json(orient="records"),
+                    data_columns=snapshot.data.columns.tolist(),
                     user_input=True,
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist())
@@ -303,6 +310,7 @@ def test_train_form(request):
                             training_name = "Train Values",
                             test_data=test_df.to_json(orient="records"),
                             training_data=train_df.to_json(orient="records"),
+                            data_columns=snapshot.data.columns.tolist(),
                             column_names=snapshot.data.columns.tolist(),
                             error=msg)
 
@@ -344,6 +352,7 @@ def run_model_form(request):
                     titles=titles,
                     data=data.to_json(orient="records"),
                     pred=pred.to_json(orient="records"),
+                    data_columns=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html(),
                     eval=results)
 
