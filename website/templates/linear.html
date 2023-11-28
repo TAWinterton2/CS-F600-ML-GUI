@@ -117,9 +117,9 @@
                     {% endif %}
                     <form id="trte" method="POST">
                         <label for="training">Training:
-                        <input type="number" step="1" min="1" max="99" id="training" name="training" placeholder="80" value="80" oninput="this.className = ''"></label>
+                        <input type="number" step="1" min="1" max="99" id="training" name="training" placeholder="80"  oninput="this.className = ''"></label>
                         <label for="training">Testing:
-                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" placeholder="20" value="20"oninput="this.className = ''"></label>
+                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" placeholder="20"  oninput="this.className = ''"></label>
                         <input type="submit" name="tt" value="Submit Training/Testing">
                     </form>
                     <p class="error">{{ error }}</p>
@@ -153,6 +153,10 @@
                             <input type="number" class="Hyperparameters" step="0.01" min="0" max = "1" name="l1_ratio" value="0.15" oninput="this.className =''">
                         </label>
 
+
+
+
+
                         <label>Loss Strength:
                         <select name = "loss_strength" class="Hyperparameters">
                             <option value="squared_error">Squared Error</option>
@@ -165,6 +169,11 @@
                             <input type="number" step="0.1" min="0" class="Hyperparameters" name="epsilon" value="0.1" oninput="this.className=''">
                         </label>
 
+
+
+
+
+
                         <label>Shuffle: 
                             <select name="shuffle" class ="Hyperparameters">
                                 <option value='True'>True</option>
@@ -174,6 +183,9 @@
                         <label for="rand_state">Random State:   
                             <input type="number" step="1" min="0" class="Hyperparameters" name="rand_state" value="0" oninput="this.className=''">
                         </label>
+
+
+
 
                         <label for="n_iter_no_change"> Number of Iterations (no change):
                             <input type="number" step="1" min="0" class="Hyperparameters" name="n_iter_no_change" value="5" oninput="this.className=''">
@@ -239,7 +251,7 @@
                             <option value="False">False</option>
                         </select></label>
                     <br/>      
-                    <input type="submit" name="hyperparams" value="Submit Hyperparameters">
+                    <input type="submit" name="hyperparams" value="Validate Hyperparameters">
                 </form>
                 {% endif %}
                 </div>
@@ -267,13 +279,14 @@
                 </form>
 
                 </div>
-            
+                <p>Once you are done with the above step and have submitted, click on the next button.</p>
+                
+                
                 <!-- Next and Previous Buttons for Multi-page form-->
                 <div style="overflow:auto;">
                     <div style="float:right;">
-                    <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous Step</button>
-                    <!--<p>Once you are done with the above step and have submitted, click on the next button.</p>-->
-                    <button type="button" id="nextStp" onclick="nextPrev(1)">Next Step</button>
+                    <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
+                    <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
                     </div>
                 </div>
 
@@ -293,12 +306,16 @@
                 </form>
                 {% endif %}
 
+                <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
                 {% if columns_selected == True %}
                 <h2>Original Dataset</h2>
+    
                     <canvas id="Selected Columns"></canvas>
                     <script type="text/javascript" id="graph" name = "{{name}}" data = '{{data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
+
                 {% endif %}
 
+                <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->
                 {% if scaling==True %}
                 <h2>Scaled Data</h2>
                     {% for table in tables %}
@@ -310,16 +327,20 @@
                     {% endfor %}
                 {% endif %}
 
+                <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
                 {% if traintest==True %}
                 <h2>Training Dataset</h2>
+
                     <canvas id="Train Values"></canvas>
                     <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
                 <h2>Testing Dataset</h2>
                     <canvas id="Test Values"></canvas>
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 {% endif %}
-      
+
+                
                 {% if start==True %}
+
                 <h2>Evaluation Data</h2>
                     {% for table in tables %}
                         <table>
@@ -328,11 +349,15 @@
                             </tbody>
                         </table>
                     {% endfor %}
+
+                    
                 <h2>Graph Prediction</h2>
                 <canvas id="eval"></canvas>
                 <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='prediction.js')}}"></script>
                 {% endif %}
             </div>
+           
         </div>
+        
     </div>
 {% endblock %}
