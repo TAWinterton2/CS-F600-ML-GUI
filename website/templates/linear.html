@@ -117,9 +117,9 @@
                     {% endif %}
                     <form id="trte" method="POST">
                         <label for="training">Training:
-                        <input type="number" step="1" min="1" max="99" id="training" name="training" placeholder="80"  oninput="this.className = ''"></label>
+                        <input type="number" step="1" min="1" max="99" id="training" name="training" value="80"  oninput="this.className = ''"></label>
                         <label for="training">Testing:
-                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" placeholder="20"  oninput="this.className = ''"></label>
+                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" value="20"  oninput="this.className = ''"></label>
                         <input type="submit" name="tt" value="Submit Training/Testing">
                     </form>
                     <p class="error">{{ error }}</p>
@@ -262,19 +262,7 @@
                     <p>When you are ready, click the "Run Model" button. When the model has finished running, key outputs will be 
                         visualized in the <b>Output</b> section. A graph visualizing the predicted values (a red line) 
                         compared to the actual values (blue dots) will be provided to the user. Additionally, key evaluation metrics
-                        will be displayed in a table. These metrics are provided below.</p>
-                    <ul>
-                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html"target="_blank">Mean Absolute Error</a></strong>
-                        </li>
-                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Mean Square Error</a></strong>
-                        </li>
-                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Root Mean Square Error</a></strong>
-                        </li>
-                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html"target="_blank">R2 Score</a></strong>
-                        </li>
-                        <li><strong><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html"target="_blank">Max Error</a></strong>
-                        </li>
-                    </ul>
+                        will be displayed in a table.</p>
                     <input type="submit" name="run" value="Run Model">
                 </form>
 
@@ -342,15 +330,29 @@
                 {% if start==True %}
 
                 <h2>Evaluation Data</h2>
-                    {% for table in tables %}
-                        <table>
-                            <tbody>
-                                {{ table|safe }}
-                            </tbody>
-                        </table>
-                    {% endfor %}
+                <table id="eval_table">
+                    <tr>
+                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html"target="_blank">Mean Absolute Error</a></th>
+                        <td>{{eval_table[0]}}</td>
+                    </tr>
+                    <tr>
+                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Mean Square Error</a></th>
+                        <td>{{eval_table[1]}}</td>
+                    </tr>
+                    <tr>
+                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Root Mean Square Error</a></th>
+                        <td>{{eval_table[2]}}</td>
+                    </tr>
+                    <tr>
+                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html"target="_blank">R2 Score</a></th>
+                        <td>{{eval_table[3]}}</td>
+                    </tr>
+                    <tr>
+                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html"target="_blank">Max Error</a></th>
+                        <td>{{eval_table[4]}}</td>
+                    </tr>
+                </table>
 
-                    
                 <h2>Graph Prediction</h2>
                 <canvas id="eval"></canvas>
                 <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='prediction.js')}}"></script>

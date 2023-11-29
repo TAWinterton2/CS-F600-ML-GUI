@@ -346,14 +346,12 @@ def run_model_form(request):
     pred = get_graph_data(prediction)
     data = get_graph_data(df)
     results = lr.evaluate(snapshot.y_test, y_pred)
-    tables,titles = display_table(pd.DataFrame([results]))
     return render_template('linear.html',
                     tab=4,
                     user_input=True,
                     start=True,
                     name='eval',
-                    tables=[tables],
-                    titles=titles,
+                    eval_table=list(results.values()),
                     data=data.to_json(orient="records"),
                     pred=pred.to_json(orient="records"),
                     data_columns=snapshot.data.columns.tolist(),
