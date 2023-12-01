@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
 
 class Model:
     def __init__(self):
@@ -15,15 +16,34 @@ class Model:
         # Standardize the data - Convert to a normal distribution with mean 0 and standard deviation of 1
         else:
             Y = (y - np.mean(y)) / np.std(y)
-            X = (x - np.mean(x)) / np.std(x)
-        
+            X = ((x - np.mean(x))) / np.std(x)
         return X, Y
+    
+    def test_train_poly(x, y, test_split, train_split, degree):
+        """This function handles the testing and training split of the data for polynomial regression."""
+        # TODO: Bring over error handling / move error handling to its own function
+        # TODO: https://data36.com/polynomial-regression-python-scikit-learn/
+        if test_split > 1:
+            test_split = test_split/100
+        
+        if train_split > 1:
+            train_split = train_split/100
+
+        poly = PolynomialFeatures(degree=int(degree), include_bias=False)
+        poly_features = poly.fit_transform(x)
+        x_train, x_test, y_train, y_test = train_test_split(poly_features, 
+                                                            y, 
+                                                            random_state=104,  
+                                                            test_size=test_split,
+                                                            train_size=train_split,
+                                                            shuffle=True)
+        return x_train, x_test, y_train, y_test, ""
+    
 
     def test_train_split(x, y, test_split, train_split):
         """This function handles the testing and training split of the data."""
         msg = ""
 
-        # Simple error checking for the program to ensure proper user input.
         if test_split + train_split != 100:
             return None, None, None, None, "Please ensure that the test/training split values total up to 100."
 
@@ -53,7 +73,7 @@ class Model:
             model = ml_model.fit(x_train, y_train)
             return model
         except Exception as e:
-            return 'An error has occurred when trying to fit the model. \n Please review your hyperparameters settings'
+             return 'An error has occurred when trying to fit the model. \n Please review your hyperparameters settings'
 
     def predict_model(ml_model, x_test):
         y_pred = ml_model.predict(x_test)
@@ -81,7 +101,6 @@ class Model:
         result = metrics.max_error(y_test, y_pred)
         return result
 
-    # While these 3 values were requested, the methods do not work with regression.
     def accuracy(y_test, y_pred):
         # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score
         result = metrics.accuracy_score(y_test, y_pred)

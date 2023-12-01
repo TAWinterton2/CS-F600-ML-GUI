@@ -2,7 +2,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/multi_form_style.css') }}">
-    <title>Multi-Form Test</title>
+    <title>Poly Test</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
 
 {% endblock %}
@@ -19,7 +19,18 @@
                     <span class="step"></span>
                 </div>
 
-                <h1 class="ML">Linear Regression</h1>
+                <h1 class="ML">Polynomial Regression</h1>
+                <p>
+                    Polynomial Regression is a regression algorithm that models the
+                    relationship between a dependent (y) and one or more independent variables (x) as nth
+                    degree polynomial. The Polynomial Regression equation is provided below:
+          
+                    <br />
+          
+                    <code>y= b0+b1x1+ b2x1^2+ b2x1^3+...... bnx1^n</code>
+          
+                    <!-- <blockquote>Source: <a href="https://towardsdatascience.com/logistic-regression-explained-9ee73cede081">Towards Data Science</a></blockquote> -->
+                  </p>          
                 
                 <!-- Div for Uploading Dataset-->
                 <div class="tab" id="step_1"><h2>Step 1: Uploading Dataset</h2>
@@ -116,6 +127,8 @@
                             choose new test/train values and press the submit button.</p>
                     {% endif %}
                     <form id="trte" method="POST">
+                        <label for="degree">Degree:
+                        <input type="number" step="1" min="1" max="99" id="degree" name="degree" value="2"  oninput="this.className = ''"></label>
                         <label for="training">Training:
                         <input type="number" step="1" min="1" max="99" id="training" name="training" value="80"  oninput="this.className = ''"></label>
                         <label for="training">Testing:

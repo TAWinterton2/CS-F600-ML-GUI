@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
+from website.utils.poly import PolynomialRegression as poly
+from website.utils.model import Model
 from website.utils import data_snapshot as ds
 from website.utils import error_handle as err
 from werkzeug.utils import secure_filename
@@ -14,8 +16,6 @@ app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit
 
 
 snapshot = ds.DataSnapshot()
-
-
 
 """Input Parsing Functions"""
 def has_header(df):
@@ -157,23 +157,23 @@ def get_hyperparams(request):
         return Exception
     return val
 
-def validate_file(request):
+def validate_file(request, page):
     if 'file' not in request.files:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
     if request.files['file'].filename == "":
-        return render_template('linear.html',
+        return render_template(page,
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="No file submitted. Please submit a file with a valid extension (csv or zip).")
     return True
 
 """Forms"""
-def upload_form(request):
-    test = validate_file(request)
+def upload_form(request, page):
+    test = validate_file(request, page)
     if test is True:
         f = request.files['file']
         type = err.allowed_file(f.filename)
@@ -188,7 +188,7 @@ def upload_form(request):
 
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
-                return render_template('linear.html',
+                return render_template(page,
                     tab=0, 
                     filename=request.files['file'].filename,
                     error=result)
@@ -199,7 +199,7 @@ def upload_form(request):
                 snapshot.filename = secure_filename(f.filename)
 
             # Return the output to the user.
-            return render_template('linear.html',
+            return render_template(page,
                         tab=0, 
                         file_upload=True,
                         filename=request.files['file'].filename,
@@ -209,21 +209,23 @@ def upload_form(request):
 
         # In case something goes wrong, we ensure to render the template with a warning message.
         else:
-            return render_template('linear.html',
+            return render_template(page,
                         tab=0, 
                         filename=request.files['file'].filename,
                         error="Please submit a file with a valid extension (csv or zip).")
 
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=0, 
                     filename=request.files['file'].filename,
                     error="Please submit a file with a valid extension (csv or zip).")
 
-def select_columns_form(request):
-    if request.form['X'] == request.form['Y']:
-        return render_template('linear.html',
+def select_columns_form(request, page):
+    Y = request.form['Y']
+    X = request.form.getlist('X')
+    if Y in X:
+        return render_template(page,
                     tab=0, 
                     file_upload=True,
                     filename=snapshot.filename,
@@ -231,9 +233,10 @@ def select_columns_form(request):
                     column_names=snapshot.og_data.columns.tolist(),
                     error="Please select different columns for X and Y.")
     
-    snapshot.select_columns(request.form['X'], request.form['Y'])
+    # Select the columns
+    snapshot.select_columns(X, Y)
     df = get_graph_data(snapshot.data)
-    return render_template('linear.html',
+    return render_template(page,
                     tab=0, 
                     columns_selected=True,
                     form_complete=True,
@@ -246,12 +249,14 @@ def select_columns_form(request):
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist())
 
-def scaling_form(request):
+def scaling_form(request, page):
     snapshot.clean_data(snapshot.data)
     x, y = snapshot.create_x_y_split(snapshot.data)
-    snapshot.x, snapshot.y = lr.scaling(x, y, request.form['scale'])
+    snapshot.x, snapshot.y = Model.scaling(x, y, request.form['scale'])
+
+    # Create a dataframe with x and y to display the information in a table for the user.
     snapshot.data = snapshot.merge_x_y(snapshot.x, snapshot.y)
-    return render_template('linear.html',
+    return render_template(page,
                     tab=1,
                     user_input=True,
                     scaling=True,
@@ -259,51 +264,57 @@ def scaling_form(request):
                     titles=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html())
 
-def test_train_form(request):
-        
+def test_train_form(request, page):
     train, e = err.text_input_parse(request.form['training'])
     test, e = err.text_input_parse(request.form['testing'])
     
     # If the user submitted a non-integer/float value, return an error.
     if train is Exception:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
     if test is Exception:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
 
-    # Run the testing/train split.
-    x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
+    # Run the testing/training split based on if the model is linear or poly
+    if snapshot.model_type == "poly":
+        snapshot.degree, e = err.text_input_parse(request.form['degree'])
+        x_train, x_test, y_train, y_test, msg = poly.test_train_poly(snapshot.x, snapshot.y, test, train, snapshot.degree)
+    
+    elif snapshot.model_type == "linear":
+        x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
+    
     if x_train is None:
-        return render_template('linear.html',
-                    tab=2,
-                    user_input=True,
-                    traintest=False,
-                    error=msg,
-                    og_df=snapshot.og_data.to_html())
-    train_df, test_df = snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
-    # If an error is found while trying to split the data, display the error.
-    if train_df is None:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=msg,
                     og_df=snapshot.og_data.to_html())
     
+    snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
+    # If an error is found while trying to split the data, display the error.
+    # if train_df is None:
+    #     return render_template(page,
+    #                 tab=2,
+    #                 user_input=True,
+    #                 traintest=False,
+    #                 error=msg,
+    #                 og_df=snapshot.og_data.to_html())
+    
     # Otherwise, get the json graph data and return the information needed for chartJS.
-    test_df = get_graph_data(test_df)
-    train_df = get_graph_data(train_df)
+    # test_df = get_graph_data(test_df)
+    # train_df = get_graph_data(train_df)
 
-    return render_template('linear.html',
+    return render_template(page,
                             tab=2,
                             user_input=True,
                             traintest=True,
@@ -312,48 +323,75 @@ def test_train_form(request):
                             og_df=snapshot.og_data.to_html(),
                             test_name = "Test Values",
                             training_name = "Train Values",
-                            test_data=test_df.to_json(orient="records"),
-                            training_data=train_df.to_json(orient="records"),
+                            #test_data=test_df.to_json(orient="records"),
+                            #training_data=train_df.to_json(orient="records"),
                             data_columns=snapshot.data.columns.tolist(),
                             column_names=snapshot.data.columns.tolist(),
                             error=msg)
 
-def hyperparameter_form(request):
-    val = get_hyperparams(request)
-    if val is Exception:
-        return render_template('linear.html',
-                    tab=3,
-                    og_df=snapshot.og_data.to_html(),
-                    error="Please input proper integer/float values for the given hyperparameters.")
-    snapshot.model = lr.initialize(val)
-    return render_template('linear.html',
+def hyperparameter_form(request, page):
+    if snapshot.model_type == "poly":
+        val = get_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = poly.initialize(val, snapshot.degree)
+    
+    elif snapshot.model_type == "linear":
+        val = get_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = lr.initialize(val)
+
+    return render_template(page,
                     tab=3,
                     user_input=True,
                     hyper=True,
                     og_df=snapshot.og_data.to_html())
 
-def run_model_form(request):
-    snapshot.reshape_data()
-    ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
-    if isinstance(ml_model, str):
-        return render_template('linear.html', 
-                               tab=3, 
-                               og_df=snapshot.og_data.to_html(), 
-                               hyper_error=ml_model)
-    y_pred = lr.predict_model(ml_model, snapshot.x_test)
-    df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
-    prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
-    pred = get_graph_data(prediction)
-    data = get_graph_data(df)
-    results = lr.evaluate(snapshot.y_test, y_pred)
-    return render_template('linear.html',
+def run_model_form(page):
+    #snapshot.reshape_data()
+    if snapshot.model_type == "poly":
+        ml_model = poly.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+        # If fit returned an error, print the error and redirect to hyperparameters
+        if isinstance(ml_model, str):
+            return render_template(page, 
+                                tab=3, 
+                                og_df=snapshot.og_data.to_html(), 
+                                hyper_error=ml_model)
+        # Predict and evaluate the model
+        y_pred = poly.predict_model(ml_model, snapshot.x_test)
+        results = poly.evaluate(snapshot.y_test, y_pred)
+
+    elif snapshot.model_type == "linear":
+        ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+        # If fit returned an error, print the error and redirect to hyperparameters
+        if isinstance(ml_model, str):
+            return render_template(page, 
+                                tab=3, 
+                                og_df=snapshot.og_data.to_html(), 
+                                hyper_error=ml_model)
+        # Predict and evaluate the model
+        y_pred = lr.predict_model(ml_model, snapshot.x_test)
+        #df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
+        #prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
+        #pred = get_graph_data(prediction)
+        #data = get_graph_data(df)
+        results = lr.evaluate(snapshot.y_test, y_pred)
+
+    return render_template(page,
                     tab=4,
                     user_input=True,
                     start=True,
                     name='eval',
                     eval_table=list(results.values()),
-                    data=data.to_json(orient="records"),
-                    pred=pred.to_json(orient="records"),
+                    #data=data.to_json(orient="records"),
+                    #pred=pred.to_json(orient="records"),
                     data_columns=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html(),
                     eval=results)
@@ -368,38 +406,70 @@ def index():
 @app.route("/linear", methods=['POST', 'GET'])
 def ml_form():
     """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "linear"
+    page = 'linear.html'
     if request.method == 'POST':
         # If step 1 of the ml_form has been completed, return new information
         if 'upload_file' in request.form:
-            return upload_form(request)
+            return upload_form(request, page)
 
         # If the user selects columns, display output.
         if 'select_xy' in request.form:
-            return select_columns_form(request)
+            return select_columns_form(request, page)
 
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
-            return scaling_form(request)
+            return scaling_form(request, page)
         
         # If the user submits the testing/training form
         if 'tt' in request.form:
-            return test_train_form(request)
+            return test_train_form(request, page)
         
         if 'hyperparams' in request.form:
-            return hyperparameter_form(request)
+            return hyperparameter_form(request, page)
         
         if 'run' in request.form:
-            return run_model_form(request)        
+            return run_model_form(page)        
 
     return render_template('linear.html',
+                           tab=0,
+                           user_input=False)
+
+@app.route("/poly", methods=['POST', 'GET'])
+def poly_form():
+    """Renders the machine learning form for the polynomial regression model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "poly"
+    page = 'poly.html'
+    if request.method == 'POST':
+        # If step 1 of the ml_form has been completed, return new information
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        # If the user selects columns, display output.
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        # If the user submits the scaling form, clean the data and perform data scaling.
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+        
+        # If the user submits the testing/training form
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+        
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+        
+        if 'run' in request.form:
+            return run_model_form(page)        
+
+    return render_template(page,
                            tab=0,
                            user_input=False)
 
 @app.errorhandler(413)
 def file_too_large(e):
         return "File too large", 413
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
