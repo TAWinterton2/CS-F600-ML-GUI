@@ -127,8 +127,6 @@
                             choose new test/train values and press the submit button.</p>
                     {% endif %}
                     <form id="trte" method="POST">
-                        <label for="degree">Degree:
-                        <input type="number" step="1" min="1" max="99" id="degree" name="degree" value="2"  oninput="this.className = ''"></label>
                         <label for="training">Training:
                         <input type="number" step="1" min="1" max="99" id="training" name="training" value="80"  oninput="this.className = ''"></label>
                         <label for="training">Testing:
@@ -153,7 +151,9 @@
                     <p> We recommend you run your first model using the default Hyperparameter values supplied below. Afterwards, feel
                         free to experiment with each setting. If you'd rather not adjust any setting, scroll to the bottom of this page and
                         press the submit button.</p>
-                        
+                        <label for="degree">Degree:
+                        <input type="number" step="1" min="1" max="99" id="degree" name="degree" value="2"  oninput="this.className = ''"></label>
+                        <br/>
                         <label>Penalty:</label>
                         <select name="penalty" class="Hyperparameters" onchange="showL1('l1_ratio', this)">
                             <option value="l2">l2</option>

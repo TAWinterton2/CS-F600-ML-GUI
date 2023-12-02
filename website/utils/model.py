@@ -18,27 +18,6 @@ class Model:
             Y = (y - np.mean(y)) / np.std(y)
             X = ((x - np.mean(x))) / np.std(x)
         return X, Y
-    
-    def test_train_poly(x, y, test_split, train_split, degree):
-        """This function handles the testing and training split of the data for polynomial regression."""
-        # TODO: Bring over error handling / move error handling to its own function
-        # TODO: https://data36.com/polynomial-regression-python-scikit-learn/
-        if test_split > 1:
-            test_split = test_split/100
-        
-        if train_split > 1:
-            train_split = train_split/100
-
-        poly = PolynomialFeatures(degree=int(degree), include_bias=False)
-        poly_features = poly.fit_transform(x)
-        x_train, x_test, y_train, y_test = train_test_split(poly_features, 
-                                                            y, 
-                                                            random_state=104,  
-                                                            test_size=test_split,
-                                                            train_size=train_split,
-                                                            shuffle=True)
-        return x_train, x_test, y_train, y_test, ""
-    
 
     def test_train_split(x, y, test_split, train_split):
         """This function handles the testing and training split of the data."""

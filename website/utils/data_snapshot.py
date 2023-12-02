@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from operator import itemgetter
 
 class DataSnapshot():
     """This class handles keeping track of the data snapshot that the user submits."""
@@ -16,7 +17,6 @@ class DataSnapshot():
         self.x_test = None
         self.y_test = None
         self.N = None               # Total number of columns selected
-        self.degree = None          # Temp, unique to polynomial regression
 
     def create_x_y_split(self, df):
         """Splits the dataframe into 2 numpy arrays. Assumes the final column of the dataframe is the target column."""
@@ -26,9 +26,19 @@ class DataSnapshot():
 
     def merge_x_y(self, x, y):
         cols = self.data.columns.tolist()
-        data = np.concatenate((x, y), axis=1)
-        df = pd.DataFrame(data, columns = cols)    
+        data = np.column_stack((x, y))
+        df = pd.DataFrame(data, columns = cols)   
         return df
+    
+    def sort_x(self, x_test, y_test):
+        """Sorts the test sets based on the first X input for better graphing visuals."""
+        # TODO: Review this function to ensure it is properly sorting values.
+        enumerate_x = enumerate(x_test)
+        sorted_pairs = sorted(enumerate_x, key=lambda x: x[1][0])
+        sorted_indices = [index for index, element in sorted_pairs]
+        X_test = sorted(x_test, key=lambda x: x[0])
+        Y_test = itemgetter(*sorted_indices)(y_test)
+        return np.array(X_test), np.array(Y_test)
 
     def select_columns(self, x, y):
         """Retrieves the input and target columns from the original dataset."""

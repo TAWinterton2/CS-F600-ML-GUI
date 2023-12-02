@@ -115,8 +115,12 @@ def zip_unpack(file):
 """Output Parsing Functions"""
 def get_graph_data(df):
     """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
-    json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[1]: 'y'})
+    json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[-1]: 'y'})
     return json
+
+def get_graph_labels(df):
+    cols = df.columns.to_list()
+    return [cols[0], cols[-1]]
 
 def display_table(df):
     tables = df.to_html()
@@ -153,6 +157,8 @@ def get_hyperparams(request):
         val.append(validate_hyperparameter(request.form['n_iter_no_change']))
         val.append(request.form['warm_start'])
         val.append(request.form['average'])
+        if snapshot.model_type == "poly":
+            val.append(validate_hyperparameter(request.form['degree']))
     except Exception:
         return Exception
     return val
@@ -244,7 +250,7 @@ def select_columns_form(request, page):
                     filename=snapshot.filename,
                     name="Selected Columns",
                     data=df.to_json(orient="records"),
-                    data_columns=snapshot.data.columns.tolist(),
+                    data_columns=get_graph_labels(snapshot.data),
                     user_input=True,
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist())
@@ -285,12 +291,7 @@ def test_train_form(request, page):
                     og_df=snapshot.og_data.to_html())
 
     # Run the testing/training split based on if the model is linear or poly
-    if snapshot.model_type == "poly":
-        snapshot.degree, e = err.text_input_parse(request.form['degree'])
-        x_train, x_test, y_train, y_test, msg = poly.test_train_poly(snapshot.x, snapshot.y, test, train, snapshot.degree)
-    
-    elif snapshot.model_type == "linear":
-        x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
+    x_train, x_test, y_train, y_test, msg = Model.test_train_split(snapshot.x, snapshot.y, test, train)
     
     if x_train is None:
         return render_template(page,
@@ -300,19 +301,24 @@ def test_train_form(request, page):
                     error=msg,
                     og_df=snapshot.og_data.to_html())
     
+    # TODO: Review sorting method.
+    x_test, y_test = snapshot.sort_x(x_test, y_test)
     snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
+    train_df = snapshot.merge_x_y(x_train, y_train)
+    test_df = snapshot.merge_x_y(x_test, y_test)
+
     # If an error is found while trying to split the data, display the error.
-    # if train_df is None:
-    #     return render_template(page,
-    #                 tab=2,
-    #                 user_input=True,
-    #                 traintest=False,
-    #                 error=msg,
-    #                 og_df=snapshot.og_data.to_html())
+    if train_df is None or test_df is None:
+        return render_template(page,
+                    tab=2,
+                    user_input=True,
+                    traintest=False,
+                    error=msg,
+                    og_df=snapshot.og_data.to_html())
     
     # Otherwise, get the json graph data and return the information needed for chartJS.
-    # test_df = get_graph_data(test_df)
-    # train_df = get_graph_data(train_df)
+    test_df = get_graph_data(test_df)
+    train_df = get_graph_data(train_df)
 
     return render_template(page,
                             tab=2,
@@ -323,9 +329,9 @@ def test_train_form(request, page):
                             og_df=snapshot.og_data.to_html(),
                             test_name = "Test Values",
                             training_name = "Train Values",
-                            #test_data=test_df.to_json(orient="records"),
-                            #training_data=train_df.to_json(orient="records"),
-                            data_columns=snapshot.data.columns.tolist(),
+                            test_data=test_df.to_json(orient="records"),
+                            training_data=train_df.to_json(orient="records"),
+                            data_columns=get_graph_labels(snapshot.data),
                             column_names=snapshot.data.columns.tolist(),
                             error=msg)
 
@@ -337,7 +343,7 @@ def hyperparameter_form(request, page):
                         tab=3,
                         og_df=snapshot.og_data.to_html(),
                         error="Please input proper integer/float values for the given hyperparameters.")
-        snapshot.model = poly.initialize(val, snapshot.degree)
+        snapshot.model = poly.initialize(val)
     
     elif snapshot.model_type == "linear":
         val = get_hyperparams(request)
@@ -365,7 +371,10 @@ def run_model_form(page):
                                 og_df=snapshot.og_data.to_html(), 
                                 hyper_error=ml_model)
         # Predict and evaluate the model
-        y_pred = poly.predict_model(ml_model, snapshot.x_test)
+        # TODO: Review sorting method. Commented code is original code.
+        x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
+        y_pred = poly.predict_model(ml_model, x_test_sorted)
+        # y_pred = poly.predict_model(ml_model, snapshot.x_test)
         results = poly.evaluate(snapshot.y_test, y_pred)
 
     elif snapshot.model_type == "linear":
@@ -377,12 +386,19 @@ def run_model_form(page):
                                 og_df=snapshot.og_data.to_html(), 
                                 hyper_error=ml_model)
         # Predict and evaluate the model
-        y_pred = lr.predict_model(ml_model, snapshot.x_test)
-        #df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
-        #prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
-        #pred = get_graph_data(prediction)
-        #data = get_graph_data(df)
+        # TODO: Review sorting method. Commented code is original code.
+        x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
+        y_pred = lr.predict_model(ml_model, x_test_sorted)
+        # y_pred = lr.predict_model(ml_model, snapshot.x_test)
         results = lr.evaluate(snapshot.y_test, y_pred)
+
+    # Get graph data for the prediction graph
+    df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
+    data = get_graph_data(df)
+    # TODO: Review sorting method. Commented code is original code.
+    prediction = snapshot.merge_x_y(x_test_sorted, y_pred)
+    # prediction = snapshot.merge_x_y(snapshot.x_test, y_pred)
+    pred = get_graph_data(prediction)
 
     return render_template(page,
                     tab=4,
@@ -390,9 +406,9 @@ def run_model_form(page):
                     start=True,
                     name='eval',
                     eval_table=list(results.values()),
-                    #data=data.to_json(orient="records"),
-                    #pred=pred.to_json(orient="records"),
-                    data_columns=snapshot.data.columns.tolist(),
+                    data=data.to_json(orient="records"),
+                    pred=pred.to_json(orient="records"),
+                    data_columns=get_graph_labels(snapshot.data),
                     og_df=snapshot.og_data.to_html(),
                     eval=results)
 
@@ -404,7 +420,7 @@ def index():
 
 
 @app.route("/linear", methods=['POST', 'GET'])
-def ml_form():
+def linear_form():
     """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
     snapshot.model_type = "linear"
     page = 'linear.html'

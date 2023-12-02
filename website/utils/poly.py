@@ -4,9 +4,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures
 
 class PolynomialRegression(Model):
-    def initialize(val, degree):
+    def initialize(val):
         """This function initializes the linear regression model based on the user provided inputs."""
-        degree = degree
+        degree = val[19]
         poly_fit = make_pipeline(PolynomialFeatures(degree), SGDRegressor(loss=val[0], penalty=val[1], alpha=val[2], l1_ratio=val[3], fit_intercept=eval(val[4]), 
                     max_iter=val[5], tol=val[6], shuffle=eval(val[7]), verbose=val[8], epsilon=val[9], random_state=val[10], 
                     learning_rate=val[11], eta0=val[12], power_t=val[13], early_stopping=eval(val[14]), validation_fraction=val[15], 
