@@ -48,11 +48,11 @@ class Model:
         return x_train, x_test, y_train, y_test, msg
 
     def fit_model(ml_model, x_train, y_train):
-        try:
-            model = ml_model.fit(x_train, y_train)
-            return model
-        except Exception as e:
-             return 'An error has occurred when trying to fit the model. \n Please review your hyperparameters settings'
+        # try:
+        model = ml_model.fit(x_train, y_train)
+        return model
+        # except Exception as e:
+        #      return 'An error has occurred when trying to fit the model. \n Please review your hyperparameters settings'
 
     def predict_model(ml_model, x_test):
         y_pred = ml_model.predict(x_test)

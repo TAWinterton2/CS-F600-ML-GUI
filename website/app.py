@@ -4,6 +4,7 @@ import numpy as np
 import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
 from website.utils.poly import PolynomialRegression as poly
+from website.utils.logistic_regression import LogRegr as logistic
 from website.utils.model import Model
 from website.utils import data_snapshot as ds
 from website.utils import error_handle as err
@@ -129,12 +130,38 @@ def display_table(df):
 
 """Gather/Validate form information."""
 def validate_hyperparameter(val):
+    if val == "None":
+        return None
     item, e = err.text_input_parse(val)
     if item is Exception:
         return Exception
     else:
         return item
-    
+def logistic_hyperparams(request):
+    """penalty='l2', *, dual=False, tol=0.0001, C=1.0, fit_intercept=True, 
+        intercept_scaling=1, class_weight=None, random_state=None, solver='lbfgs', max_iter=100, multi_class='auto', 
+        verbose=0, warm_start=False, n_jobs=None, l1_ratio=None"""
+    # try:
+    val = []
+    val.append(request.form['penalty'])
+    val.append(request.form['dual'])
+    val.append(validate_hyperparameter(request.form['tol']))
+    val.append(validate_hyperparameter(request.form['C']))
+    val.append(request.form['fit_intercept'])
+    val.append(validate_hyperparameter(request.form['intercept_scaling']))
+    val.append(validate_hyperparameter(request.form['class_weight']))
+    val.append(validate_hyperparameter(request.form['random_state']))
+    val.append(request.form['solver'])
+    val.append(validate_hyperparameter(request.form['max_iter']))
+    val.append(request.form['multi_class'])
+    val.append(validate_hyperparameter(request.form['verbose']))
+    val.append(request.form['warm_start'])
+    val.append(validate_hyperparameter(request.form['n_jobs']))
+    val.append(validate_hyperparameter(request.form['l1_ratio']))
+    # except Exception:
+    #     return Exception
+    return val     
+
 def get_hyperparams(request):
     try:
         val = []
@@ -345,6 +372,15 @@ def hyperparameter_form(request, page):
                         error="Please input proper integer/float values for the given hyperparameters.")
         snapshot.model = poly.initialize(val)
     
+    if snapshot.model_type == "logistic":
+        val = logistic_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = logistic.initialize(val)
+    
     elif snapshot.model_type == "linear":
         val = get_hyperparams(request)
         if val is Exception:
@@ -391,14 +427,27 @@ def run_model_form(page):
         y_pred = lr.predict_model(ml_model, x_test_sorted)
         # y_pred = lr.predict_model(ml_model, snapshot.x_test)
         results = lr.evaluate(snapshot.y_test, y_pred)
+    
+    elif snapshot.model_type == "logistic":
+        ml_model = logistic.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+        if isinstance(ml_model, str):
+            return render_template(page, 
+                                tab=3, 
+                                og_df=snapshot.og_data.to_html(), 
+                                hyper_error=ml_model)
+        y_pred = logistic.predict_model(ml_model, snapshot.x_test)
+        results = logistic.evaluate(snapshot.y_test, y_pred)
+
+        # TODO: Confusion Matrix
+
 
     # Get graph data for the prediction graph
-    df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
-    data = get_graph_data(df)
-    # TODO: Review sorting method. Commented code is original code.
-    prediction = snapshot.merge_x_y(x_test_sorted, y_pred)
-    # prediction = snapshot.merge_x_y(snapshot.x_test, y_pred)
-    pred = get_graph_data(prediction)
+    # df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
+    # data = get_graph_data(df)
+    # # TODO: Review sorting method. Commented code is original code.
+    # prediction = snapshot.merge_x_y(x_test_sorted, y_pred)
+    # # prediction = snapshot.merge_x_y(snapshot.x_test, y_pred)
+    # pred = get_graph_data(prediction)
 
     return render_template(page,
                     tab=4,
@@ -406,8 +455,8 @@ def run_model_form(page):
                     start=True,
                     name='eval',
                     eval_table=list(results.values()),
-                    data=data.to_json(orient="records"),
-                    pred=pred.to_json(orient="records"),
+                    # data=data.to_json(orient="records"),
+                    # pred=pred.to_json(orient="records"),
                     data_columns=get_graph_labels(snapshot.data),
                     og_df=snapshot.og_data.to_html(),
                     eval=results)
@@ -483,6 +532,37 @@ def poly_form():
                            tab=0,
                            user_input=False)
 
+@app.route("/logistic", methods=['POST', 'GET'])
+def logistic_form():
+    """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "logistic"
+    page = 'logistic.html'
+    if request.method == 'POST':
+        # If step 1 of the ml_form has been completed, return new information
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        # If the user selects columns, display output.
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        # If the user submits the scaling form, clean the data and perform data scaling.
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+        
+        # If the user submits the testing/training form
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+        
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+        
+        if 'run' in request.form:
+            return run_model_form(page)        
+
+    return render_template('logistic.html',
+                           tab=0,
+                           user_input=False)
 @app.errorhandler(413)
 def file_too_large(e):
         return "File too large", 413
