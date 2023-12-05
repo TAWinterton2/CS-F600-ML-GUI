@@ -396,39 +396,11 @@ def hyperparameter_form(request, page):
                     hyper=True,
                     og_df=snapshot.og_data.to_html())
 
-def run_model_form(page):
-    #snapshot.reshape_data()
-    if snapshot.model_type == "poly":
-        ml_model = poly.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
-        # If fit returned an error, print the error and redirect to hyperparameters
-        if isinstance(ml_model, str):
-            return render_template(page, 
-                                tab=3, 
-                                og_df=snapshot.og_data.to_html(), 
-                                hyper_error=ml_model)
-        # Predict and evaluate the model
-        # TODO: Review sorting method. Commented code is original code.
-        x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
-        y_pred = poly.predict_model(ml_model, x_test_sorted)
-        # y_pred = poly.predict_model(ml_model, snapshot.x_test)
-        results = poly.evaluate(snapshot.y_test, y_pred)
-
-    elif snapshot.model_type == "linear":
-        ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
-        # If fit returned an error, print the error and redirect to hyperparameters
-        if isinstance(ml_model, str):
-            return render_template(page, 
-                                tab=3, 
-                                og_df=snapshot.og_data.to_html(), 
-                                hyper_error=ml_model)
-        # Predict and evaluate the model
-        # TODO: Review sorting method. Commented code is original code.
-        x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
-        y_pred = lr.predict_model(ml_model, x_test_sorted)
-        # y_pred = lr.predict_model(ml_model, snapshot.x_test)
-        results = lr.evaluate(snapshot.y_test, y_pred)
-    
-    elif snapshot.model_type == "logistic":
+# TODO: Finish confusion matrix code.
+# https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
+# https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
+def run_model_matrix(page):
+    if snapshot.model_type == "logistic":
         ml_model = logistic.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
         if isinstance(ml_model, str):
             return render_template(page, 
@@ -438,16 +410,7 @@ def run_model_form(page):
         y_pred = logistic.predict_model(ml_model, snapshot.x_test)
         results = logistic.evaluate(snapshot.y_test, y_pred)
 
-        # TODO: Confusion Matrix
-
-
-    # Get graph data for the prediction graph
-    # df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
-    # data = get_graph_data(df)
-    # # TODO: Review sorting method. Commented code is original code.
-    # prediction = snapshot.merge_x_y(x_test_sorted, y_pred)
-    # # prediction = snapshot.merge_x_y(snapshot.x_test, y_pred)
-    # pred = get_graph_data(prediction)
+        # TODO: Confusion Matrix   
 
     return render_template(page,
                     tab=4,
@@ -461,7 +424,62 @@ def run_model_form(page):
                     og_df=snapshot.og_data.to_html(),
                     eval=results)
 
+def run_model_form(page):
+    if snapshot.model_type == "logistic":
+        return run_model_matrix(page)
+    #snapshot.reshape_data()
+    else:
+        if snapshot.model_type == "poly":
+            ml_model = poly.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+            # If fit returned an error, print the error and redirect to hyperparameters
+            if isinstance(ml_model, str):
+                return render_template(page, 
+                                    tab=3, 
+                                    og_df=snapshot.og_data.to_html(), 
+                                    hyper_error=ml_model)
+            # Predict and evaluate the model
+            # TODO: Review sorting method. Commented code is original code.
+            x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
+            y_pred = poly.predict_model(ml_model, x_test_sorted)
+            # y_pred = poly.predict_model(ml_model, snapshot.x_test)
+            results = poly.evaluate(snapshot.y_test, y_pred)
 
+        elif snapshot.model_type == "linear":
+            ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+            # If fit returned an error, print the error and redirect to hyperparameters
+            if isinstance(ml_model, str):
+                return render_template(page, 
+                                    tab=3, 
+                                    og_df=snapshot.og_data.to_html(), 
+                                    hyper_error=ml_model)
+            # Predict and evaluate the model
+            # TODO: Review sorting method. Commented code is original code.
+            x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
+            y_pred = lr.predict_model(ml_model, x_test_sorted)
+            # y_pred = lr.predict_model(ml_model, snapshot.x_test)
+            results = lr.evaluate(snapshot.y_test, y_pred)
+
+
+        # Get graph data for the prediction graph
+        df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
+        data = get_graph_data(df)
+        # TODO: Review sorting method. Commented code is original code.
+        prediction = snapshot.merge_x_y(x_test_sorted, y_pred)
+        # # prediction = snapshot.merge_x_y(snapshot.x_test, y_pred)
+        pred = get_graph_data(prediction)
+
+        return render_template(page,
+                        tab=4,
+                        user_input=True,
+                        start=True,
+                        name='eval',
+                        eval_table=list(results.values()),
+                        data=data.to_json(orient="records"),
+                        pred=pred.to_json(orient="records"),
+                        data_columns=get_graph_labels(snapshot.data),
+                        og_df=snapshot.og_data.to_html(),
+                        eval=results)
+    
 @app.route("/")
 def index():
     """Renders the home page of the website, the first page that a user will land on when visiting the website."""
