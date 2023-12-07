@@ -87,7 +87,7 @@
                          you wish to try with a different scaling method. </p>
                     <form id="scale_type" method="POST">
                         <select name="scale" id="scale">
-                            <option value="Standardize">Standardize</option>
+                            <!-- <option value="Standardize">Standardize</option> -->
                             <option value="Normalize">Normalize</option>
                         </select>
 
@@ -296,9 +296,7 @@
                     <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
                 {% endif %}
 
-
-                {% if start==True %}
-
+                {% if graphic %}
                 <h2>Evaluation Data</h2>
                 <table id="eval_table">
                     <tr>
@@ -315,14 +313,7 @@
                     </tr>
                 </table>
 
-                <h2>Graph Prediction</h2>
-                <canvas id="eval"></canvas>
-                <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='prediction.js')}}"></script>
-                {% endif %}
-
-                <!-- Confusion matrix graphic output -->
-
-                {% if graphic %}
+                <h2>Confusion Matrix</h2>
                 <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
                 {% endif %}
             </div>

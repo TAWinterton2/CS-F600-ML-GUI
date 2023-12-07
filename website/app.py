@@ -431,10 +431,7 @@ def run_model_matrix(page):
         y_pred = neural.predict_model(ml_model, snapshot.x_test)
 
         results = neural.evaluate(snapshot.y_test, y_pred)
-
-        print(">> Neural Network Results:")
-        print(results)
-
+        
         cm_labels = ["first", "second"]
 
         def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -461,8 +458,6 @@ def run_model_matrix(page):
 
         plot_confusion_matrix(cm, cm_labels)
 
-        # Show the confusion matrix for the neural network model on the html page
-
         buffer = BytesIO()
         plt.savefig(buffer, format="png")
         buffer.seek(0)
@@ -472,9 +467,10 @@ def run_model_matrix(page):
         graphic = base64.b64encode(image_png).decode()
 
         return render_template(page,
-                          tab=4,
-                          og_df=snapshot.og_data.to_html(),
-                          graphic=graphic)
+                  tab=4,
+                  og_df=snapshot.og_data.to_html(),
+                  eval_table=list(results.values()),
+                  graphic=graphic)
 
     return render_template(page, tab=4)
 
