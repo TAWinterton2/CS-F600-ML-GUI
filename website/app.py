@@ -411,6 +411,26 @@ def hyperparameter_form(request, page):
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
 def run_model_matrix(page):
+    def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+        if normalize:
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+        plt.imshow(cm, interpolation='nearest', cmap=cmap)
+        plt.title(title)
+        plt.colorbar()
+        tick_marks = np.arange(len(classes))
+        plt.xticks(tick_marks, classes, rotation=45)
+        plt.yticks(tick_marks, classes)
+
+        fmt = '.2f' if normalize else 'd'
+        thresh = cm.max() / 2.
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
+
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+
     if snapshot.model_type == "logistic":
         ml_model = logistic.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
         if isinstance(ml_model, str):
@@ -421,31 +441,43 @@ def run_model_matrix(page):
         y_pred = logistic.predict_model(ml_model, snapshot.x_test)
         results = logistic.evaluate(snapshot.y_test, y_pred)
 
-        # TODO: Confusion Matrix
-
     if snapshot.model_type == "svm":
-       
         ml_model = svm.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
         if isinstance(ml_model, str):
-            return render_template(page, 
+            return render_template(page,
                                    tab = 3,
                                    og_df=snapshot.og_data.to_html(),
                                    hyper_error=ml_model)
         y_pred = svm.predict_model(ml_model, snapshot.x_test)
         results = svm.evaluate(snapshot.y_test, y_pred)
 
-      return render_template(page,
-                      tab=4,
-                      user_input=True,
-                      start=True,
-                      name='eval',
-                      eval_table=list(results.values()),
-                      # data=data.to_json(orient="records"),
-                      # pred=pred.to_json(orient="records"),
-                      data_columns=get_graph_labels(snapshot.data),
-                      og_df=snapshot.og_data.to_html(),
-                      eval=results)
-    
+        cm_labels = ["first", "second"]
+
+        cm = confusion_matrix(snapshot.y_test, y_pred)
+
+        plot_confusion_matrix(cm, cm_labels)
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+
+        graphic = base64.b64encode(image_png).decode()
+
+        return render_template(page,
+                        tab=4,
+                        user_input=True,
+                        start=True,
+                        name='eval',
+                        eval_table=list(results.values()),
+                        # data=data.to_json(orient="records"),
+                        # pred=pred.to_json(orient="records"),
+                        data_columns=get_graph_labels(snapshot.data),
+                        og_df=snapshot.og_data.to_html(),
+                        eval=results,
+                        graphic=graphic)
+
     if snapshot.model_type == "neural":
         ml_model = neural.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
 
@@ -458,28 +490,6 @@ def run_model_matrix(page):
         y_pred = neural.predict_model(ml_model, snapshot.x_test)
 
         results = neural.evaluate(snapshot.y_test, y_pred)
-        
-        cm_labels = ["first", "second"]
-
-        def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
-            if normalize:
-                cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-            plt.imshow(cm, interpolation='nearest', cmap=cmap)
-            plt.title(title)
-            plt.colorbar()
-            tick_marks = np.arange(len(classes))
-            plt.xticks(tick_marks, classes, rotation=45)
-            plt.yticks(tick_marks, classes)
-
-            fmt = '.2f' if normalize else 'd'
-            thresh = cm.max() / 2.
-            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-                plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
-
-            plt.tight_layout()
-            plt.ylabel('True label')
-            plt.xlabel('Predicted label')
 
         cm = confusion_matrix(snapshot.y_test, y_pred)
 
@@ -502,14 +512,12 @@ def run_model_matrix(page):
     return render_template(page, tab=4)
 
 def run_model_form(page):
-    print("Over here!!!")
     if snapshot.model_type == "logistic":
         return run_model_matrix(page)
     if snapshot.model_type == "svm":
-        print("Right Here!!!")
+        return run_model_matrix(page)
     if snapshot.model_type == "neural":
         return run_model_matrix(page)
-    #snapshot.reshape_data()
     else:
         if snapshot.model_type == "poly":
             ml_model = poly.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
@@ -679,21 +687,21 @@ def svm_form():
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
             return scaling_form(request, page)
-        
+
         # If the user submits the testing/training form
         if 'tt' in request.form:
             return test_train_form(request, page)
-        
+
         if 'hyperparams' in request.form:
             return hyperparameter_form(request, page)
-        
+
         if 'run' in request.form:
-            return run_model_form(page)        
+            return run_model_form(page)
 
     return render_template('svm.html',
                            tab=0,
                            user_input=False)
-   
+
 @app.route("/neural", methods=['POST', 'GET'])
 def neural_form():
     """Renders the machine learning form for the neural network model. This is done by pressing the button on the navigation bar."""

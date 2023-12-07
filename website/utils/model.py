@@ -65,10 +65,10 @@ class Model:
 
     def fit_model(ml_model, x_train, y_train):
         # try:
-        # ml_model = svm.SVC(kernel='linear', C= 10)
-        ml_model = MLPClassifier(
-            hidden_layer_sizes=(8, 8, 8), activation="relu", solver="adam", max_iter=500
-        )
+        ml_model = svm.SVC(kernel='linear', C= 10)
+        # ml_model = MLPClassifier(
+        #     hidden_layer_sizes=(8, 8, 8), activation="relu", solver="adam", max_iter=500
+        # )
         y_train = y_train.astype(int)
         model = ml_model.fit(x_train, y_train)
         return model
