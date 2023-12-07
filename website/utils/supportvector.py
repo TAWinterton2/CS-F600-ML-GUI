@@ -3,7 +3,7 @@ from website.utils.model import Model
 
 class SupportVectorMachine(Model):
     def initalize(val):
-
+        
         clf = svm.SVC(kernel='linear', C= 10)
         
         return clf
