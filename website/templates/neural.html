@@ -222,11 +222,6 @@
                         </label>
                     <br/> -->
                     <input type="submit" name="hyperparams" value="Validate Hyperparameters">
-                    <!-- Confusion matrix graphic output -->
-
-                    {% if graphic %}
-                    <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
-                    {% endif %}
                 </form>
                 {% endif %}
                 </div>
@@ -323,6 +318,12 @@
                 <h2>Graph Prediction</h2>
                 <canvas id="eval"></canvas>
                 <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='prediction.js')}}"></script>
+                {% endif %}
+
+                <!-- Confusion matrix graphic output -->
+
+                {% if graphic %}
+                <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
                 {% endif %}
             </div>
 

@@ -432,7 +432,8 @@ def run_model_matrix(page):
 
         results = neural.evaluate(snapshot.y_test, y_pred)
 
-        print(">> Neural Network Results: ", results)
+        print(">> Neural Network Results:")
+        print(results)
 
         cm_labels = ["first", "second"]
 
