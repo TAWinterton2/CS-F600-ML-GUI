@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main_page.css') }}">
+<title>Home</title>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="main">
+    <div class="bio_information">
+        <h1>Website Credits</h1>
+
+        <h3>🔗 Project Source: <a
+                href="https://github.com/TAWinterton2/CS-F600-ML-GUI">https://github.com/TAWinterton2/CS-F600-ML-GUI</a>
+        </h3>
+
+        <style>
+            .profile-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px;
+            }
+
+            .profile-card {
+                border: 1px solid #ccc;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+        </style>
+
+        <div class="profile-grid">
+            <div class="profile-card">
+                <img src="https://www.uaf.edu/universityrelations/files/downloads/additional-artwork/nanook-bear/Nanook_Bear_647_left.png"
+                    alt="Profile Photo">
+                <h3>Name</h3>
+                <p>Biographical Information</p>
+            </div>
+
+            <div class="profile-card">
+                <img src="https://www.uaf.edu/universityrelations/files/downloads/additional-artwork/nanook-bear/Nanook_Bear_647_left.png"
+                    alt="Profile Photo">
+                <h3>Name</h3>
+                <p>Biographical Information</p>
+            </div>
+
+            <div class="profile-card">
+                <img src="https://www.uaf.edu/universityrelations/files/downloads/additional-artwork/nanook-bear/Nanook_Bear_647_left.png"
+                    alt="Profile Photo">
+                <h3>Name</h3>
+                <p>Biographical Information</p>
+            </div>
+
+            <div class="profile-card">
+                <img src="https://www.uaf.edu/universityrelations/files/downloads/additional-artwork/nanook-bear/Nanook_Bear_647_left.png"
+                    alt="Profile Photo">
+                <h3>Name</h3>
+                <p>Biographical Information</p>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}

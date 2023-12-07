@@ -21,6 +21,7 @@ import base64
 """Flask Operation"""
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit
 matplotlib.use("Agg")
 
 
@@ -53,6 +54,7 @@ def csv_upload(file):
     try:
         # Read in the csv file.
         # Currently, if there is a bad line it will warn the user.
+        # Currently, if there is a bad line it will warn the user.
         df = pd.read_csv(file, header=None, encoding="ISO-8859-1", on_bad_lines='warn')
 
         # Convert the dataframe to a string object for the sniffer.
@@ -79,6 +81,7 @@ def csv_upload(file):
 
 def zip_unpack(file):
     try:
+        file_like_object = file.stream._file
         file_like_object = file.stream._file
         zipfile_ob = zipfile.ZipFile(file_like_object)
         file_names = zipfile_ob.infolist()
@@ -109,6 +112,7 @@ def zip_unpack(file):
                 for df in files:
                     if list(cols) != list(df.columns):
                         return "The csv files within " + file.filename + """ do not have the same column names/number of columns.
+                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns.
                                 Please resubmit with .csvs that have matching columns."""
                 # If all csv files match, return the concatted data.
                 return pd.concat(files, axis=0)
@@ -116,10 +120,12 @@ def zip_unpack(file):
                 return files[0]
         else:
             return """No valid files were located within the submitted archive.
+            return """No valid files were located within the submitted archive.
                     Please submit a csv file or a zip folder containing csv file(s)."""
 
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
+
 
 """Output Parsing Functions"""
 def get_graph_data(df):
@@ -145,6 +151,7 @@ def validate_hyperparameter(val):
         return Exception
     else:
         return item
+
 def logistic_hyperparams(request):
     """penalty='l2', *, dual=False, tol=0.0001, C=1.0, fit_intercept=True,
         intercept_scaling=1, class_weight=None, random_state=None, solver='lbfgs', max_iter=100, multi_class='auto',
@@ -200,12 +207,16 @@ def get_hyperparams(request):
 
 def validate_file(request, page):
     if 'file' not in request.files:
+        return render_template('linear.html',
+                    tab=0,
         return render_template(page,
                     tab=0,
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
     if request.files['file'].filename == "":
+        return render_template('linear.html',
+                    tab=0,
         return render_template(page,
                     tab=0,
                     filename=request.files['file'].filename,
@@ -229,10 +240,13 @@ def upload_form(request, page):
 
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
+                return render_template('linear.html',
+                    tab=0,
                 return render_template(page,
                     tab=0,
                     filename=request.files['file'].filename,
                     error=result)
+
 
             # Else, save the snapshot.
             else:
@@ -240,6 +254,8 @@ def upload_form(request, page):
                 snapshot.filename = secure_filename(f.filename)
 
             # Return the output to the user.
+            return render_template('linear.html',
+                        tab=0,
             return render_template(page,
                         tab=0,
                         file_upload=True,
@@ -248,8 +264,11 @@ def upload_form(request, page):
                         column_names=snapshot.og_data.columns.tolist())
 
 
+
         # In case something goes wrong, we ensure to render the template with a warning message.
         else:
+            return render_template('linear.html',
+                        tab=0,
             return render_template(page,
                         tab=0,
                         filename=request.files['file'].filename,
@@ -257,11 +276,17 @@ def upload_form(request, page):
 
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
+        return render_template('linear.html',
+                    tab=0,
         return render_template(page,
                     tab=0,
                     filename=request.files['file'].filename,
                     error="Please submit a file with a valid extension (csv or zip).")
 
+def select_columns_form(request):
+    if request.form['X'] == request.form['Y']:
+        return render_template('linear.html',
+                    tab=0,
 def select_columns_form(request, page):
     Y = request.form['Y']
     X = request.form.getlist('X')
@@ -274,9 +299,13 @@ def select_columns_form(request, page):
                     column_names=snapshot.og_data.columns.tolist(),
                     error="Please select different columns for X and Y.")
 
+    snapshot.select_columns(request.form['X'], request.form['Y'])
+
     # Select the columns
     snapshot.select_columns(X, Y)
     df = get_graph_data(snapshot.data)
+    return render_template('linear.html',
+                    tab=0,
     return render_template(page,
                     tab=0,
                     columns_selected=True,
@@ -305,9 +334,12 @@ def scaling_form(request, page):
                     titles=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html())
 
+def test_train_form(request):
+
 def test_train_form(request, page):
     train, e = err.text_input_parse(request.form['training'])
     test, e = err.text_input_parse(request.form['testing'])
+
 
     # If the user submitted a non-integer/float value, return an error.
     if train is Exception:
@@ -350,6 +382,7 @@ def test_train_form(request, page):
                     traintest=False,
                     error=msg,
                     og_df=snapshot.og_data.to_html())
+
 
     # Otherwise, get the json graph data and return the information needed for chartJS.
     test_df = get_graph_data(test_df)
@@ -407,6 +440,31 @@ def hyperparameter_form(request, page):
                     hyper=True,
                     og_df=snapshot.og_data.to_html())
 
+def run_model_form(request):
+    snapshot.reshape_data()
+    ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+    if isinstance(ml_model, str):
+        return render_template('linear.html',
+                               tab=3,
+                               og_df=snapshot.og_data.to_html(),
+                               hyper_error=ml_model)
+    y_pred = lr.predict_model(ml_model, snapshot.x_test)
+    df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
+    prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
+    pred = get_graph_data(prediction)
+    data = get_graph_data(df)
+    results = lr.evaluate(snapshot.y_test, y_pred)
+    return render_template('linear.html',
+                    tab=4,
+                    user_input=True,
+                    start=True,
+                    name='eval',
+                    eval_table=list(results.values()),
+                    data=data.to_json(orient="records"),
+                    pred=pred.to_json(orient="records"),
+                    data_columns=snapshot.data.columns.tolist(),
+                    og_df=snapshot.og_data.to_html(),
+                    eval=results)
 # TODO: Finish confusion matrix code.
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
@@ -576,6 +634,10 @@ def index():
     """Renders the home page of the website, the first page that a user will land on when visiting the website."""
     return render_template('index.html')
 
+@app.route("/about")
+def about():
+    """Renders the about page of the website, which contains information about the project and the team."""
+    return render_template('about.html')
 
 @app.route("/linear", methods=['POST', 'GET'])
 def linear_form():
@@ -593,16 +655,23 @@ def linear_form():
 
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
+            return scaling_form(request)
+
             return scaling_form(request, page)
 
         # If the user submits the testing/training form
         if 'tt' in request.form:
+            return test_train_form(request)
+
             return test_train_form(request, page)
 
         if 'hyperparams' in request.form:
+            return hyperparameter_form(request)
+
             return hyperparameter_form(request, page)
 
         if 'run' in request.form:
+            return run_model_form(request)
             return run_model_form(page)
 
     return render_template('linear.html',
@@ -738,3 +807,4 @@ def file_too_large(e):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
