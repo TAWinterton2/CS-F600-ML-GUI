@@ -141,8 +141,7 @@
                         free to experiment with each setting. If you'd rather not adjust any setting, scroll to the bottom of this page and
                         press the submit button.</p>
 
-                        <label>Penalty:
-                        <!-- onchange="showL1('l1_ratio', this)"> -->
+                        <!-- <label>Penalty:
                         <select name="penalty" class="Hyperparameters">
                             <option value="l2">l2</option>
                             <option value="l1">l1</option>
@@ -221,8 +220,13 @@
                         <label for="n_jobs">N Jobs:
                             <input type="text" class="Hyperparameters" name="n_jobs" value="None" oninput="this.className=''">
                         </label>
-                    <br/>
+                    <br/> -->
                     <input type="submit" name="hyperparams" value="Validate Hyperparameters">
+                    <!-- Confusion matrix graphic output -->
+
+                    {% if graphic %}
+                    <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
+                    {% endif %}
                 </form>
                 {% endif %}
                 </div>

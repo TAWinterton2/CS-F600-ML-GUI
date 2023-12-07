@@ -6,14 +6,7 @@ class NeuralNetwork(Model):
     def initialize(val):
         """This function initializes the neural network model based on the user provided inputs."""
         mlp = MLPClassifier(
-            hidden_layer_sizes=(1),
-            alpha=0.0001,
-            learning_rate_init=0.0001,
-            activation="relu",
-            solver="adam",
-            max_iter=1000,
-            shuffle=True,
-            random_state=0,
+            hidden_layer_sizes=(8, 8, 8), activation="relu", solver="adam", max_iter=500
         )
         return mlp
 
