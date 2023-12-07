@@ -3,6 +3,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn import svm
+from sklearn.neural_network import MLPClassifier
 
 class Model:
     def __init__(self):
@@ -25,42 +26,60 @@ class Model:
         msg = ""
 
         if test_split + train_split != 100:
-            return None, None, None, None, "Please ensure that the test/training split values total up to 100."
+            return (
+                None,
+                None,
+                None,
+                None,
+                "Please ensure that the test/training split values total up to 100.",
+            )
 
         if test_split < 0 or train_split < 0:
-            return None, None, None, None, "Please ensure that the test/training are greater than 0 and total up to 100."
-        
+            return (
+                None,
+                None,
+                None,
+                None,
+                "Please ensure that the test/training are greater than 0 and total up to 100.",
+            )
+
         if test_split >= train_split:
             msg = "Please be aware that your training value should be greater than your testing value."
 
         if test_split > 1:
-            test_split = test_split/100
-        
-        if train_split > 1:
-            train_split = train_split/100
+            test_split = test_split / 100
 
-        x_train, x_test, y_train, y_test = train_test_split(x, 
-                                                            y, 
-                                                            random_state=104,  
-                                                            test_size=test_split,
-                                                            train_size=train_split,
-                                                            shuffle=True)
-        
+        if train_split > 1:
+            train_split = train_split / 100
+
+        x_train, x_test, y_train, y_test = train_test_split(
+            x,
+            y,
+            random_state=104,
+            test_size=test_split,
+            train_size=train_split,
+            shuffle=True,
+        )
+
         return x_train, x_test, y_train, y_test, msg
 
     def fit_model(ml_model, x_train, y_train):
         # try:
-        ml_model = svm.SVC(kernel='linear', C= 10)
-
+        # ml_model = svm.SVC(kernel='linear', C= 10)
+        ml_model = MLPClassifier(
+            hidden_layer_sizes=(8, 8, 8), activation="relu", solver="adam", max_iter=500
+        )
+        y_train = y_train.astype(int)
         model = ml_model.fit(x_train, y_train)
         return model
+
         # except Exception as e:
         #      return 'An error has occurred when trying to fit the model. \n Please review your hyperparameters settings'
 
     def predict_model(ml_model, x_test):
         y_pred = ml_model.predict(x_test)
         return y_pred
-    
+
     def mean_absolute_error(y_test, y_pred):
         result = metrics.mean_absolute_error(y_test, y_pred)
         return result
