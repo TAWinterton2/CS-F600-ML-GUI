@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 """Flask Operation"""
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit 
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit
 
 
 snapshot = ds.DataSnapshot()
@@ -43,7 +43,7 @@ def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     try:
         # Read in the csv file.
-        # Currently, if there is a bad line it will warn the user. 
+        # Currently, if there is a bad line it will warn the user.
         df = pd.read_csv(file, header=None, encoding="ISO-8859-1", on_bad_lines='warn')
 
         # Convert the dataframe to a string object for the sniffer.
@@ -70,7 +70,7 @@ def csv_upload(file):
 
 def zip_unpack(file):
     try:
-        file_like_object = file.stream._file  
+        file_like_object = file.stream._file
         zipfile_ob = zipfile.ZipFile(file_like_object)
         file_names = zipfile_ob.infolist()
         names, files = [], []
@@ -99,19 +99,19 @@ def zip_unpack(file):
             if len(files) > 1:
                 for df in files:
                     if list(cols) != list(df.columns):
-                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns. 
+                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns.
                                 Please resubmit with .csvs that have matching columns."""
                 # If all csv files match, return the concatted data.
                 return pd.concat(files, axis=0)
             else:
                 return files[0]
         else:
-            return """No valid files were located within the submitted archive. 
+            return """No valid files were located within the submitted archive.
                     Please submit a csv file or a zip folder containing csv file(s)."""
 
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
-    
+
 """Output Parsing Functions"""
 def get_graph_data(df):
     """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
@@ -130,7 +130,7 @@ def validate_hyperparameter(val):
         return Exception
     else:
         return item
-    
+
 def get_hyperparams(request):
     try:
         val = []
@@ -160,13 +160,13 @@ def get_hyperparams(request):
 def validate_file(request):
     if 'file' not in request.files:
         return render_template('linear.html',
-                    tab=0, 
+                    tab=0,
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
     if request.files['file'].filename == "":
         return render_template('linear.html',
-                    tab=0, 
+                    tab=0,
                     filename=request.files['file'].filename,
                     error="No file submitted. Please submit a file with a valid extension (csv or zip).")
     return True
@@ -189,10 +189,10 @@ def upload_form(request):
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
                 return render_template('linear.html',
-                    tab=0, 
+                    tab=0,
                     filename=request.files['file'].filename,
                     error=result)
-            
+
             # Else, save the snapshot.
             else:
                 snapshot.og_data = result
@@ -200,41 +200,41 @@ def upload_form(request):
 
             # Return the output to the user.
             return render_template('linear.html',
-                        tab=0, 
+                        tab=0,
                         file_upload=True,
                         filename=request.files['file'].filename,
                         og_df=snapshot.og_data.to_html(),
                         column_names=snapshot.og_data.columns.tolist())
-        
+
 
         # In case something goes wrong, we ensure to render the template with a warning message.
         else:
             return render_template('linear.html',
-                        tab=0, 
+                        tab=0,
                         filename=request.files['file'].filename,
                         error="Please submit a file with a valid extension (csv or zip).")
 
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
         return render_template('linear.html',
-                    tab=0, 
+                    tab=0,
                     filename=request.files['file'].filename,
                     error="Please submit a file with a valid extension (csv or zip).")
 
 def select_columns_form(request):
     if request.form['X'] == request.form['Y']:
         return render_template('linear.html',
-                    tab=0, 
+                    tab=0,
                     file_upload=True,
                     filename=snapshot.filename,
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist(),
                     error="Please select different columns for X and Y.")
-    
+
     snapshot.select_columns(request.form['X'], request.form['Y'])
     df = get_graph_data(snapshot.data)
     return render_template('linear.html',
-                    tab=0, 
+                    tab=0,
                     columns_selected=True,
                     form_complete=True,
                     file_upload=True,
@@ -260,10 +260,10 @@ def scaling_form(request):
                     og_df=snapshot.og_data.to_html())
 
 def test_train_form(request):
-        
+
     train, e = err.text_input_parse(request.form['training'])
     test, e = err.text_input_parse(request.form['testing'])
-    
+
     # If the user submitted a non-integer/float value, return an error.
     if train is Exception:
         return render_template('linear.html',
@@ -298,7 +298,7 @@ def test_train_form(request):
                     traintest=False,
                     error=msg,
                     og_df=snapshot.og_data.to_html())
-    
+
     # Otherwise, get the json graph data and return the information needed for chartJS.
     test_df = get_graph_data(test_df)
     train_df = get_graph_data(train_df)
@@ -336,9 +336,9 @@ def run_model_form(request):
     snapshot.reshape_data()
     ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
     if isinstance(ml_model, str):
-        return render_template('linear.html', 
-                               tab=3, 
-                               og_df=snapshot.og_data.to_html(), 
+        return render_template('linear.html',
+                               tab=3,
+                               og_df=snapshot.og_data.to_html(),
                                hyper_error=ml_model)
     y_pred = lr.predict_model(ml_model, snapshot.x_test)
     df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
@@ -364,6 +364,10 @@ def index():
     """Renders the home page of the website, the first page that a user will land on when visiting the website."""
     return render_template('index.html')
 
+@app.route("/about")
+def about():
+    """Renders the about page of the website, which contains information about the project and the team."""
+    return render_template('about.html')
 
 @app.route("/linear", methods=['POST', 'GET'])
 def ml_form():
@@ -380,16 +384,16 @@ def ml_form():
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
             return scaling_form(request)
-        
+
         # If the user submits the testing/training form
         if 'tt' in request.form:
             return test_train_form(request)
-        
+
         if 'hyperparams' in request.form:
             return hyperparameter_form(request)
-        
+
         if 'run' in request.form:
-            return run_model_form(request)        
+            return run_model_form(request)
 
     return render_template('linear.html',
                            tab=0,
