@@ -66,6 +66,7 @@ class Model:
     def fit_model(ml_model, x_train, y_train):
         # try:
         ml_model = svm.SVC(kernel='linear', C= 10)
+        # FIXME: Swap multiple machine learning models as input.
         # ml_model = MLPClassifier(
         #     hidden_layer_sizes=(8, 8, 8), activation="relu", solver="adam", max_iter=500
         # )

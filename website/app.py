@@ -491,6 +491,8 @@ def run_model_matrix(page):
 
         results = neural.evaluate(snapshot.y_test, y_pred)
 
+        cm_labels = ["first", "second"]
+
         cm = confusion_matrix(snapshot.y_test, y_pred)
 
         plot_confusion_matrix(cm, cm_labels)
