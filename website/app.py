@@ -585,7 +585,7 @@ def logistic_form():
 
 @app.route("/svm", methods=['POST', 'GET'])
 def svm_form():
-    snapshot.model_type = "SVM"
+    snapshot.model_type = "svm"
     page = 'svm.html'
 
     if request.method == 'POST':
