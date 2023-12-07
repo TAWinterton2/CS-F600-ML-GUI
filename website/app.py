@@ -581,6 +581,42 @@ def logistic_form():
     return render_template('logistic.html',
                            tab=0,
                            user_input=False)
+
+
+@app.route("/svm", methods=['POST', 'GET'])
+def svm_form():
+    snapshot.model_type = "SVM"
+    page = 'svm.html'
+
+    if request.method == 'POST':
+        # If step 1 of the ml_form has been completed, return new information
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        # If the user selects columns, display output.
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        # If the user submits the scaling form, clean the data and perform data scaling.
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+        
+        # If the user submits the testing/training form
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+        
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+        
+        if 'run' in request.form:
+            return run_model_form(page)        
+
+    return render_template('logistic.html',
+                           tab=0,
+                           user_input=False)
+   
+
+
 @app.errorhandler(413)
 def file_too_large(e):
         return "File too large", 413
