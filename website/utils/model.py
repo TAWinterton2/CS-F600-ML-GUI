@@ -2,8 +2,8 @@ import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn import svm
 from sklearn.neural_network import MLPClassifier
-
 
 class Model:
     def __init__(self):
@@ -65,6 +65,7 @@ class Model:
 
     def fit_model(ml_model, x_train, y_train):
         # try:
+        # ml_model = svm.SVC(kernel='linear', C= 10)
         ml_model = MLPClassifier(
             hidden_layer_sizes=(8, 8, 8), activation="relu", solver="adam", max_iter=500
         )
