@@ -2,6 +2,7 @@ import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+from sklearn import svm
 
 class Model:
     def __init__(self):
@@ -49,6 +50,8 @@ class Model:
 
     def fit_model(ml_model, x_train, y_train):
         # try:
+        ml_model = svm.SVC(kernel='linear', C= 10)
+
         model = ml_model.fit(x_train, y_train)
         return model
         # except Exception as e:

@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
+from website.utils.supportvector import SupportVectorMachine as svm
 from website.utils.poly import PolynomialRegression as poly
 from website.utils.logistic_regression import LogRegr as logistic
 from website.utils.model import Model
@@ -390,6 +391,9 @@ def hyperparameter_form(request, page):
                         error="Please input proper integer/float values for the given hyperparameters.")
         snapshot.model = lr.initialize(val)
 
+    elif snapshot.model_type == "svm":
+        snapshot.model = svm.initalize(val)
+
     return render_template(page,
                     tab=3,
                     user_input=True,
@@ -412,6 +416,17 @@ def run_model_matrix(page):
 
         # TODO: Confusion Matrix   
 
+    if snapshot.model_type == "svm":
+       
+        ml_model = svm.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+        if isinstance(ml_model, str):
+            return render_template(page, 
+                                   tab = 3,
+                                   og_df=snapshot.og_data.to_html(),
+                                   hyper_error=ml_model)
+        y_pred = svm.predict_model(ml_model, snapshot.x_test)
+        results = svm.evaluate(snapshot.y_test, y_pred)
+
     return render_template(page,
                     tab=4,
                     user_input=True,
@@ -425,7 +440,11 @@ def run_model_matrix(page):
                     eval=results)
 
 def run_model_form(page):
+    print("Over here!!!")
     if snapshot.model_type == "logistic":
+        return run_model_matrix(page)
+    if snapshot.model_type == "svm":
+        print("Right Here!!!")
         return run_model_matrix(page)
     #snapshot.reshape_data()
     else:
@@ -458,7 +477,6 @@ def run_model_form(page):
             y_pred = lr.predict_model(ml_model, x_test_sorted)
             # y_pred = lr.predict_model(ml_model, snapshot.x_test)
             results = lr.evaluate(snapshot.y_test, y_pred)
-
 
         # Get graph data for the prediction graph
         df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
@@ -587,7 +605,6 @@ def logistic_form():
 def svm_form():
     snapshot.model_type = "svm"
     page = 'svm.html'
-
     if request.method == 'POST':
         # If step 1 of the ml_form has been completed, return new information
         if 'upload_file' in request.form:
@@ -611,7 +628,7 @@ def svm_form():
         if 'run' in request.form:
             return run_model_form(page)        
 
-    return render_template('logistic.html',
+    return render_template('svm.html',
                            tab=0,
                            user_input=False)
    

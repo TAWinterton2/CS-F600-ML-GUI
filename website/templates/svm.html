@@ -31,7 +31,9 @@
                 <!-- Div for Uploading Dataset-->
                 <div class="tab" id="step_1"><h2>Step 1: Uploading Dataset</h2>
                     <h3>Part A</h3>
-                    <p>Hello there!.</p>
+                    <p>To begin, we will start by uploading the dataset that our model will use. This dataset should be a .csv file or
+                        an archive (.zip) file that contains .csv files with a matching structure (e.g., the same number of columns 
+                        and the same column names).</p>
                     <p>You may use your own dataset, or select one from the <a href="https://archive.ics.uci.edu/datasets"target="_blank">UC Irvine Machine 
                         Learning Repository</a>. The <a href="https://archive.ics.uci.edu/dataset/109/wine"target="_blank">wine dataset</a> is a good
                         example of a dataset that can be used with this model to try out this program. Be sure to open the archive and 
@@ -145,7 +147,7 @@
                     <p> We recommend you run your first model using the default Hyperparameter values supplied below. Afterwards, feel
                         free to experiment with each setting. If you'd rather not adjust any setting, scroll to the bottom of this page and
                         press the submit button.</p>
-                        <label for="degree">Degree:
+                     <label for="degree">Degree:
                         <input type="number" step="1" min="1" max="99" id="degree" name="degree" value="2"  oninput="this.className = ''"></label>
                         <br/>
                         <label>Penalty:</label>
@@ -260,6 +262,7 @@
                     <br/>      
                     <input type="submit" name="hyperparams" value="Validate Hyperparameters">
                 </form>
+            
                 {% endif %}
                 </div>
 
