@@ -78,8 +78,6 @@
                     <p>For this step, we will scale our data.</p>
                     <p>Scaling refers to putting our values in our dataset into the same range. There are two
                         ways that we can scale our data.</p>
-                    <p><strong> Standardize:</strong> We map the minimum feature value to 0 and 
-                    the maximum to 1, creating a [0, 1] range <br/>
                     <strong>Normalize:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
                     <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the program has finished
                         scaling the data based on your selection, a table will appear in the <b>Output</b> section that will display the entire
@@ -87,7 +85,6 @@
                          you wish to try with a different scaling method. </p>
                     <form id="scale_type" method="POST">
                         <select name="scale" id="scale">
-                            <option value="Standardize">Standardize</option>
                             <option value="Normalize">Normalize</option>
                         </select>
 
@@ -316,9 +313,8 @@
                     </tr>
                 </table>
 
-                <h2>Graph Prediction</h2>
-                <canvas id="eval"></canvas>
-                <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='prediction.js')}}"></script>
+                <h2>Confusion Matrix</h2>
+                <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
                 {% endif %}
             </div>
            
