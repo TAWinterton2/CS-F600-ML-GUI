@@ -145,7 +145,7 @@ def validate_hyperparameter(val):
         return Exception
     else:
         return item
-    
+
 def svm_hyperparams(request):
     val = []
     val.append(request.form['C'])
@@ -468,11 +468,6 @@ def hyperparameter_form(request, page):
                         error="Please input proper integer/float values for the given hyperparameters.")
         snapshot.model = svm.initalize(val)
 
-    return render_template(page,
-                    tab=3,
-                    user_input=True,
-                    hyper=True,
-                    og_df=snapshot.og_data.to_html())
     elif snapshot.model_type == "neural":
         val = neural_hyperparams(request)
         if val is Exception:
@@ -506,10 +501,10 @@ def run_model_matrix(page):
         # TODO: Confusion Matrix
 
     if snapshot.model_type == "svm":
-       
+
         ml_model = svm.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
         if isinstance(ml_model, str):
-            return render_template(page, 
+            return render_template(page,
                                    tab = 3,
                                    og_df=snapshot.og_data.to_html(),
                                    hyper_error=ml_model)
@@ -527,7 +522,7 @@ def run_model_matrix(page):
                       data_columns=get_graph_labels(snapshot.data),
                       og_df=snapshot.og_data.to_html(),
                       eval=results)
-    
+
     if snapshot.model_type == "neural":
         ml_model = neural.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
 
@@ -540,7 +535,7 @@ def run_model_matrix(page):
         y_pred = neural.predict_model(ml_model, snapshot.x_test)
 
         results = neural.evaluate(snapshot.y_test, y_pred)
-        
+
         cm_labels = ["first", "second"]
 
         def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -760,21 +755,21 @@ def svm_form():
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
             return scaling_form(request, page)
-        
+
         # If the user submits the testing/training form
         if 'tt' in request.form:
             return test_train_form(request, page)
-        
+
         if 'hyperparams' in request.form:
             return hyperparameter_form(request, page)
-        
+
         if 'run' in request.form:
-            return run_model_form(page)        
+            return run_model_form(page)
 
     return render_template('svm.html',
                            tab=0,
                            user_input=False)
-   
+
 @app.route("/neural", methods=['POST', 'GET'])
 def neural_form():
     """Renders the machine learning form for the neural network model. This is done by pressing the button on the navigation bar."""
