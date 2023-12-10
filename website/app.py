@@ -191,8 +191,6 @@ def logistic_hyperparams(request):
     #     return Exception
     return val
 
-<<<<<<< HEAD
-=======
 def neural_hyperparams(request):
     """hidden_layer_sizes=(100, ), activation='relu', *, solver='adam', alpha=0.0001, batch_size='auto',
     learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=200, shuffle=True, random_state=None,
@@ -231,7 +229,6 @@ def neural_hyperparams(request):
     #     return Exception
     return val
 
->>>>>>> 994b1c72f830c28dc7a84355dbe7ce05536a3f34
 def get_hyperparams(request):
     try:
         val = []
@@ -255,12 +252,9 @@ def get_hyperparams(request):
         val.append(request.form['warm_start'])
         val.append(request.form['average'])
         if snapshot.model_type == "poly":
-<<<<<<< HEAD
             val.append(validate_hyperparameter(request.form['degree']))
-=======
             val.append(validate_hyperparameter(request.form["degree"]))
 
->>>>>>> 994b1c72f830c28dc7a84355dbe7ce05536a3f34
     except Exception:
         return Exception
     return val
@@ -474,13 +468,11 @@ def hyperparameter_form(request, page):
                         error="Please input proper integer/float values for the given hyperparameters.")
         snapshot.model = svm.initalize(val)
 
-<<<<<<< HEAD
     return render_template(page,
                     tab=3,
                     user_input=True,
                     hyper=True,
                     og_df=snapshot.og_data.to_html())
-=======
     elif snapshot.model_type == "neural":
         val = neural_hyperparams(request)
         if val is Exception:
@@ -496,7 +488,6 @@ def hyperparameter_form(request, page):
         page, tab=3, user_input=True, hyper=True, og_df=snapshot.og_data.to_html()
     )
 
->>>>>>> 994b1c72f830c28dc7a84355dbe7ce05536a3f34
 
 # TODO: Clear output and add column names to the confusion matrix.
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
@@ -593,11 +584,10 @@ def run_model_matrix(page):
     return render_template(page, tab=4)
 
 def run_model_form(page):
-    print("Over here!!!")
     if snapshot.model_type == "logistic":
         return run_model_matrix(page)
     if snapshot.model_type == "svm":
-        print("Right Here!!!")
+        return run_model_matrix(page)
     if snapshot.model_type == "neural":
         return run_model_matrix(page)
     #snapshot.reshape_data()
