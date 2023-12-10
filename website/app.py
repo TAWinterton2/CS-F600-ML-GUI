@@ -475,7 +475,7 @@ def hyperparameter_form(request, page):
     )
 
 
-# TODO: Finish confusion matrix code.
+# TODO: Clear output and add column names to the confusion matrix.
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
 def run_model_matrix(page):
@@ -557,6 +557,10 @@ def run_model_matrix(page):
         )
 
     if snapshot.model_type == "neural":
+        params = {}
+
+        snapshot.model = neural.initialize(params)
+
         ml_model = neural.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
 
         if isinstance(ml_model, str):
