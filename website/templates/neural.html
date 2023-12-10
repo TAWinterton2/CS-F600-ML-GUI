@@ -1,324 +1,422 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/multi_form_style.css') }}">
-    <title>Neural Network</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/multi_form_style.css') }}">
+<title>Neural Network</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
 
 {% endblock %}
 
 {% block body %}
-    <div class="main">
-        <div class="steps">
-            <div id="regForm" action="">
-                <div style="text-align:left; margin-top:20px;">
-                    <span class="step"></span>
-                    <span class="step"></span>
-                    <span class="step"></span>
-                    <span class="step"></span>
-                    <span class="step"></span>
-                </div>
+<div class="main">
+    <div class="steps">
+        <div id="regForm" action="">
+            <div style="text-align:left; margin-top:20px;">
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
+                <span class="step"></span>
+            </div>
 
-                <h1 class="ML">Neural Network</h1>
+            <h1 class="ML">Neural Network</h1>
 
-                <!-- Div for Uploading Dataset-->
-                <div class="tab" id="step_1"><h2>Step 1: Uploading Dataset</h2>
-                    <h3>Part A</h3>
-                    <p>To begin, we will start by uploading the dataset that our model will use. This dataset should be a .csv file or
-                         an archive (.zip) file that contains .csv files with a matching structure (e.g., the same number of columns
-                         and the same column names).</p>
-                    <p>You may use your own dataset, or select one from the <a href="https://archive.ics.uci.edu/datasets"target="_blank">UC Irvine Machine
-                        Learning Repository</a>. The <a href="https://archive.ics.uci.edu/dataset/109/wine"target="_blank">wine dataset</a> is a good
-                        example of a dataset that can be used with this model to try out this program. Be sure to open the archive and
-                        submit just the .data file (converted to a .csv file) for testing.</p>
-                    <p><strong>Uploaded files should be strictly numerical data. If uploading an archive (.zip) file, please ensure that all
-                        files within the archive have the same structure (e.g., the same number of columns and the same column names). All
+            <!-- Div for Uploading Dataset-->
+            <div class="tab" id="step_1">
+                <h2>Step 1: Uploading Dataset</h2>
+                <h3>Part A</h3>
+                <p>To begin, we will start by uploading the dataset that our model will use. This dataset should be a
+                    .csv file or
+                    an archive (.zip) file that contains .csv files with a matching structure (e.g., the same number of
+                    columns
+                    and the same column names).</p>
+                <p>You may use your own dataset, or select one from the <a href="https://archive.ics.uci.edu/datasets"
+                        target="_blank">UC Irvine Machine
+                        Learning Repository</a>. The <a href="https://archive.ics.uci.edu/dataset/109/wine"
+                        target="_blank">wine dataset</a> is a good
+                    example of a dataset that can be used with this model to try out this program. Be sure to open the
+                    archive and
+                    submit just the .data file (converted to a .csv file) for testing.</p>
+                <p><strong>Uploaded files should be strictly numerical data. If uploading an archive (.zip) file, please
+                        ensure that all
+                        files within the archive have the same structure (e.g., the same number of columns and the same
+                        column names). All
                         uploaded files should be .csv.</strong></p>
 
-                        {% if file_upload == True %}
-                        <form id="columns" method="POST">
-                            <p class="success">File uploaded: {{filename}}.</p>
-                            <h3>Part B</h3>
-                            <p>The next step of this process is selecting which columns you would like to test over. The <b>X column</b>, or
-                                the input column, is the independent variable. The <b>Y column</b> is the dependent variable, or the
-                                variable that will be predicted by the model.</p>
-                            <p>Please select which columns you would like to test over. After you press submit, a graph will appear in the
-                                <b>Output</b> section. You will also be allowed to resubmit with different columns should you wish. Once you progress
-                                past this step by pressing the <b>Next</b> button, you will be unable to return to this step without restarting
-                                the entire process.</p>
+                {% if file_upload == True %}
+                <form id="columns" method="POST">
+                    <p class="success">File uploaded: {{filename}}.</p>
+                    <h3>Part B</h3>
+                    <p>The next step of this process is selecting which columns you would like to test over. The <b>X
+                            column</b>, or
+                        the input column, is the independent variable. The <b>Y column</b> is the dependent variable, or
+                        the
+                        variable that will be predicted by the model.</p>
+                    <p>Please select which columns you would like to test over. After you press submit, a graph will
+                        appear in the
+                        <b>Output</b> section. You will also be allowed to resubmit with different columns should you
+                        wish. Once you progress
+                        past this step by pressing the <b>Next</b> button, you will be unable to return to this step
+                        without restarting
+                        the entire process.
+                    </p>
 
-                            <label>Select X Column
-                            <select type="X" name="X" multiple>
-                                {% for c in column_names %}
-                                <option value="{{c}}">{{c}}</option>
-                                {% endfor %}
-                            </select></label>
+                    <label>Select X Column
+                        <select type="X" name="X" multiple>
+                            {% for c in column_names %}
+                            <option value="{{c}}">{{c}}</option>
+                            {% endfor %}
+                        </select></label>
 
-                            <label>Select Y Column
-                            <select type="Y" name="Y">
-                                {% for c in column_names %}
-                                <option value="{{c}}">{{c}}</option>
-                                {% endfor %}
-                            </select></label>
+                    <label>Select Y Column
+                        <select type="Y" name="Y">
+                            {% for c in column_names %}
+                            <option value="{{c}}">{{c}}</option>
+                            {% endfor %}
+                        </select></label>
 
-                            <input type="submit" name="select_xy" value="Submit Column Selection">
-                        </form>
+                    <input type="submit" name="select_xy" value="Submit Column Selection">
+                </form>
 
-                        {% else %}
-                        <form id="upload" method="POST" enctype="multipart/form-data">
-                            <input type="file" name="file">
-                            <input type="submit" name="upload_file" value="Submit File">
-                        </form>
-                        {% endif %}
-                        <p class="error">{{error}}</p>
-                </div>
+                {% else %}
+                <form id="upload" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file">
+                    <input type="submit" name="upload_file" value="Submit File">
+                </form>
+                {% endif %}
+                <p class="error">{{error}}</p>
+            </div>
 
-                <!-- Div for Scaling the Data Set-->
-                <div class="tab" id="step_2"><h2>Step 2: Scaling the Dataset</h2>
-                    <p>For this step, we will scale our data.</p>
-                    <p>Scaling refers to putting our values in our dataset into the same range. There are two
-                        ways that we can scale our data.</p>
-                    <p><strong> Standardize:</strong> We map the minimum feature value to 0 and
-                    the maximum to 1, creating a [0, 1] range <br/>
-                    <strong>Normalize:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
-                    <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the program has finished
-                        scaling the data based on your selection, a table will appear in the <b>Output</b> section that will display the entire
-                        dataset with the newly scaled values. You can resubmit with a different scaling method or return to this step later should
-                         you wish to try with a different scaling method. </p>
-                    <form id="scale_type" method="POST">
-                        <select name="scale" id="scale">
-                            <!-- <option value="Standardize">Standardize</option> -->
-                            <option value="Normalize">Normalize</option>
-                        </select>
+            <!-- Div for Scaling the Data Set-->
+            <div class="tab" id="step_2">
+                <h2>Step 2: Scaling the Dataset</h2>
+                <p>For this step, we will scale our data.</p>
+                <p>Scaling refers to putting our values in our dataset into the same range. There are two
+                    ways that we can scale our data.</p>
+                <strong>Normalize:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
+                <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the
+                    program has finished
+                    scaling the data based on your selection, a table will appear in the <b>Output</b> section that will
+                    display the entire
+                    dataset with the newly scaled values. You can resubmit with a different scaling method or return to
+                    this step later should
+                    you wish to try with a different scaling method. </p>
+                <form id="scale_type" method="POST">
+                    <select name="scale" id="scale">
+                        <!-- <option value="Standardize">Standardize</option> -->
+                        <option value="Normalize">Normalize</option>
+                    </select>
 
-                        <input type="submit" name="scaling" value="Scaling Selected">
-                    </form>
-                </div>
+                    <input type="submit" name="scaling" value="Scaling Selected">
+                </form>
+            </div>
 
-                <!-- Div for Setting Testing and Training Sets-->
-                <div class="tab" id="step_3"><h2>Step 3: Training and Testing</h2>
-                    <p>Now we will split our dataset into 2 different sets.</p>
-                    <p><strong>Training Set:</strong> This is the part of the data that will be used to train our model. This is used
-                        as a way to generate and learn examples, or otherwise teach our model how to make predictions on the
-                        supplied data.<br/>
-                    <strong>Testing Set:</strong> This is the part of data that we will use to test our model. It is a portion of the
-                        original dataset that has not been seen by the model during training. This enables the model to view this data and make
-                        a prediction on the information presented.</p>
-                    <p>Ideally, the ratio should ensure that the training set is larger than the testing set. The default values
-                        (displayed below) are an 80/20 split. While starting out, it is recommended that you use the provided default
-                        values before experimenting with your own. Once you press submit, two graphs will be displayed in the <b>Output</b>
-                        section. These graphs will visualize the data stored in the split datasets.</p>
-                    {% if traintest == True %}
-                        <p><b><u>User Supplied Inputs</u></b><br/>
-                        <b>Training</b>: {{tr}}<br/>
-                        <b>Testing</b>: {{te}}</p>
-                        <p>If you would like to continue to the next step, press the 'Next' button. If you would like to change the split, simply
-                            choose new test/train values and press the submit button.</p>
-                    {% endif %}
-                    <form id="trte" method="POST">
-                        <label for="training">Training:
-                        <input type="number" step="1" min="1" max="99" id="training" name="training" value="80"  oninput="this.className = ''"></label>
-                        <label for="training">Testing:
-                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" value="20"  oninput="this.className = ''"></label>
-                        <input type="submit" name="tt" value="Submit Training/Testing">
-                    </form>
-                    <p class="error">{{ error }}</p>
-                </div>
+            <!-- Div for Setting Testing and Training Sets-->
+            <div class="tab" id="step_3">
+                <h2>Step 3: Training and Testing</h2>
+                <p>Now we will split our dataset into 2 different sets.</p>
+                <p><strong>Training Set:</strong> This is the part of the data that will be used to train our model.
+                    This is used
+                    as a way to generate and learn examples, or otherwise teach our model how to make predictions on the
+                    supplied data.<br />
+                    <strong>Testing Set:</strong> This is the part of data that we will use to test our model. It is a
+                    portion of the
+                    original dataset that has not been seen by the model during training. This enables the model to view
+                    this data and make
+                    a prediction on the information presented.
+                </p>
+                <p>Ideally, the ratio should ensure that the training set is larger than the testing set. The default
+                    values
+                    (displayed below) are an 80/20 split. While starting out, it is recommended that you use the
+                    provided default
+                    values before experimenting with your own. Once you press submit, two graphs will be displayed in
+                    the <b>Output</b>
+                    section. These graphs will visualize the data stored in the split datasets.</p>
+                {% if traintest == True %}
+                <p><b><u>User Supplied Inputs</u></b><br />
+                    <b>Training</b>: {{tr}}<br />
+                    <b>Testing</b>: {{te}}
+                </p>
+                <p>If you would like to continue to the next step, press the 'Next' button. If you would like to change
+                    the split, simply
+                    choose new test/train values and press the submit button.</p>
+                {% endif %}
+                <form id="trte" method="POST">
+                    <label for="training">Training:
+                        <input type="number" step="1" min="1" max="99" id="training" name="training" value="80"
+                            oninput="this.className = ''"></label>
+                    <label for="training">Testing:
+                        <input type="number" step="1" min="1" max="99" id="testing" name="testing" value="20"
+                            oninput="this.className = ''"></label>
+                    <input type="submit" name="tt" value="Submit Training/Testing">
+                </form>
+                <p class="error">{{ error }}</p>
+            </div>
 
-                <div class="tab" id="step_4"><h2>Step 4: Initialize the Model</h2>
-                    <p class="error">{{ hyper_error }}</p>
-                    {% if hyper==True %}
-                    <p>Hyperparameters successfully inputted. Please press the next button to run the model.</p>
-                    {% else %}
-                    <form id="init" method="POST">
-                    <p>Now we will handle the hyperparameters. These are parameters of the model that cannot be directly learned from
-                        the data. Below, you will find many options that can be adjusted to tweak how Machine Learning Model will
+            <div class="tab" id="step_4">
+                <h2>Step 4: Initialize the Model</h2>
+                <p class="error">{{ hyper_error }}</p>
+                {% if hyper==True %}
+                <p>Hyperparameters successfully inputted. Please press the next button to run the model.</p>
+                {% else %}
+                <form id="init" method="POST">
+                    <p>Now we will handle the hyperparameters. These are parameters of the model that cannot be directly
+                        learned from
+                        the data. Below, you will find many options that can be adjusted to tweak how Machine Learning
+                        Model will
                         behave. For more detailed information about the hyperparameters, review the
-                        <a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDRegressor.html"target="_blank">relevant
-                             documentation</a>.</p>
+                        <a href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html"
+                            target="_blank">relevant
+                            documentation</a>.
+                    </p>
 
-                    <p> We recommend you run your first model using the default Hyperparameter values supplied below. Afterwards, feel
-                        free to experiment with each setting. If you'd rather not adjust any setting, scroll to the bottom of this page and
+                    <p> We recommend you run your first model using the default Hyperparameter values supplied below.
+                        Afterwards, feel
+                        free to experiment with each setting. If you'd rather not adjust any setting, scroll to the
+                        bottom of this page and
                         press the submit button.</p>
 
-                        <!-- <label>Penalty:
-                        <select name="penalty" class="Hyperparameters">
-                            <option value="l2">l2</option>
-                            <option value="l1">l1</option>
-                            <option value="elasticnet">Elasticnet</option>
-                            <option value="none">None</option>
-                        </select></label>
+                    <label>Hidden Layer Sizes:
+                        <input type="text" class="Hyperparameters" name="hidden_layer_sizes" value="(100,)"
+                            oninput="this.className = ''">
+                    </label>
 
-                        <label for="l1_ratio">l1 Ratio:
-                            <input type="text" class="Hyperparameters" name="l1_ratio" value="None" oninput="this.className =''">
-                        </label>
+                    <label for="activation">Activation:
+                        <select name="activation" class="Hyperparameters">
+                            <option value="relu">relu</option>
+                            <option value="identity">identity</option>
+                            <option value="logistic">logistic</option>
+                            <option value="tanh">tanh</option>
+                        </select>
+                    </label>
 
-                        <label>Dual:
-                        <select name = "dual" class="Hyperparameters">
+                    <label for="solver">Solver:
+                        <select name="solver" class="Hyperparameters">
+                            <option value="adam">adam</option>
+                            <option value="lbfgs">lbfgs</option>
+                            <option value="sgd">sgd</option>
+                        </select>
+                    </label>
+
+                    <label for="alpha">Alpha:
+                        <input type="number" step="0.0001" min="0" class="Hyperparameters" name="alpha" value="0.0001"
+                            oninput="this.className = ''">
+                    </label>
+
+                    <label for="batch_size">Batch Size:
+                        <input type="text" step="1" min="0" class="Hyperparameters" name="batch_size" value="auto"
+                            oninput="this.className = ''">
+                    </label>
+
+                    <label for="learning_rate">Learning Rate:
+                        <select name="learning_rate" class="Hyperparameters">
+                            <option value="constant">constant</option>
+                            <option value="invscaling">invscaling</option>
+                            <option value="adaptive">adaptive</option>
+                        </select>
+                    </label>
+
+                    <label for="learning_rate_init">Learning Rate Init:
+                        <input type="number" step="0.001" min="0" class="Hyperparameters" name="learning_rate_init"
+                            value="0.001" oninput="this.className = ''">
+                    </label>
+
+                    <label for="power_t">Power_T:
+                        <input type="number" step="0.1" min="0" class="Hyperparameters" name="power_t" value="0.5"
+                            oninput="this.className = ''">
+                    </label>
+
+                    <label for="max_iter">Max Iteration:
+                        <input type="number" step="1" min="0" class="Hyperparameters" name="max_iter" value="200"
+                            oninput="this.className = ''">
+                    </label>
+
+                    <label for="shuffle">Shuffle:
+                        <select name="shuffle" class="Hyperparameters">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                    </label>
+
+                    <!-- <label for="random_state">Random State:
+                        <input type="number" step="1" min="0" class="Hyperparameters" name="random_state" value="None"
+                            oninput="this.className = ''">
+                    </label> -->
+
+                    <label for="tol">Tol:
+                        <input type="number" step="0.0001" min="0" class="Hyperparameters" name="tol" value="0.0001"
+                            oninput="this.className = ''">
+                    </label>
+
+                    <label for="verbose">Verbose:
+                        <select name="verbose" class="Hyperparameters">
                             <option value="False">False</option>
                             <option value="True">True</option>
-                        </select></label>
+                        </select>
+                    </label>
 
-                        <label for ="tol">Tol:
-                            <input type="number" step="0.0001" min="0" class="Hyperparameters" name="tol" value="0.0001" oninput="this.className=''">
-                        </label>
+                    <label for="warm_start">Warm Start:
+                        <select name="warm_start" class="Hyperparameters">
+                            <option value="False">False</option>
+                            <option value="True">True</option>
+                        </select>
+                    </label>
 
-                        <label for="C">C:
-                            <input type="number" step="0.1" min="0" class="Hyperparameters" name="C" value="1.0" oninput="this.className=''">
-                        </label>
+                    <label for="momentum">Momentum:
+                        <input type="number" step="0.9" min="0" class="Hyperparameters" name="momentum" value="0.9"
+                            oninput="this.className = ''">
+                    </label>
 
-                        <label>Fit Intercept:
-                            <select name="fit_intercept" id = "fit_intercept" class="Hyperparameters">
-                                <option value ='True'>True</option>
-                                <option value ='False'>False</option>
-                        </select></label>
+                    <label for="nesterovs_momentum">Nesterovs Momentum:
+                        <select name="nesterovs_momentum" class="Hyperparameters">
+                            <option value="True">True</option>
+                            <option value="False">False</option>
+                        </select>
+                    </label>
 
-                        <label>Intercept Scaling:
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="intercept_scaling" value="1" oninput="this.className=''">
-                        </label>
+                    <label for="early_stopping">Early Stopping:
+                        <select name="early_stopping" class="Hyperparameters">
+                            <option value="False">False</option>
+                            <option value="True">True</option>
+                        </select>
+                    </label>
 
-                        <label for="class_weight">Class Weight:
-                            <input type="text" class="Hyperparameters" name="class_weight" value="None" oninput="this.className=''">
-                        </label>
+                    <label for="validation_fraction">Validation Fraction:
+                        <input type="number" step="0.1" min="0" class="Hyperparameters" name="validation_fraction"
+                            value="0.1" oninput="this.className = ''">
+                    </label>
 
-                        <label for="random_state">Random State:
-                            <input type="text" class="Hyperparameters" name="random_state" value="None" oninput="this.className=''">
-                        </label>
+                    <label for="beta_1">Beta 1:
+                        <input type="number" step="0.9" min="0" class="Hyperparameters" name="beta_1" value="0.9"
+                            oninput="this.className = ''">
+                    </label>
 
-                        <label>Solver:
-                        <select name="solver" class="Hyperparameters">
-                            <option value="lbfgs">lbfgs</option>
-                            <option value="liblinear">liblinear</option>
-                            <option value="newton-cg">newton-cg</option>
-                            <option value="newton-cholesky">newton-cholesky</option>
-                            <option value="sag">sag</option>
-                            <option value="saga">saga</option>
-                        </select></label>
+                    <label for="beta_2">Beta 2:
+                        <input type="number" step="0.999" min="0" class="Hyperparameters" name="beta_2" value="0.999"
+                            oninput="this.className = ''">
+                    </label>
 
-                        <label for="max_iter">Max Iteration:
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="max_iter" value="100" oninput="this.className = ''">
-                        </label>
+                    <!-- ? NOTE: epsilonfloat, default=1e-8 -->
+                    <label for="epsilon">Epsilon:
+                        <input type="number" step="0.1" min="0" class="Hyperparameters" name="epsilon" value="0.1"
+                            oninput="this.className = ''">
+                    </label>
 
-                        <label>MultiClass:
-                        <select name="multi_class" class="Hyperparameters">
-                            <option value="auto">auto</option>
-                            <option value="ovr">ovr</option>
-                            <option value="multinomial">multinomial</option>
-                        </select></label>
+                    <label for="n_iter_no_change">Number of Iterations (no change):
+                        <input type="number" step="10" min="0" class="Hyperparameters" name="n_iter_no_change"
+                            value="10" oninput="this.className = ''">
+                    </label>
 
-                        <label for="verbose">Verbose:
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="verbose" value="0" oninput="this.className=''">
-                        </label>
-
-                        <label>Warm Start:
-                            <select name ="warm_start" class="Hyperparameters">
-                                <option value="False">False</option>
-                                <option value="True">True</option>
-                            </select>
-                        </label>
-
-                        <label for="n_jobs">N Jobs:
-                            <input type="text" class="Hyperparameters" name="n_jobs" value="None" oninput="this.className=''">
-                        </label>
-                    <br/> -->
+                    <label for="max_fun">Max Fun:
+                        <input type="number" step="15000" min="0" class="Hyperparameters" name="max_fun" value="15000"
+                            oninput="this.className = ''">
+                    </label>
+                    <br />
                     <input type="submit" name="hyperparams" value="Validate Hyperparameters">
                 </form>
                 {% endif %}
-                </div>
+            </div>
 
-                <!-- Div for Running the Model-->
-                <div class="tab" id="step_5"><h2>Step 5: Run</h2>
-                    <form id="run" method="POST">
-                    <p>When you are ready, click the "Run Model" button. When the model has finished running, key outputs will be
+            <!-- Div for Running the Model-->
+            <div class="tab" id="step_5">
+                <h2>Step 5: Run</h2>
+                <form id="run" method="POST">
+                    <p>When you are ready, click the "Run Model" button. When the model has finished running, key
+                        outputs will be
                         visualized in the <b>Output</b> section. A graph visualizing the predicted values (a red line)
-                        compared to the actual values (blue dots) will be provided to the user. Additionally, key evaluation metrics
+                        compared to the actual values (blue dots) will be provided to the user. Additionally, key
+                        evaluation metrics
                         will be displayed in a table.</p>
                     <input type="submit" name="run" value="Run Model">
                 </form>
 
-                </div>
-                <p>Once you are done with the above step and have submitted, click on the next button.</p>
+            </div>
+            <p>Once you are done with the above step and have submitted, click on the next button.</p>
 
 
-                <!-- Next and Previous Buttons for Multi-page form-->
-                <div style="overflow:auto;">
-                    <div style="float:right;">
+            <!-- Next and Previous Buttons for Multi-page form-->
+            <div style="overflow:auto;">
+                <div style="float:right;">
                     <button type="button" id="prevStp" onclick="nextPrev(-1)">Previous</button>
                     <button type="button" id="nextStp" onclick="nextPrev(1)">Next</button>
-                    </div>
                 </div>
-
             </div>
-            <script type="text/javascript" id="js_tabs" tab_num = {{tab}} src="{{url_for('static', filename='ml_form_script.js')}}"></script>
+
         </div>
+        <script type="text/javascript" id="js_tabs" tab_num={{tab}}
+            src="{{url_for('static', filename='ml_form_script.js')}}"></script>
+    </div>
 
-        <!-- Div for Output Display on Right Hand Side of Webpage-->
-        <div class="display">
-            <div class="output">
-                <h1>Output</h1>
-                {% if user_input == False %}
-                    <p>Here will be any visualizations from the program.</p>
-                {% else %}
-                <form>
-                    <input type="button" value="View Original Data" id="orig" og_df = '{{og_df}}' onclick="openWin()">
-                </form>
-                {% endif %}
+    <!-- Div for Output Display on Right Hand Side of Webpage-->
+    <div class="display">
+        <div class="output">
+            <h1>Output</h1>
+            {% if user_input == False %}
+            <p>Here will be any visualizations from the program.</p>
+            {% else %}
+            <form>
+                <input type="button" value="View Original Data" id="orig" og_df='{{og_df}}' onclick="openWin()">
+            </form>
+            {% endif %}
 
-                <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
-                {% if columns_selected == True %}
-                <h2>Original Dataset</h2>
+            <!--If the flask server returns that a file has been uploaded, display a dummy graph.-->
+            {% if columns_selected == True %}
+            <h2>Original Dataset</h2>
 
-                    <canvas id="Selected Columns"></canvas>
-                    <script type="text/javascript" id="graph" name = "{{name}}" data = '{{data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
+            <canvas id="Selected Columns"></canvas>
+            <script type="text/javascript" id="graph" name="{{name}}" data='{{data}}'
+                columns='{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
 
-                {% endif %}
+            {% endif %}
 
-                <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->
-                {% if scaling==True %}
-                <h2>Scaled Data</h2>
-                    {% for table in tables %}
-                        <table>
-                            <tbody>
-                                {{ table|safe }}
-                            </tbody>
-                        </table>
-                    {% endfor %}
-                {% endif %}
+            <!--If the flask server returns that scaling has finished, display a table full of dummy data.-->
+            {% if scaling==True %}
+            <h2>Scaled Data</h2>
+            {% for table in tables %}
+            <table>
+                <tbody>
+                    {{ table|safe }}
+                </tbody>
+            </table>
+            {% endfor %}
+            {% endif %}
 
-                <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
-                {% if traintest==True %}
-                <h2>Training Dataset</h2>
+            <!--If the flask server returns that training/testing has finished, display 2 dummy graphs.-->
+            {% if traintest==True %}
+            <h2>Training Dataset</h2>
 
-                    <canvas id="Train Values"></canvas>
-                    <script type="text/javascript" id="train_graph" name = "{{training_name}}" data = '{{training_data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
-                <h2>Testing Dataset</h2>
-                    <canvas id="Test Values"></canvas>
-                    <script type="text/javascript" id="graph" name = "{{test_name}}" data = '{{test_data}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
-                {% endif %}
+            <canvas id="Train Values"></canvas>
+            <script type="text/javascript" id="train_graph" name="{{training_name}}" data='{{training_data}}'
+                columns='{{data_columns | tojson}}' src="{{url_for('static', filename='train_graph.js')}}"></script>
+            <h2>Testing Dataset</h2>
+            <canvas id="Test Values"></canvas>
+            <script type="text/javascript" id="graph" name="{{test_name}}" data='{{test_data}}'
+                columns='{{data_columns | tojson}}' src="{{url_for('static', filename='graph.js')}}"></script>
+            {% endif %}
 
-                {% if graphic %}
-                <h2>Evaluation Data</h2>
-                <table id="eval_table">
-                    <tr>
-                        <th><a href=""target="_blank">Accuracy</a></th>
-                        <td>{{eval_table[0]}}</td>
-                    </tr>
-                    <tr>
-                        <th><a href=""target="_blank">Recall</a></th>
-                        <td>{{eval_table[1]}}</td>
-                    </tr>
-                    <tr>
-                        <th><a href=""target="_blank">Precision</a></th>
-                        <td>{{eval_table[2]}}</td>
-                    </tr>
-                </table>
+            {% if graphic %}
+            <h2>Evaluation Data</h2>
+            <table id="eval_table">
+                <tr>
+                    <th><a href="" target="_blank">Accuracy</a></th>
+                    <td>{{eval_table[0]}}</td>
+                </tr>
+                <tr>
+                    <th><a href="" target="_blank">Recall</a></th>
+                    <td>{{eval_table[1]}}</td>
+                </tr>
+                <tr>
+                    <th><a href="" target="_blank">Precision</a></th>
+                    <td>{{eval_table[2]}}</td>
+                </tr>
+            </table>
 
-                <h2>Confusion Matrix</h2>
-                <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
-                {% endif %}
-            </div>
-
+            <h2>Confusion Matrix</h2>
+            <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
+            {% endif %}
         </div>
 
     </div>
+
+</div>
 {% endblock %}
