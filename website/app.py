@@ -198,6 +198,43 @@ def logistic_hyperparams(request):
     #     return Exception
     return val
 
+def neural_hyperparams(request):
+    """hidden_layer_sizes=(100, ), activation='relu', *, solver='adam', alpha=0.0001, batch_size='auto',
+    learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=200, shuffle=True, random_state=None,
+    tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False,
+    validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08, n_iter_no_change=10, max_fun=15000"""
+    # try:
+    val = []
+    # val.append(request.form["hidden_layer_sizes"])
+    val.append(None)
+    val.append(None)
+    val.append(None)
+    val.append(request.form["activation"])
+    val.append(request.form["solver"])
+    val.append(validate_hyperparameter(request.form["alpha"]))
+    val.append(request.form["batch_size"])
+    val.append(request.form["learning_rate"])
+    val.append(validate_hyperparameter(request.form["learning_rate_init"]))
+    val.append(validate_hyperparameter(request.form["power_t"]))
+    val.append(validate_hyperparameter(request.form["max_iter"]))
+    val.append(request.form["shuffle"])
+    # val.append(validate_hyperparameter(request.form["random_state"]))
+    val.append(None)
+    val.append(validate_hyperparameter(request.form["tol"]))
+    val.append(request.form["verbose"])
+    val.append(request.form["warm_start"])
+    val.append(validate_hyperparameter(request.form["momentum"]))
+    val.append(request.form["nesterovs_momentum"])
+    val.append(request.form["early_stopping"])
+    val.append(validate_hyperparameter(request.form["validation_fraction"]))
+    val.append(validate_hyperparameter(request.form["beta_1"]))
+    val.append(validate_hyperparameter(request.form["beta_2"]))
+    val.append(validate_hyperparameter(request.form["epsilon"]))
+    val.append(validate_hyperparameter(request.form["n_iter_no_change"]))
+    val.append(validate_hyperparameter(request.form["max_fun"]))
+    # except Exception:
+    #     return Exception
+    return val
 
 def get_hyperparams(request):
     try:
@@ -223,6 +260,7 @@ def get_hyperparams(request):
         val.append(request.form["average"])
         if snapshot.model_type == "poly":
             val.append(validate_hyperparameter(request.form["degree"]))
+
     except Exception:
         return Exception
     return val
@@ -470,6 +508,17 @@ def hyperparameter_form(request, page):
     elif snapshot.model_type == "svm":
         snapshot.model = svm.initalize(val)
 
+    elif snapshot.model_type == "neural":
+        val = neural_hyperparams(request)
+        if val is Exception:
+            return render_template(
+                page,
+                tab=3,
+                og_df=snapshot.og_data.to_html(),
+                error="Please input proper integer/float values for the given hyperparameters.",
+            )
+        snapshot.model = neural.initialize(val)
+
     return render_template(
         page, tab=3, user_input=True, hyper=True, og_df=snapshot.og_data.to_html()
     )
@@ -557,10 +606,6 @@ def run_model_matrix(page):
         )
 
     if snapshot.model_type == "neural":
-        params = {}
-
-        snapshot.model = neural.initialize(params)
-
         ml_model = neural.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
 
         if isinstance(ml_model, str):

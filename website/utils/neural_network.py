@@ -5,11 +5,31 @@ from website.utils.model import Model
 class NeuralNetwork(Model):
     def initialize(val):
         """This function initializes the neural network model based on the user provided inputs."""
+        print(val)
         mlp = MLPClassifier(
-            hidden_layer_sizes=(8, 8, 8),
-            activation="relu",
-            solver="adam",
-            max_iter=1000,
+            hidden_layer_sizes=(100,),
+            activation=val[3],
+            solver=val[4],
+            alpha=val[5],
+            batch_size=val[6],
+            learning_rate=val[7],
+            learning_rate_init=val[8],
+            power_t=val[9],
+            max_iter=val[10],
+            shuffle=eval(val[11]),
+            # random_state=val[12],
+            tol=val[13],
+            verbose=eval(val[14]),
+            warm_start=eval(val[15]),
+            momentum=val[16],
+            nesterovs_momentum=eval(val[17]),
+            early_stopping=eval(val[18]),
+            validation_fraction=val[19],
+            beta_1=val[20],
+            beta_2=val[21],
+            epsilon=val[22],
+            n_iter_no_change=val[23],
+            max_fun=val[24],
         )
         print(">> Parameters currently in use:")
         print(mlp.get_params())

@@ -238,10 +238,10 @@
                         </select>
                     </label>
 
-                    <label for="random_state">Random State:
+                    <!-- <label for="random_state">Random State:
                         <input type="number" step="1" min="0" class="Hyperparameters" name="random_state" value="None"
                             oninput="this.className = ''">
-                    </label>
+                    </label> -->
 
                     <label for="tol">Tol:
                         <input type="number" step="0.0001" min="0" class="Hyperparameters" name="tol" value="0.0001"
@@ -296,9 +296,10 @@
                             oninput="this.className = ''">
                     </label>
 
+                    <!-- ? NOTE: epsilonfloat, default=1e-8 -->
                     <label for="epsilon">Epsilon:
-                        <input type="number" step="0.00000001" min="0" class="Hyperparameters" name="epsilon"
-                            value="1e-08" oninput="this.className = ''">
+                        <input type="number" step="0.1" min="0" class="Hyperparameters" name="epsilon" value="0.1"
+                            oninput="this.className = ''">
                     </label>
 
                     <label for="n_iter_no_change">Number of Iterations (no change):
