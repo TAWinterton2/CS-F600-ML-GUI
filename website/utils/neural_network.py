@@ -16,14 +16,14 @@ class NeuralNetwork(Model):
             learning_rate_init=val[8],
             power_t=val[9],
             max_iter=val[10],
-            shuffle=eval(val[11]),
-            # random_state=val[12],
+            shuffle=eval(str(val[11])),
+            random_state=val[12],
             tol=val[13],
-            verbose=eval(val[14]),
-            warm_start=eval(val[15]),
+            verbose=eval(str(val[14])),
+            warm_start=eval(str(val[15])),
             momentum=val[16],
-            nesterovs_momentum=eval(val[17]),
-            early_stopping=eval(val[18]),
+            nesterovs_momentum=eval(str(val[17])),
+            early_stopping=eval(str(val[18])),
             validation_fraction=val[19],
             beta_1=val[20],
             beta_2=val[21],
@@ -31,8 +31,6 @@ class NeuralNetwork(Model):
             n_iter_no_change=val[23],
             max_fun=val[24],
         )
-        # print(">> Parameters currently in use:")
-        # print(mlp.get_params())
         return mlp
 
     def evaluate(y_test, y_pred):

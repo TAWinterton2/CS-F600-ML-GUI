@@ -4,8 +4,6 @@ from website.utils.model import Model
 
 class SupportVectorMachine(Model):
     def initalize(val):
-        print(val)
-
         svm_model = svm.SVC(
             C=val[0],
             kernel=val[1],
@@ -23,8 +21,6 @@ class SupportVectorMachine(Model):
             break_ties=eval(val[13]),
             random_state=val[14],
         )
-        print(">> Parameters currently in use:")
-        print(svm_model.get_params())
         return svm_model
 
     def evaluate(y_test, y_pred):
