@@ -497,6 +497,33 @@ def run_model_matrix(page):
                                 hyper_error=ml_model)
         y_pred = logistic.predict_model(ml_model, snapshot.x_test)
         results = logistic.evaluate(snapshot.y_test, y_pred)
+        
+        cm_labels = ["first", "second"]
+
+        cm = confusion_matrix(snapshot.y_test, y_pred)
+
+        plot_confusion_matrix(cm, cm_labels)
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+
+        graphic = base64.b64encode(image_png).decode()
+
+        return render_template(
+            page,
+            tab=4,
+            user_input=True,
+            start=True,
+            name="eval",
+            eval_table=list(results.values()),
+            data_columns=get_graph_labels(snapshot.data),
+            og_df=snapshot.og_data.to_html(),
+            eval=results,
+            graphic=graphic,
+        )
 
         # TODO: Confusion Matrix
 
