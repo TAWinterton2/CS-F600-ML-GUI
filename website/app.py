@@ -212,6 +212,7 @@ def neural_hyperparams(request):
     val.append(validate_hyperparameter(request.form["max_iter"]))
     val.append(request.form["shuffle"])
     # val.append(validate_hyperparameter(request.form["random_state"]))
+    # FIXME: JavaScript (default: None; enabled to populate a text box for the initial solution)
     val.append(None)
     val.append(validate_hyperparameter(request.form["tol"]))
     val.append(request.form["verbose"])
@@ -488,6 +489,26 @@ def hyperparameter_form(request, page):
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
 # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
 def run_model_matrix(page):
+    def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+            if normalize:
+                cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+            plt.imshow(cm, interpolation='nearest', cmap=cmap)
+            plt.title(title)
+            plt.colorbar()
+            tick_marks = np.arange(len(classes))
+            plt.xticks(tick_marks, classes, rotation=45)
+            plt.yticks(tick_marks, classes)
+
+            fmt = '.2f' if normalize else 'd'
+            thresh = cm.max() / 2.
+            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+                plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
+
+            plt.tight_layout()
+            plt.ylabel('True label')
+            plt.xlabel('Predicted label')
+
     if snapshot.model_type == "logistic":
         ml_model = logistic.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
         if isinstance(ml_model, str):
@@ -497,7 +518,7 @@ def run_model_matrix(page):
                                 hyper_error=ml_model)
         y_pred = logistic.predict_model(ml_model, snapshot.x_test)
         results = logistic.evaluate(snapshot.y_test, y_pred)
-        
+
         cm_labels = ["first", "second"]
 
         cm = confusion_matrix(snapshot.y_test, y_pred)
@@ -524,8 +545,6 @@ def run_model_matrix(page):
             eval=results,
             graphic=graphic,
         )
-
-        # TODO: Confusion Matrix
 
     if snapshot.model_type == "svm":
 
@@ -564,26 +583,6 @@ def run_model_matrix(page):
         results = neural.evaluate(snapshot.y_test, y_pred)
 
         cm_labels = ["first", "second"]
-
-        def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
-            if normalize:
-                cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-            plt.imshow(cm, interpolation='nearest', cmap=cmap)
-            plt.title(title)
-            plt.colorbar()
-            tick_marks = np.arange(len(classes))
-            plt.xticks(tick_marks, classes, rotation=45)
-            plt.yticks(tick_marks, classes)
-
-            fmt = '.2f' if normalize else 'd'
-            thresh = cm.max() / 2.
-            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-                plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
-
-            plt.tight_layout()
-            plt.ylabel('True label')
-            plt.xlabel('Predicted label')
 
         cm = confusion_matrix(snapshot.y_test, y_pred)
 
