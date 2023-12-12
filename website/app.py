@@ -642,6 +642,11 @@ def index():
     """Renders the home page of the website, the first page that a user will land on when visiting the website."""
     return render_template('index.html')
 
+@app.route("/about")
+def about():
+    """Renders the about page of the website, which describes the purpose of the website and its creators."""
+    return render_template('about.html')
+
 
 @app.route("/linear", methods=['POST', 'GET'])
 def linear_form():

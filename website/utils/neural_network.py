@@ -31,8 +31,8 @@ class NeuralNetwork(Model):
             n_iter_no_change=val[23],
             max_fun=val[24],
         )
-        print(">> Parameters currently in use:")
-        print(mlp.get_params())
+        # print(">> Parameters currently in use:")
+        # print(mlp.get_params())
         return mlp
 
     def evaluate(y_test, y_pred):
