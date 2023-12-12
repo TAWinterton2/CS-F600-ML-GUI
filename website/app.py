@@ -148,22 +148,23 @@ def validate_hyperparameter(val):
 
 def svm_hyperparams(request):
     val = []
-    val.append(request.form['C'])
-    val.append(request.form['kernel'])
-    val.append(validate_hyperparameter(request.form['degree']))
-    val.append(request.form['gamma'])
-    val.append(validate_hyperparameter(request.form['coef0']))
-    val.append(validate_hyperparameter(request.form['shrinking']))
-    val.append(validate_hyperparameter(request.form["probability"]))
-    val.append(validate_hyperparameter(request.form['tol']))
-    val.append(validate_hyperparameter(request.form['cache_size']))
-    val.append(validate_hyperparameter(request.form['class_weight']))
-    val.append(validate_hyperparameter(request.form['verbose']))
-    val.append(validate_hyperparameter(request.form['max_iter']))
-    val.append(request.form['decision_function_shape'])
-    val.append(validate_hyperparameter(request.form['break_ties']))
-    val.append(validate_hyperparameter(request.form['random_state']))
-
+    # Only validate the hyperparameters that are numeric outputs.
+    val.append(validate_hyperparameter(request.form.get('C')))
+    val.append(request.form.get('kernel'))
+    val.append(validate_hyperparameter(request.form.get('degree')))
+    val.append(request.form.get('gamma'))
+    val.append(validate_hyperparameter(request.form.get('coef0')))
+    val.append(request.form.get('shrinking'))
+    val.append(request.form.get("probability"))
+    val.append(validate_hyperparameter(request.form.get('tol')))
+    val.append(validate_hyperparameter(request.form.get('cache_size')))
+    val.append(validate_hyperparameter(request.form.get('class_weight')))
+    val.append(request.form.get('verbose'))
+    val.append(validate_hyperparameter(request.form.get('max_iter')))
+    val.append(request.form.get('decision_function_shape'))
+    val.append(request.form.get('break_ties'))
+    val.append(validate_hyperparameter(request.form.get('random_state')))
+    return val
 
 
 def logistic_hyperparams(request):
@@ -485,9 +486,6 @@ def hyperparameter_form(request, page):
     )
 
 
-# TODO: Clear output and add column names to the confusion matrix.
-# https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html
-# https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
 def run_model_matrix(page):
     def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
             if normalize:
@@ -533,6 +531,8 @@ def run_model_matrix(page):
 
         graphic = base64.b64encode(image_png).decode()
 
+        plt.clf()
+
         return render_template(
             page,
             tab=4,
@@ -557,17 +557,27 @@ def run_model_matrix(page):
         y_pred = svm.predict_model(ml_model, snapshot.x_test)
         results = svm.evaluate(snapshot.y_test, y_pred)
 
+        cm_labels = ["first", "second"]
+
+        cm = confusion_matrix(snapshot.y_test, y_pred)
+
+        plot_confusion_matrix(cm, cm_labels)
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+
+        graphic = base64.b64encode(image_png).decode()
+
+        plt.clf()
+
         return render_template(page,
-                      tab=4,
-                      user_input=True,
-                      start=True,
-                      name='eval',
-                      eval_table=list(results.values()),
-                      # data=data.to_json(orient="records"),
-                      # pred=pred.to_json(orient="records"),
-                      data_columns=get_graph_labels(snapshot.data),
-                      og_df=snapshot.og_data.to_html(),
-                      eval=results)
+                  tab=4,
+                  og_df=snapshot.og_data.to_html(),
+                  eval_table=list(results.values()),
+                  graphic=graphic)
 
     if snapshot.model_type == "neural":
         ml_model = neural.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
@@ -595,6 +605,8 @@ def run_model_matrix(page):
         buffer.close()
 
         graphic = base64.b64encode(image_png).decode()
+
+        plt.clf()
 
         return render_template(page,
                   tab=4,
