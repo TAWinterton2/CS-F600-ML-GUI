@@ -28,7 +28,7 @@
                          an archive (.zip) file that contains .csv files with a matching structure (e.g., the same number of columns 
                          and the same column names).</p>
                     <p>You may use your own dataset, or select one from the <a href="https://archive.ics.uci.edu/datasets"target="_blank">UC Irvine Machine 
-                        Learning Repository</a>. The <a href="https://archive.ics.uci.edu/dataset/109/wine"target="_blank">wine dataset</a> is a good
+                        Learning Repository</a>. The <a href="https://github.com/plotly/datasets/blob/master/diabetes.csv"target="_blank">diabetes dataset</a> is a good
                         example of a dataset that can be used with this model to try out this program. Be sure to open the archive and 
                         submit just the .data file (converted to a .csv file) for testing.</p>
                     <p><strong>Uploaded files should be strictly numerical data. If uploading an archive (.zip) file, please ensure that all 
@@ -141,13 +141,13 @@
                         free to experiment with each setting. If you'd rather not adjust any setting, scroll to the bottom of this page and
                         press the submit button.</p>
                         
-                        <label>Penalty:</label>
-                        <select name="penalty" class="Hyperparameters" onchange="showL1('l1_ratio', this)">
+                        <label>Penalty:
+                        <select name="penalty" class="Hyperparameters">
                             <option value="l2">l2</option>
                             <option value="l1">l1</option>
                             <option value="elasticnet">Elasticnet</option>
                             <option value="none">None</option>
-                        </select>
+                        </select></label>
 
                         <label for="l1_ratio">l1 Ratio: 
                             <input type="number" class="Hyperparameters" step="0.01" min="0" max = "1" name="l1_ratio" value="0.15" oninput="this.className =''">
