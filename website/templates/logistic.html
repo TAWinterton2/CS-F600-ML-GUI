@@ -2,7 +2,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/multi_form_style.css') }}">
-    <title>Linear Regression</title>
+    <title>Logistic Regression</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
 
 {% endblock %}
@@ -19,7 +19,7 @@
                     <span class="step"></span>
                 </div>
 
-                <h1 class="ML">Linear Regression</h1>
+                <h1 class="ML">Logistic Regression</h1>
                 
                 <!-- Div for Uploading Dataset-->
                 <div class="tab" id="step_1"><h2>Step 1: Uploading Dataset</h2>
@@ -78,8 +78,6 @@
                     <p>For this step, we will scale our data.</p>
                     <p>Scaling refers to putting our values in our dataset into the same range. There are two
                         ways that we can scale our data.</p>
-                    <p><strong> Standardize:</strong> We map the minimum feature value to 0 and 
-                    the maximum to 1, creating a [0, 1] range <br/>
                     <strong>Normalize:</strong> We transform the data to have a mean of 0 and a standard deviation of 1</p>
                     <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the program has finished
                         scaling the data based on your selection, a table will appear in the <b>Output</b> section that will display the entire
@@ -87,7 +85,6 @@
                          you wish to try with a different scaling method. </p>
                     <form id="scale_type" method="POST">
                         <select name="scale" id="scale">
-                            <option value="Standardize">Standardize</option>
                             <option value="Normalize">Normalize</option>
                         </select>
 
@@ -142,6 +139,7 @@
                         press the submit button.</p>
                         
                         <label>Penalty:
+                        <!-- onchange="showL1('l1_ratio', this)"> -->
                         <select name="penalty" class="Hyperparameters">
                             <option value="l2">l2</option>
                             <option value="l1">l1</option>
@@ -150,87 +148,21 @@
                         </select></label>
 
                         <label for="l1_ratio">l1 Ratio: 
-                            <input type="number" class="Hyperparameters" step="0.01" min="0" max = "1" name="l1_ratio" value="0.15" oninput="this.className =''">
+                            <input type="text" class="Hyperparameters" name="l1_ratio" value="None" oninput="this.className =''">
                         </label>
 
-
-
-
-
-                        <label>Loss Strength:
-                        <select name = "loss_strength" class="Hyperparameters">
-                            <option value="squared_error">Squared Error</option>
-                            <option value="epsilon_insensitive">Epsilon Insensitive</option>
-                            <option value="squared_epsilon_insensitive">Squared Epsilon Insensitive</option>
-                            <option value="huber">Huber</option>
+                        <label>Dual:
+                        <select name = "dual" class="Hyperparameters">
+                            <option value="False">False</option>
+                            <option value="True">True</option>
                         </select></label>
-
-                        <label for="epsilon">Epsilon:   
-                            <input type="number" step="0.1" min="0" class="Hyperparameters" name="epsilon" value="0.1" oninput="this.className=''">
-                        </label>
-
-
-
-
-
-
-                        <label>Shuffle: 
-                            <select name="shuffle" class ="Hyperparameters">
-                                <option value='True'>True</option>
-                                <option value='False'>False</option>
-                        </select></label>
-
-                        <label for="rand_state">Random State:   
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="rand_state" value="0" oninput="this.className=''">
-                        </label>
-
-
-
-
-                        <label for="n_iter_no_change"> Number of Iterations (no change):
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="n_iter_no_change" value="5" oninput="this.className=''">
-                        </label>
 
                         <label for ="tol">Tol:  
-                            <input type="number" step="0.001" min="0" class="Hyperparameters" name="tol" value="0.001" oninput="this.className=''">
+                            <input type="number" step="0.0001" min="0" class="Hyperparameters" name="tol" value="0.0001" oninput="this.className=''">
                         </label>
 
-                        <label>Early Stopping:
-                            <select name = "early_stopping" class="Hyperparameters">
-                                <option value="True">True</option>
-                                <option value="False">False</option>
-                        </select></label>
-
-                        <label for="validation_fraction">Validation Fraction:
-                            <input type="number" step="0.1" min="0.1" max="1.0" class="Hyperparameters" name="validation_fraction" value="0.1" oninput="this.className=''">
-                        </label>
-
-                        <label for="eta0">eta0: 
-                            <input type="number" step="0.01" min="0" class="Hyperparameters" name="eta0" value="0.01" oninput="this.className=''">
-                        </label>
-
-                        <label for="power_t">Power_T:   
-                            <input type="number" step="0.01" min="0" class="Hyperparameters" name="power_t" value="0.25" oninput="this.className=''">
-                        </label>
-
-                        <label>Learning Rate:
-                            <select name="learning_rate" class="Hyperparameters">
-                                <option value="invscaling">Invscaling</option>
-                                <option value="constant">Constant</option>
-                                <option value="optimal">Optimal</option>
-                                <option value="adaptive">Adaptive</option>
-                        </select></label>
-
-                        <label for="alpha">Alpha:   
-                            <input type="number" class="Hyperparameters" step="0.0001" min="0"name="alpha" value="0.0001" oninput="this.className = ' '">
-                        </label>
-
-                        <label for="max_iter">Max Iteration:    
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="max_iter" value="1000" oninput="this.className = ''">
-                        </label>
-
-                        <label for="verbose">Verbose:   
-                            <input type="number" step="1" min="0" class="Hyperparameters" name="verbose" value="0" oninput="this.className=''">
+                        <label for="C">C:   
+                            <input type="number" step="0.1" min="0" class="Hyperparameters" name="C" value="1.0" oninput="this.className=''">
                         </label>
 
                         <label>Fit Intercept:   
@@ -238,18 +170,54 @@
                                 <option value ='True'>True</option>
                                 <option value ='False'>False</option>
                         </select></label>
-    
-                        <label>Warm Start:  
-                        <select name ="warm_start" class="Hyperparameters">
-                            <option value="True">True</option>
-                            <option value="False">False</option>
+
+                        <label>Intercept Scaling: 
+                            <input type="number" step="1" min="0" class="Hyperparameters" name="intercept_scaling" value="1" oninput="this.className=''">
+                        </label>
+
+                        <label for="class_weight">Class Weight: 
+                            <input type="text" class="Hyperparameters" name="class_weight" value="None" oninput="this.className=''">
+                        </label>
+
+                        <label for="random_state">Random State:   
+                            <input type="text" class="Hyperparameters" name="random_state" value="None" oninput="this.className=''">
+                        </label>
+
+                        <label>Solver:
+                        <select name="solver" class="Hyperparameters">
+                            <option value="lbfgs">lbfgs</option>
+                            <option value="liblinear">liblinear</option>
+                            <option value="newton-cg">newton-cg</option>
+                            <option value="newton-cholesky">newton-cholesky</option>
+                            <option value="sag">sag</option>
+                            <option value="saga">saga</option>
                         </select></label>
 
-                        <label>Average: 
-                        <select name="average" class="Hyperparameters">
-                            <option value="True">True</option>
-                            <option value="False">False</option>
+                        <label for="max_iter">Max Iteration:    
+                            <input type="number" step="1" min="0" class="Hyperparameters" name="max_iter" value="100" oninput="this.className = ''">
+                        </label>
+
+                        <label>MultiClass:
+                        <select name="multi_class" class="Hyperparameters">
+                            <option value="auto">auto</option>
+                            <option value="ovr">ovr</option>
+                            <option value="multinomial">multinomial</option>
                         </select></label>
+
+                        <label for="verbose">Verbose:   
+                            <input type="number" step="1" min="0" class="Hyperparameters" name="verbose" value="0" oninput="this.className=''">
+                        </label>
+
+                        <label>Warm Start:  
+                            <select name ="warm_start" class="Hyperparameters">
+                                <option value="False">False</option>
+                                <option value="True">True</option>
+                            </select>
+                        </label>
+
+                        <label for="n_jobs">N Jobs:   
+                            <input type="text" class="Hyperparameters" name="n_jobs" value="None" oninput="this.className=''">
+                        </label>
                     <br/>      
                     <input type="submit" name="hyperparams" value="Validate Hyperparameters">
                 </form>
@@ -332,30 +300,21 @@
                 <h2>Evaluation Data</h2>
                 <table id="eval_table">
                     <tr>
-                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_absolute_error.html"target="_blank">Mean Absolute Error</a></th>
+                        <th><a href=""target="_blank">Accuracy</a></th>
                         <td>{{eval_table[0]}}</td>
                     </tr>
                     <tr>
-                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Mean Square Error</a></th>
+                        <th><a href=""target="_blank">Recall</a></th>
                         <td>{{eval_table[1]}}</td>
                     </tr>
                     <tr>
-                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html"target="_blank">Root Mean Square Error</a></th>
+                        <th><a href=""target="_blank">Precision</a></th>
                         <td>{{eval_table[2]}}</td>
-                    </tr>
-                    <tr>
-                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html"target="_blank">R2 Score</a></th>
-                        <td>{{eval_table[3]}}</td>
-                    </tr>
-                    <tr>
-                        <th><a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.max_error.html"target="_blank">Max Error</a></th>
-                        <td>{{eval_table[4]}}</td>
                     </tr>
                 </table>
 
-                <h2>Graph Prediction</h2>
-                <canvas id="eval"></canvas>
-                <script type="text/javascript" id="pred_graph" name = "{{name}}" data = '{{data}}' pred = '{{pred}}' columns = '{{data_columns | tojson}}' src="{{url_for('static', filename='prediction.js')}}"></script>
+                <h2>Confusion Matrix</h2>
+                <img src="data:image/png;base64,{{ graphic }}" alt="Data Visualization" />
                 {% endif %}
             </div>
            

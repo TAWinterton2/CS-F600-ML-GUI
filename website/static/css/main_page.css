@@ -5,17 +5,17 @@
     border-style: groove;
     border-radius:10px;
     background-color: rgb(245, 204, 228);
-    
+
     margin: 10px auto;
     padding: 40px;
-    
+
     height: auto;
     width: 1000px;
 }
 
 .lin_reg_tab {
     text-align: center;
-  
+
     border-style:groove;
     border-radius: 10px;
     height: auto;
@@ -28,7 +28,7 @@
 
 .poly_reg_tab {
     text-align: center;
-  
+
     border-style:groove;
     border-radius: 10px;
     float: left;
@@ -36,14 +36,40 @@
     padding-left: 5px;
     width: 500px;
     margin: 60px;
-  
+
     background:#e7de89;
 }
 
 .log_reg_tab {
     text-align: center;
-  
+
     background:#e97a7a ;
+    border-radius: 10px;
+    border-style: groove;
+    float: left;
+    height: auto;
+    padding-left: 5px;
+    width: 500px;
+    margin: 60px;
+  }
+
+.svm_tab {
+    text-align: center;
+
+    background:#cd5095 ;
+    border-radius: 10px;
+    border-style: groove;
+    float: left;
+    height: auto;
+    padding-left: 5px;
+    width: 500px;
+    margin: 60px;
+  }
+
+.neural_tab {
+    text-align: center;
+
+    background:#2f93df ;
     border-radius: 10px;
     border-style: groove;
     float: left;

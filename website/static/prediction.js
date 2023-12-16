@@ -2,6 +2,7 @@
 var graph = document.getElementById("pred_graph");
 var chartName = graph.getAttribute("name");
 var pyData = JSON.parse(graph.getAttribute("data"));
+var columns = JSON.parse(graph.getAttribute("columns"))
 var ctx = document.getElementById(chartName).getContext('2d');
 var pred = JSON.parse(graph.getAttribute("pred"));
 
@@ -34,22 +35,18 @@ new Chart(ctx, {
     },
     options: 
     {
-        legend: 
-        {
-            display: true
-        },
-        scales: 
-        {
-            x: 
-            {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: columns[0],
                 }
             },
-            x2: {
-                position: 'bottom',
-                type: 'category'
+            y: {
+                title: {
+                    display: true,
+                    text: columns[1],
+                }
             }
         }
     }

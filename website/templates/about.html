@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main_page.css') }}">
+<title>About Page</title>
+
+{% endblock %}
+
+{% block body %}
+
+<div class="main">
+    <div class="bio_information">
+        <h1>Website Credits</h1>
+
+        <h3>🔗 Project Source: <a
+                href="https://github.com/TAWinterton2/CS-F600-ML-GUI">https://github.com/TAWinterton2/CS-F600-ML-GUI</a>
+        </h3>
+
+        <style>
+            .profile-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .profile-card {
+                border: 1px solid #ccc;
+                padding: 20px;
+                box-sizing: border-box;
+                width: auto;
+            }
+
+            .profile-photo
+            {
+                width: 400px;
+                height: 400px;
+            }
+        </style>
+
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <img src="https://avatars.githubusercontent.com/u/51008087?v=4"
+                    alt="Profile Photo" class="profile-photo">
+                    <h3><a href="https://github.com/raelewis" target="_blank">Rachel Lewis</a></h3>
+                    <p>Rachel completed her undergraduate degree in Computer Science at the University of Alaska Anchorage in 2021. 
+                        Since Spring 2023, she has been pursuing her MS in Computer Science at the University of 
+                        Alaska Fairbanks. Her research interests include machine learning, artificial intelligence, robotics, and 
+                        data analysis.</p>
+                </div>
+
+            <div class="profile-card">
+                <img src="https://media.discordapp.net/attachments/1145891865346965505/1185445025564348416/Screenshot_20231215_195504_Facebook.jpg?ex=658fa2b6&is=657d2db6&hm=c57974b21c6a1ba6df0139e0c69f1010badb2f5fc22e4ae33b2fd57e5f33db8a&=&format=webp&width=832&height=936"
+                alt="Profile Photo" class="profile-photo">
+                <h3><a href="https://github.com/TAWinterton2" target="_blank">Travis Winterton</a></h3>
+                <p>Travis Winterton is a UAF student who's interested in combining his passion of both computer science and visual arts,
+                     with interests in Game Development, Game Theory, and Artificial Intelligence. He currently resides in Fairbanks, Alaska.
+                    Contact Email: travis.winterton24@gmail.com</p>
+            </div>
+
+            <div class="profile-card">
+                <img src="https://avatars.githubusercontent.com/u/139935920" alt="Profile Photo" class="profile-photo">
+                <h3><a href="https://github.com/jbonda/">Jhansirani Bonda</a></h3>
+                <p>Jhansi is a high school physics teacher with over seven years of dedicated service.
+                    Graduated in Physics and Bachelor's degree in Education, mathematics, physics, and computer science.
+                    Currently expanding my skill set through a professional software development course as a student at 
+                    the University of Alaska, Fairbanks.</p>
+            </div>
+
+            <div class="profile-card">
+                <img src="https://avatars.githubusercontent.com/u/7608183" alt="Profile Photo" class="profile-photo">
+                <h3><a href="https://github.com/techsolomon/">Solomon Himelbloom</a></h3>
+                <p>Solomon is a UAF computer science student from Kodiak, Alaska, and a graduate research assistant at
+                    the Alaska Center for Energy and Power (ACEP). During the Fall 2023 semester, he enjoyed exploring
+                    machine learning web interfaces through the professional software development course.</p>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}

@@ -1,16 +1,30 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import numpy as np
 import zipfile, csv, io
 from website.utils.linear_regression import LinearRegression as lr
+from website.utils.supportvector import SupportVectorMachine as svm
+from website.utils.poly import PolynomialRegression as poly
+from website.utils.logistic_regression import LogRegr as logistic
+from website.utils.neural_network import NeuralNetwork as neural
+from website.utils.model import Model
 from website.utils import data_snapshot as ds
 from website.utils import error_handle as err
 from werkzeug.utils import secure_filename
+import itertools
+import matplotlib, matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+from io import BytesIO
+import base64
 
 
 """Flask Operation"""
 app = Flask(__name__)
-snapshot = ds.DataSnapshot()
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024 #5MB filesize limit
+matplotlib.use("Agg")
 
+
+snapshot = ds.DataSnapshot()
 
 """Input Parsing Functions"""
 def has_header(df):
@@ -26,13 +40,19 @@ def gen_headers(df):
     df.columns = cols
     return df
 
+def check_numeric_df(df):
+    """This function checks if any columns contain non numeric values."""
+    first_str = df.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+    if first_str.all() == True:
+        return True
+    return False
 
 """File Upload Functions"""
 def csv_upload(file):
     """This function takes a file input and converts it to a pandas DataFrame."""
     try:
         # Read in the csv file.
-        # Currently, if there is a bad line it will warn the user. 
+        # Currently, if there is a bad line it will warn the user.
         df = pd.read_csv(file, header=None, encoding="ISO-8859-1", on_bad_lines='warn')
 
         # Convert the dataframe to a string object for the sniffer.
@@ -51,14 +71,15 @@ def csv_upload(file):
             if df.columns.values[0] == 0:
                 df.set_index(0, inplace=True)
                 df.index.name = None
-            
+        if not check_numeric_df(df):
+            return "CSV file contains non numeric values. Please submit a csv file that only contains numeric values for the model."
         return df
     except Exception as e:
         return "Program returned error while uploading the csv: " + str(e)
 
 def zip_unpack(file):
     try:
-        file_like_object = file.stream._file  
+        file_like_object = file.stream._file
         zipfile_ob = zipfile.ZipFile(file_like_object)
         file_names = zipfile_ob.infolist()
         names, files = [], []
@@ -87,24 +108,28 @@ def zip_unpack(file):
             if len(files) > 1:
                 for df in files:
                     if list(cols) != list(df.columns):
-                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns. 
+                        return "The csv files within " + file.filename + """ do not have the same column names/number of columns.
                                 Please resubmit with .csvs that have matching columns."""
                 # If all csv files match, return the concatted data.
                 return pd.concat(files, axis=0)
             else:
                 return files[0]
         else:
-            return """No valid files were located within the submitted archive. 
+            return """No valid files were located within the submitted archive.
                     Please submit a csv file or a zip folder containing csv file(s)."""
 
     except Exception as e:
         return "Program returned error while uploading the zip: " + str(e)
-    
+
 """Output Parsing Functions"""
 def get_graph_data(df):
     """Chart.js scatter plot requires the dataset to be in the format: {'x': , 'y': }."""
-    json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[1]: 'y'})
+    json = df.copy().rename(columns={df.columns[0]: 'x', df.columns[-1]: 'y'})
     return json
+
+def get_graph_labels(df):
+    cols = df.columns.to_list()
+    return [cols[0], cols[-1]]
 
 def display_table(df):
     tables = df.to_html()
@@ -113,12 +138,97 @@ def display_table(df):
 
 """Gather/Validate form information."""
 def validate_hyperparameter(val):
+    if val == "None":
+        return None
     item, e = err.text_input_parse(val)
     if item is Exception:
         return Exception
     else:
         return item
-    
+
+def svm_hyperparams(request):
+    val = []
+    # Only validate the hyperparameters that are numeric outputs.
+    val.append(validate_hyperparameter(request.form.get('C')))
+    val.append(request.form.get('kernel'))
+    val.append(validate_hyperparameter(request.form.get('degree')))
+    val.append(request.form.get('gamma'))
+    val.append(validate_hyperparameter(request.form.get('coef0')))
+    val.append(request.form.get('shrinking'))
+    val.append(request.form.get("probability"))
+    val.append(validate_hyperparameter(request.form.get('tol')))
+    val.append(validate_hyperparameter(request.form.get('cache_size')))
+    val.append(validate_hyperparameter(request.form.get('class_weight')))
+    val.append(request.form.get('verbose'))
+    val.append(validate_hyperparameter(request.form.get('max_iter')))
+    val.append(request.form.get('decision_function_shape'))
+    val.append(request.form.get('break_ties'))
+    val.append(validate_hyperparameter(request.form.get('random_state')))
+    return val
+
+
+def logistic_hyperparams(request):
+    """penalty='l2', *, dual=False, tol=0.0001, C=1.0, fit_intercept=True,
+        intercept_scaling=1, class_weight=None, random_state=None, solver='lbfgs', max_iter=100, multi_class='auto',
+        verbose=0, warm_start=False, n_jobs=None, l1_ratio=None"""
+    # try:
+    val = []
+    val.append(request.form['penalty'])
+    val.append(request.form['dual'])
+    val.append(validate_hyperparameter(request.form['tol']))
+    val.append(validate_hyperparameter(request.form['C']))
+    val.append(request.form['fit_intercept'])
+    val.append(validate_hyperparameter(request.form['intercept_scaling']))
+    val.append(validate_hyperparameter(request.form['class_weight']))
+    val.append(validate_hyperparameter(request.form['random_state']))
+    val.append(request.form['solver'])
+    val.append(validate_hyperparameter(request.form['max_iter']))
+    val.append(request.form['multi_class'])
+    val.append(validate_hyperparameter(request.form['verbose']))
+    val.append(request.form['warm_start'])
+    val.append(validate_hyperparameter(request.form['n_jobs']))
+    val.append(validate_hyperparameter(request.form['l1_ratio']))
+    # except Exception:
+    #     return Exception
+    return val
+
+def neural_hyperparams(request):
+    """hidden_layer_sizes=(100, ), activation='relu', *, solver='adam', alpha=0.0001, batch_size='auto',
+    learning_rate='constant', learning_rate_init=0.001, power_t=0.5, max_iter=200, shuffle=True, random_state=None,
+    tol=0.0001, verbose=False, warm_start=False, momentum=0.9, nesterovs_momentum=True, early_stopping=False,
+    validation_fraction=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08, n_iter_no_change=10, max_fun=15000"""
+    # try:
+    val = []
+    # val.append(request.form["hidden_layer_sizes"])
+    val.append(None)
+    val.append(None)
+    val.append(None)
+    val.append(request.form["activation"])
+    val.append(request.form["solver"])
+    val.append(validate_hyperparameter(request.form["alpha"]))
+    val.append(request.form["batch_size"])
+    val.append(request.form["learning_rate"])
+    val.append(validate_hyperparameter(request.form["learning_rate_init"]))
+    val.append(validate_hyperparameter(request.form["power_t"]))
+    val.append(validate_hyperparameter(request.form["max_iter"]))
+    val.append(request.form["shuffle"])
+    val.append(validate_hyperparameter(request.form["random_state"]))
+    val.append(validate_hyperparameter(request.form["tol"]))
+    val.append(request.form["verbose"])
+    val.append(request.form["warm_start"])
+    val.append(validate_hyperparameter(request.form["momentum"]))
+    val.append(request.form["nesterovs_momentum"])
+    val.append(request.form["early_stopping"])
+    val.append(validate_hyperparameter(request.form["validation_fraction"]))
+    val.append(validate_hyperparameter(request.form["beta_1"]))
+    val.append(validate_hyperparameter(request.form["beta_2"]))
+    val.append(validate_hyperparameter(request.form["epsilon"]))
+    val.append(validate_hyperparameter(request.form["n_iter_no_change"]))
+    val.append(validate_hyperparameter(request.form["max_fun"]))
+    # except Exception:
+    #     return Exception
+    return val
+
 def get_hyperparams(request):
     try:
         val = []
@@ -141,29 +251,31 @@ def get_hyperparams(request):
         val.append(validate_hyperparameter(request.form['n_iter_no_change']))
         val.append(request.form['warm_start'])
         val.append(request.form['average'])
+        if snapshot.model_type == "poly":
+            val.append(validate_hyperparameter(request.form['degree']))
+            val.append(validate_hyperparameter(request.form["degree"]))
+
     except Exception:
         return Exception
     return val
 
-def validate_file(request):
-    print(request.files['file'])
-    print(request.files['file'].filename)
+def validate_file(request, page):
     if 'file' not in request.files:
-        return render_template('linear.html',
-                    tab=0, 
+        return render_template(page,
+                    tab=0,
                     filename=request.files['file'].filename,
                     error="No file attached in request. Please submit a file with a valid extension (csv or zip).")
 
     if request.files['file'].filename == "":
-        return render_template('linear.html',
-                    tab=0, 
+        return render_template(page,
+                    tab=0,
                     filename=request.files['file'].filename,
                     error="No file submitted. Please submit a file with a valid extension (csv or zip).")
     return True
 
 """Forms"""
-def upload_form(request):
-    test = validate_file(request)
+def upload_form(request, page):
+    test = validate_file(request, page)
     if test is True:
         f = request.files['file']
         type = err.allowed_file(f.filename)
@@ -178,69 +290,75 @@ def upload_form(request):
 
             # If the upload functions return a string, an error was found and should be returned to the user.
             if isinstance(result, str):
-                return render_template('linear.html',
-                    tab=0, 
+                return render_template(page,
+                    tab=0,
                     filename=request.files['file'].filename,
                     error=result)
-            
+
             # Else, save the snapshot.
             else:
                 snapshot.og_data = result
                 snapshot.filename = secure_filename(f.filename)
 
             # Return the output to the user.
-            return render_template('linear.html',
-                        tab=0, 
+            return render_template(page,
+                        tab=0,
                         file_upload=True,
                         filename=request.files['file'].filename,
                         og_df=snapshot.og_data.to_html(),
                         column_names=snapshot.og_data.columns.tolist())
-        
+
 
         # In case something goes wrong, we ensure to render the template with a warning message.
         else:
-            return render_template('linear.html',
-                        tab=0, 
+            return render_template(page,
+                        tab=0,
                         filename=request.files['file'].filename,
                         error="Please submit a file with a valid extension (csv or zip).")
 
     # In case something goes wrong, we ensure to render the template with a warning message.
     else:
-        return render_template('linear.html',
-                    tab=0, 
+        return render_template(page,
+                    tab=0,
                     filename=request.files['file'].filename,
                     error="Please submit a file with a valid extension (csv or zip).")
 
-def select_columns_form(request):
-    if request.form['X'] == request.form['Y']:
-        return render_template('linear.html',
-                    tab=0, 
+def select_columns_form(request, page):
+    Y = request.form['Y']
+    X = request.form.getlist('X')
+    if Y in X:
+        return render_template(page,
+                    tab=0,
                     file_upload=True,
                     filename=snapshot.filename,
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist(),
                     error="Please select different columns for X and Y.")
-    
-    snapshot.select_columns(request.form['X'], request.form['Y'])
+
+    # Select the columns
+    snapshot.select_columns(X, Y)
     df = get_graph_data(snapshot.data)
-    return render_template('linear.html',
-                    tab=0, 
+    return render_template(page,
+                    tab=0,
                     columns_selected=True,
                     form_complete=True,
                     file_upload=True,
                     filename=snapshot.filename,
                     name="Selected Columns",
                     data=df.to_json(orient="records"),
+                    data_columns=get_graph_labels(snapshot.data),
                     user_input=True,
                     og_df=snapshot.og_data.to_html(),
                     column_names=snapshot.og_data.columns.tolist())
 
-def scaling_form(request):
+def scaling_form(request, page):
     snapshot.clean_data(snapshot.data)
     x, y = snapshot.create_x_y_split(snapshot.data)
-    snapshot.x, snapshot.y = lr.scaling(x, y, request.form['scale'])
+    snapshot.x, snapshot.y = Model.scaling(x, y, request.form['scale'])
+
+    # Create a dataframe with x and y to display the information in a table for the user.
     snapshot.data = snapshot.merge_x_y(snapshot.x, snapshot.y)
-    return render_template('linear.html',
+    return render_template(page,
                     tab=1,
                     user_input=True,
                     scaling=True,
@@ -248,51 +366,57 @@ def scaling_form(request):
                     titles=snapshot.data.columns.tolist(),
                     og_df=snapshot.og_data.to_html())
 
-def test_train_form(request):
-        
+def test_train_form(request, page):
     train, e = err.text_input_parse(request.form['training'])
     test, e = err.text_input_parse(request.form['testing'])
-    
+
     # If the user submitted a non-integer/float value, return an error.
     if train is Exception:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
     if test is Exception:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=e,
                     og_df=snapshot.og_data.to_html())
 
-    # Run the testing/train split.
-    x_train, x_test, y_train, y_test, msg = lr.test_train_split(snapshot.x, snapshot.y, test, train)
+    # Run the testing/training split based on if the model is linear or poly
+    x_train, x_test, y_train, y_test, msg = Model.test_train_split(snapshot.x, snapshot.y, test, train)
+
     if x_train is None:
-        return render_template('linear.html',
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=msg,
                     og_df=snapshot.og_data.to_html())
-    train_df, test_df = snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
+
+    # TODO: Review sorting method.
+    x_test, y_test = snapshot.sort_x(x_test, y_test)
+    snapshot.set_prediction_values(x_train, x_test, y_train, y_test)
+    train_df = snapshot.merge_x_y(x_train, y_train)
+    test_df = snapshot.merge_x_y(x_test, y_test)
+
     # If an error is found while trying to split the data, display the error.
-    if train_df is None:
-        return render_template('linear.html',
+    if train_df is None or test_df is None:
+        return render_template(page,
                     tab=2,
                     user_input=True,
                     traintest=False,
                     error=msg,
                     og_df=snapshot.og_data.to_html())
-    
+
     # Otherwise, get the json graph data and return the information needed for chartJS.
     test_df = get_graph_data(test_df)
     train_df = get_graph_data(train_df)
 
-    return render_template('linear.html',
+    return render_template(page,
                             tab=2,
                             user_input=True,
                             traintest=True,
@@ -303,87 +427,421 @@ def test_train_form(request):
                             training_name = "Train Values",
                             test_data=test_df.to_json(orient="records"),
                             training_data=train_df.to_json(orient="records"),
+                            data_columns=get_graph_labels(snapshot.data),
                             column_names=snapshot.data.columns.tolist(),
                             error=msg)
 
-def hyperparameter_form(request):
-    val = get_hyperparams(request)
-    if val is Exception:
-        return render_template('linear.html',
-                    tab=3,
-                    og_df=snapshot.og_data.to_html(),
-                    error="Please input proper integer/float values for the given hyperparameters.")
-    snapshot.model = lr.initialize(val)
-    return render_template('linear.html',
-                    tab=3,
-                    user_input=True,
-                    hyper=True,
-                    og_df=snapshot.og_data.to_html())
+def hyperparameter_form(request, page):
+    if snapshot.model_type == "poly":
+        val = get_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = poly.initialize(val)
 
-def run_model_form(request):
-    snapshot.reshape_data()
-    ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
-    if isinstance(ml_model, str):
-        return render_template('linear.html', 
-                               tab=3, 
-                               og_df=snapshot.og_data.to_html(), 
-                               hyper_error=ml_model)
-    y_pred = lr.predict_model(ml_model, snapshot.x_test)
-    df = snapshot.merge_x_y(snapshot.x_test.flatten(), snapshot.y_test.flatten())
-    prediction = snapshot.merge_x_y(snapshot.x_test.flatten(), y_pred)
-    pred = get_graph_data(prediction)
-    data = get_graph_data(df)
-    results = lr.evaluate(snapshot.y_test, y_pred)
-    tables,titles = display_table(pd.DataFrame([results]))
-    return render_template('linear.html',
-                    tab=4,
-                    user_input=True,
-                    start=True,
-                    name='eval',
-                    tables=[tables],
-                    titles=titles,
-                    data=data.to_json(orient="records"),
-                    pred=pred.to_json(orient="records"),
-                    og_df=snapshot.og_data.to_html(),
-                    eval=results)
+    if snapshot.model_type == "logistic":
+        val = logistic_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = logistic.initialize(val)
 
+    elif snapshot.model_type == "linear":
+        val = get_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = lr.initialize(val)
+
+    elif snapshot.model_type == "svm":
+        val = svm_hyperparams(request)
+        if val is Exception:
+            return render_template(page,
+                        tab=3,
+                        og_df=snapshot.og_data.to_html(),
+                        error="Please input proper integer/float values for the given hyperparameters.")
+        snapshot.model = svm.initalize(val)
+
+    elif snapshot.model_type == "neural":
+        val = neural_hyperparams(request)
+        if val is Exception:
+            return render_template(
+                page,
+                tab=3,
+                og_df=snapshot.og_data.to_html(),
+                error="Please input proper integer/float values for the given hyperparameters.",
+            )
+        snapshot.model = neural.initialize(val)
+
+    return render_template(
+        page, tab=3, user_input=True, hyper=True, og_df=snapshot.og_data.to_html()
+    )
+
+
+def run_model_matrix(page):
+    def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+            if normalize:
+                cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+            plt.imshow(cm, interpolation='nearest', cmap=cmap)
+            plt.title(title)
+            plt.colorbar()
+            tick_marks = np.arange(len(classes))
+            plt.xticks(tick_marks, classes, rotation=45)
+            plt.yticks(tick_marks, classes)
+
+            fmt = '.2f' if normalize else 'd'
+            thresh = cm.max() / 2.
+            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+                plt.text(j, i, format(cm[i, j], fmt), horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
+
+            plt.tight_layout()
+            plt.ylabel('True label')
+            plt.xlabel('Predicted label')
+
+    if snapshot.model_type == "logistic":
+        ml_model = logistic.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+        if isinstance(ml_model, str):
+            return render_template(page,
+                                tab=3,
+                                og_df=snapshot.og_data.to_html(),
+                                hyper_error=ml_model)
+        y_pred = logistic.predict_model(ml_model, snapshot.x_test)
+        results = logistic.evaluate(snapshot.y_test, y_pred)
+
+        cm_labels = ["first", "second"]
+
+        cm = confusion_matrix(snapshot.y_test, y_pred)
+
+        plot_confusion_matrix(cm, cm_labels)
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+
+        graphic = base64.b64encode(image_png).decode()
+
+        plt.clf()
+
+        return render_template(
+            page,
+            tab=4,
+            user_input=True,
+            start=True,
+            name="eval",
+            eval_table=list(results.values()),
+            data_columns=get_graph_labels(snapshot.data),
+            og_df=snapshot.og_data.to_html(),
+            eval=results,
+            graphic=graphic,
+        )
+
+    if snapshot.model_type == "svm":
+
+        ml_model = svm.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+        if isinstance(ml_model, str):
+            return render_template(page,
+                                   tab = 3,
+                                   og_df=snapshot.og_data.to_html(),
+                                   hyper_error=ml_model)
+        y_pred = svm.predict_model(ml_model, snapshot.x_test)
+        results = svm.evaluate(snapshot.y_test, y_pred)
+
+        cm_labels = ["first", "second"]
+
+        cm = confusion_matrix(snapshot.y_test, y_pred)
+
+        plot_confusion_matrix(cm, cm_labels)
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+
+        graphic = base64.b64encode(image_png).decode()
+
+        plt.clf()
+
+        return render_template(page,
+                  tab=4,
+                  og_df=snapshot.og_data.to_html(),
+                  eval_table=list(results.values()),
+                  graphic=graphic)
+
+    if snapshot.model_type == "neural":
+        ml_model = neural.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+
+        if isinstance(ml_model, str):
+            return render_template(page,
+                                tab=3,
+                                og_df=snapshot.og_data.to_html(),
+                                hyper_error=ml_model)
+
+        y_pred = neural.predict_model(ml_model, snapshot.x_test)
+
+        results = neural.evaluate(snapshot.y_test, y_pred)
+
+        cm_labels = ["first", "second"]
+
+        cm = confusion_matrix(snapshot.y_test, y_pred)
+
+        plot_confusion_matrix(cm, cm_labels)
+
+        buffer = BytesIO()
+        plt.savefig(buffer, format="png")
+        buffer.seek(0)
+        image_png = buffer.getvalue()
+        buffer.close()
+
+        graphic = base64.b64encode(image_png).decode()
+
+        plt.clf()
+
+        return render_template(page,
+                  tab=4,
+                  og_df=snapshot.og_data.to_html(),
+                  eval_table=list(results.values()),
+                  graphic=graphic)
+
+    return render_template(page, tab=4)
+
+def run_model_form(page):
+    if snapshot.model_type == "logistic":
+        return run_model_matrix(page)
+    if snapshot.model_type == "svm":
+        return run_model_matrix(page)
+    if snapshot.model_type == "neural":
+        return run_model_matrix(page)
+    #snapshot.reshape_data()
+    else:
+        if snapshot.model_type == "poly":
+            ml_model = poly.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+            # If fit returned an error, print the error and redirect to hyperparameters
+            if isinstance(ml_model, str):
+                return render_template(page,
+                                    tab=3,
+                                    og_df=snapshot.og_data.to_html(),
+                                    hyper_error=ml_model)
+            # Predict and evaluate the model
+            # TODO: Review sorting method. Commented code is original code.
+            x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
+            y_pred = poly.predict_model(ml_model, x_test_sorted)
+            # y_pred = poly.predict_model(ml_model, snapshot.x_test)
+            results = poly.evaluate(snapshot.y_test, y_pred)
+
+        elif snapshot.model_type == "linear":
+            ml_model = lr.fit_model(snapshot.model, snapshot.x_train, snapshot.y_train)
+            # If fit returned an error, print the error and redirect to hyperparameters
+            if isinstance(ml_model, str):
+                return render_template(page,
+                                    tab=3,
+                                    og_df=snapshot.og_data.to_html(),
+                                    hyper_error=ml_model)
+            # Predict and evaluate the model
+            # TODO: Review sorting method. Commented code is original code.
+            x_test_sorted = sorted(snapshot.x_test, key=lambda x: x[0])
+            y_pred = lr.predict_model(ml_model, x_test_sorted)
+            # y_pred = lr.predict_model(ml_model, snapshot.x_test)
+            results = lr.evaluate(snapshot.y_test, y_pred)
+
+        # Get graph data for the prediction graph
+        df = snapshot.merge_x_y(snapshot.x_test, snapshot.y_test)
+        data = get_graph_data(df)
+        # TODO: Review sorting method. Commented code is original code.
+        prediction = snapshot.merge_x_y(x_test_sorted, y_pred)
+        # # prediction = snapshot.merge_x_y(snapshot.x_test, y_pred)
+        pred = get_graph_data(prediction)
+
+        return render_template(page,
+                        tab=4,
+                        user_input=True,
+                        start=True,
+                        name='eval',
+                        eval_table=list(results.values()),
+                        data=data.to_json(orient="records"),
+                        pred=pred.to_json(orient="records"),
+                        data_columns=get_graph_labels(snapshot.data),
+                        og_df=snapshot.og_data.to_html(),
+                        eval=results)
 
 @app.route("/")
 def index():
     """Renders the home page of the website, the first page that a user will land on when visiting the website."""
     return render_template('index.html')
 
+@app.route("/about")
+def about():
+    """Renders the about page of the website, which describes the purpose of the website and its creators."""
+    return render_template('about.html')
+
 
 @app.route("/linear", methods=['POST', 'GET'])
-def ml_form():
+def linear_form():
     """Renders the machine learning form for the linear regression model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "linear"
+    page = 'linear.html'
     if request.method == 'POST':
         # If step 1 of the ml_form has been completed, return new information
         if 'upload_file' in request.form:
-            return upload_form(request)
+            return upload_form(request, page)
 
         # If the user selects columns, display output.
         if 'select_xy' in request.form:
-            return select_columns_form(request)
+            return select_columns_form(request, page)
 
         # If the user submits the scaling form, clean the data and perform data scaling.
         if 'scaling' in request.form:
-            return scaling_form(request)
-        
+            return scaling_form(request, page)
+
         # If the user submits the testing/training form
         if 'tt' in request.form:
-            return test_train_form(request)
-        
+            return test_train_form(request, page)
+
         if 'hyperparams' in request.form:
-            return hyperparameter_form(request)
-        
+            return hyperparameter_form(request, page)
+
         if 'run' in request.form:
-            return run_model_form(request)        
+            return run_model_form(page)
 
     return render_template('linear.html',
                            tab=0,
                            user_input=False)
 
+@app.route("/poly", methods=['POST', 'GET'])
+def poly_form():
+    """Renders the machine learning form for the polynomial regression model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "poly"
+    page = 'poly.html'
+    if request.method == 'POST':
+        # If step 1 of the ml_form has been completed, return new information
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        # If the user selects columns, display output.
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        # If the user submits the scaling form, clean the data and perform data scaling.
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+
+        # If the user submits the testing/training form
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+
+        if 'run' in request.form:
+            return run_model_form(page)
+
+    return render_template(page,
+                           tab=0,
+                           user_input=False)
+
+@app.route("/logistic", methods=['POST', 'GET'])
+def logistic_form():
+    """Renders the machine learning form for the logisitc regression model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "logistic"
+    page = 'logistic.html'
+    if request.method == 'POST':
+        # If step 1 of the ml_form has been completed, return new information
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        # If the user selects columns, display output.
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        # If the user submits the scaling form, clean the data and perform data scaling.
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+
+        # If the user submits the testing/training form
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+
+        if 'run' in request.form:
+            return run_model_form(page)
+
+    return render_template('logistic.html',
+                           tab=0,
+                           user_input=False)
+
+@app.route("/svm", methods=['POST', 'GET'])
+def svm_form():
+    snapshot.model_type = "svm"
+    page = 'svm.html'
+    if request.method == 'POST':
+        # If step 1 of the ml_form has been completed, return new information
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        # If the user selects columns, display output.
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        # If the user submits the scaling form, clean the data and perform data scaling.
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+
+        # If the user submits the testing/training form
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+
+        if 'run' in request.form:
+            return run_model_form(page)
+
+    return render_template('svm.html',
+                           tab=0,
+                           user_input=False)
+
+@app.route("/neural", methods=['POST', 'GET'])
+def neural_form():
+    """Renders the machine learning form for the neural network model. This is done by pressing the button on the navigation bar."""
+    snapshot.model_type = "neural"
+    page = 'neural.html'
+    if request.method == 'POST':
+        if 'upload_file' in request.form:
+            return upload_form(request, page)
+
+        if 'select_xy' in request.form:
+            return select_columns_form(request, page)
+
+        if 'scaling' in request.form:
+            return scaling_form(request, page)
+
+        if 'tt' in request.form:
+            return test_train_form(request, page)
+
+        if 'hyperparams' in request.form:
+            return hyperparameter_form(request, page)
+
+        if 'run' in request.form:
+            return run_model_form(page)
+
+    return render_template('neural.html',
+                           tab=0,
+                           user_input=False)
+
+@app.errorhandler(413)
+def file_too_large(e):
+        return "File too large", 413
 
 if __name__ == "__main__":
     app.run(debug=True)
