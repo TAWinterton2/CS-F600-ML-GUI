@@ -2,7 +2,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/multi_form_style.css') }}">
-<title>Support Vector Machine Cluster </title>
+<title>Support Vector Machine Cluster</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
 
 {% endblock %}
@@ -99,8 +99,7 @@
                 <p>For this step, we will scale our data.</p>
                 <p>Scaling refers to putting our values in our dataset into the same range. There are two
                     ways that we can scale our data.</p>
-                <p><strong> Standardize:</strong> We map the minimum feature value to 0 and
-                    the maximum to 1, creating a [0, 1] range <br />
+                <p> 
                     <strong>Normalize:</strong> We transform the data to have a mean of 0 and a standard deviation of 1
                 </p>
                 <p>After you submit the selected data scaling, any null values in the dataset will be dropped. Once the
@@ -112,7 +111,6 @@
                     you wish to try with a different scaling method. </p>
                 <form id="scale_type" method="POST">
                     <select name="scale" id="scale">
-                        <option value="Standardize">Standardize</option>
                         <option value="Normalize">Normalize</option>
                     </select>
 

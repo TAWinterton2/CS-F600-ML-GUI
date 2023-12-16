@@ -2,7 +2,7 @@
 
 {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/multi_form_style.css') }}">
-    <title>Poly Test</title>
+    <title>Polynomial Regression</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
 
 {% endblock %}
@@ -153,7 +153,6 @@
                         press the submit button.</p>
                         <label for="degree">Degree:
                         <input type="number" step="1" min="1" max="99" id="degree" name="degree" value="2"  oninput="this.className = ''"></label>
-                        <br/>
                         <label>Penalty:</label>
                         <select name="penalty" class="Hyperparameters" onchange="showL1('l1_ratio', this)">
                             <option value="l2">l2</option>
